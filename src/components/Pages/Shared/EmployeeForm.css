@@ -1,0 +1,173 @@
+/* General form styling */
+.create-form {
+  max-width: 500px;
+  margin: 2rem auto;
+  padding: 2rem;            /* Increased padding to prevent edge-touching */
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;   /* Fixed invalid 'center' */
+  gap: 1rem;
+  box-sizing: border-box;   /* Ensures padding stays inside */
+}
+
+
+.create-form input {
+  padding: 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  width: 100%;
+  box-sizing: border-box; /* Prevents input overflow */
+}
+
+
+.create-form button {
+  padding: 0.75rem;
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.create-form button:hover {
+  background-color: #0056b3;
+}
+
+.error {
+  color: #d32f2f;
+  font-size: 0.95rem;
+  background-color: #ffebee;
+  padding: 0.5rem;
+  border-radius: 6px;
+}
+
+/* Table styling */
+.employee-table {
+  width: 90%;
+  margin: 2rem auto;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  background-color: white;
+}
+
+.employee-table th,
+.employee-table td {
+  padding: 0.75rem 1rem;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.employee-table th {
+  background-color: #f0f0f0;
+  font-weight: bold;
+}
+
+.employee-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.employee-table tr:hover {
+  background-color: #e9f3ff;
+}
+
+.employee-table td:last-child {
+  white-space: nowrap;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .employee-table {
+    font-size: 0.85rem;
+  }
+
+  .create-form {
+    padding: 1rem;
+  }
+}
+/* Specific styles for HR Dashboard */
+.hr-dashboard {
+  padding: 2rem;
+  background-color: #f5f5f5;
+}
+
+
+.stats-container {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 20px;
+  padding: 1rem;
+  background-color: #f7fafc;
+  border-radius: 12px;
+  flex-wrap: wrap;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  background: white;
+  padding: 1rem 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+  min-width: 180px;
+}
+
+.stat-card h4 {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.stat-card p {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+
+.icon {
+  cursor: pointer;
+  margin: 0 5px;
+}
+
+.icon.edit {
+  color: #0a74da;
+}
+
+.icon.delete {
+  color: #e53935;
+}
+
+.employee-table-wrapper {
+  overflow-x: auto;
+}
+
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  gap: 0.5rem;
+  font-size: 1rem;
+}
+
+.filter-bar label {
+  font-weight: 600;
+  color: #333;
+}
+
+.filter-bar select {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: #f9f9f9;
+}
+
