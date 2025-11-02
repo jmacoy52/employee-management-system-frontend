@@ -27,7 +27,7 @@ const Register = () => {
     setError("");
 
     try {
-      const response = await axios.post("http://localhost:5000/api/users/register", formData);
+      const response = await axios.post("https://employee-management-system-backend-vxar.onrender.com/api/users/register", formData);
 
       if (response.status === 201) {
         toast.success("Registration successful!");

@@ -14,7 +14,7 @@ const AuditLog = () => {
       const token = localStorage.getItem("token");
 
       try {
-        const response = await axios.get("http://localhost:5000/api/audit-logs", {
+        const response = await axios.get("https://employee-management-system-backend-vxar.onrender.com/api/audit-logs", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setAuditLogs(response.data);
