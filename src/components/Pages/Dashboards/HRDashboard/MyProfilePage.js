@@ -18,7 +18,7 @@ const MyProfilePage = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/users/profile", {
+        const res = await axios.get("https://employee-management-system-backend-vxar.onrender.com/api/users/profile", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setProfile(res.data);
@@ -43,7 +43,7 @@ const MyProfilePage = () => {
 
   const handleSave = async () => {
     try {
-      await axios.put("http://localhost:5000/api/users/profile", formData, {
+      await axios.put("https://employee-management-system-backend-vxar.onrender.com/api/users/profile", formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("Profile updated successfully!");

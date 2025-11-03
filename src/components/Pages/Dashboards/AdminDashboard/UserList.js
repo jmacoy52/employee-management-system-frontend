@@ -12,7 +12,7 @@ const UserList = () => {
       const token = localStorage.getItem("token");
 
       try {
-        const response = await axios.get("http://localhost:5000/api/users/all", {
+        const response = await axios.get("https://employee-management-system-backend-vxar.onrender.com/api/users/all", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUsers(response.data);

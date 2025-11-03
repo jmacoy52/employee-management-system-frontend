@@ -26,7 +26,7 @@ const AdminDashboard = () => {
     try {
       const token = localStorage.getItem("token");
 
-      await axios.post("http://localhost:5000/api/users/register", newUser, {
+      await axios.post("https://employee-management-system-backend-vxar.onrender.com/api/users/register", newUser, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

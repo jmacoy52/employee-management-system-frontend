@@ -36,7 +36,7 @@ const EditEmployeeModal = ({ open, onClose, employee, onUpdated }) => {
     try {
       const token = localStorage.getItem("token");
       await axios.put(
-        `http://localhost:5000/api/employees/${employee.id}`,
+        `https://employee-management-system-backend-vxar.onrender.com/api/employees/${employee.id}`,
         { ...form, salary: Number(form.salary) },
         { headers: { Authorization: `Bearer ${token}` } }
       );

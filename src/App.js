@@ -4,6 +4,9 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./components/Pages/Home";
 import Login from "./components/Pages/Auth/Login";
 import Register from "./components/Pages/Auth/Register";
+import Privacy from "./components/Pages/Privacy";
+import Terms from "./components/Pages/Terms";
+import Contact from "./components/Pages/Contact";
 import HRDashboard from "./components/Pages/Dashboards/HRDashboard/HRDashboard";
 import AdminDashboard from "./components/Pages/Dashboards/AdminDashboard/AdminDashboard";
 import PrivateRoute from "./components/Pages/Auth/PrivateRoute";
@@ -24,6 +27,9 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/contact" element={<Contact />} />
 
         {/* HR Routes - Protected */}
         <Route element={<PrivateRoute allowedRoles={["hr", "admin"]} />}>

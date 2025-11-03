@@ -16,7 +16,7 @@ const HRDashboard = () => {
 
   const fetchEmployees = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/employees", {
+      const res = await axios.get("https://employee-management-system-backend-vxar.onrender.com/api/employees", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setEmployees(res.data);

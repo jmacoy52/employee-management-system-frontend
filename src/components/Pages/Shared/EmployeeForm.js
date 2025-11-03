@@ -34,7 +34,7 @@ const EmployeeForm = ({ onSuccess }) => {
     try {
       const token = localStorage.getItem("token");
      
-        await axios.post("http://localhost:5000/api/employees", payload, {
+        await axios.post("https://employee-management-system-backend-vxar.onrender.com/api/employees", payload, {
           headers: { Authorization: `Bearer ${token}` },
         })
       onSuccess();

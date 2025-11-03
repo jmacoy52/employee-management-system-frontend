@@ -21,7 +21,7 @@ const EmployeeListPage = () => {
 
   const fetchEmployees = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/employees", {
+      const res = await axios.get("https://employee-management-system-backend-vxar.onrender.com/api/employees", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setEmployees(res.data);
@@ -48,7 +48,7 @@ const EmployeeListPage = () => {
 
   const handleUpdate = async () => {
     try {
-      await axios.put(`http://localhost:5000/api/employees/${editingEmployee.id}`, formData, {
+      await axios.put(`https://employee-management-system-backend-vxar.onrender.com/api/employees/${editingEmployee.id}`, formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("Employee updated successfully!");
@@ -64,7 +64,7 @@ const EmployeeListPage = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this employee?")) return;
     try {
-      await axios.delete(`http://localhost:5000/api/employees/${id}`, {
+      await axios.delete(`https://employee-management-system-backend-vxar.onrender.com/api/employees/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("Employee deleted successfully!");

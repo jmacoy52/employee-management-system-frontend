@@ -10,7 +10,7 @@ const UserManagement = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/users/all", {
+      const response = await axios.get("https://employee-management-system-backend-vxar.onrender.com/api/users/all", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsers(response.data);
@@ -22,7 +22,7 @@ const UserManagement = () => {
   const handleRoleChange = async (userId, newRole) => {
     try {
       await axios.put(
-        `http://localhost:5000/api/users/${userId}/role`,
+        `https://employee-management-system-backend-vxar.onrender.com/api/users/${userId}/role`,
         { role: newRole },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -36,7 +36,7 @@ const UserManagement = () => {
   const handleDelete = async (userId) => {
     if (window.confirm("Are you sure you want to delete this user?")) {
       try {
-        await axios.delete(`http://localhost:5000/api/users/${userId}`, {
+        await axios.delete(`https://employee-management-system-backend-vxar.onrender.com/api/users/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         toast.success("User deleted.");
