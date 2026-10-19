@@ -27,7 +27,7 @@ import AuditLog from "../pages/admin/AuditLog";
 import OwnerOverview from "../pages/owner/OwnerOverview";
 import OwnerOrganisations from "../pages/owner/OwnerOrganisations";
 import OwnerOrganisationDetail from "../pages/owner/OwnerOrganisationDetail";
-import OwnerUsers from "../pages/owner/OwnerUsers";
+import OwnerAdmins from "../pages/owner/OwnerAdmins";
 import OwnerAuditLog from "../pages/owner/OwnerAuditLog";
 import OwnerEnquiries from "../pages/owner/OwnerEnquiries";
 import OwnerAccount from "../pages/owner/OwnerAccount";
@@ -66,7 +66,8 @@ const AppRoutes = () => (
       <Route path={PATHS.owner} element={<OwnerOverview />} />
       <Route path={PATHS.ownerOrganisations} element={<OwnerOrganisations />} />
       <Route path={PATHS.ownerOrganisation} element={<OwnerOrganisationDetail />} />
-      <Route path={PATHS.ownerUsers} element={<OwnerUsers />} />
+      <Route path={PATHS.ownerAdmins} element={<OwnerAdmins />} />
+      <Route path={PATHS.ownerUsers} element={<Navigate to={PATHS.ownerAdmins} replace />} />
       <Route path={PATHS.ownerAuditLog} element={<OwnerAuditLog />} />
       <Route path={PATHS.ownerEnquiries} element={<OwnerEnquiries />} />
       <Route path={PATHS.ownerAccount} element={<OwnerAccount />} />

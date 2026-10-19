@@ -3,25 +3,26 @@ import { useNavigate } from "react-router-dom";
 import api, { getErrorMessage } from "../../api/client";
 import OwnerNav from "../../components/layout/OwnerNav";
 import AppLayout from "../../components/layout/AppLayout";
-import OwnerUserTable from "./OwnerUserTable";
+import OwnerAdminTable from "./OwnerAdminTable";
 import "./Owner.css";
 
-// Every organisation's user accounts (owners are never listed)
-const OwnerUsers = () => {
+// Every organisation's admin account(s): the account holders the owner supports. HR and employee
+// accounts are never listed here (tenant boundary); each organisation's admins manage them.
+const OwnerAdmins = () => {
   const navigate = useNavigate();
   const [users, setUsers] = useState(null);
   const [orgs, setOrgs] = useState([]);
   const [error, setError] = useState("");
-  const [filters, setFilters] = useState({ q: "", organization_id: "", role: "", status: "" });
+  const [filters, setFilters] = useState({ q: "", organization_id: "", status: "" });
 
   const load = useCallback(async () => {
     try {
       const params = Object.fromEntries(Object.entries(filters).filter(([, v]) => v !== "").map(([k, v]) => [k, k === "q" ? v.trim() : v]));
-      const res = await api.get("/api/platform/users", { params });
+      const res = await api.get("/api/platform/admins", { params });
       setUsers(res.data);
       setError("");
     } catch (err) {
-      setError(getErrorMessage(err, "Failed to load users."));
+      setError(getErrorMessage(err, "Failed to load organisation admins."));
       setUsers([]);
     }
   }, [filters]);
@@ -38,28 +39,19 @@ const OwnerUsers = () => {
   const set = (e) => setFilters({ ...filters, [e.target.name]: e.target.value });
 
   return (
-    <AppLayout nav={<OwnerNav />} title="All users" subtitle="User accounts in every organisation. Demo accounts are protected." className="owner-users">
+    <AppLayout nav={<OwnerNav />} title="Organisation admins" subtitle="The admin account holders of every organisation. Each organisation's admins manage their own HR and employee accounts." className="owner-users owner-admins">
       {error && <p className="error page-error" role="alert">{error}</p>}
       <div className="card card-flush">
         <div className="toolbar">
           <div className="field">
             <label htmlFor="ou-search">Search</label>
-            <input id="ou-search" name="q" type="search" placeholder="Name or e-mail" value={filters.q} onChange={set} />
+            <input id="ou-search" name="q" type="search" placeholder="Name, e-mail or organisation" value={filters.q} onChange={set} />
           </div>
           <div className="field">
             <label htmlFor="ou-org">Organisation</label>
             <select id="ou-org" name="organization_id" value={filters.organization_id} onChange={set}>
               <option value="">All organisations</option>
               {orgs.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
-            </select>
-          </div>
-          <div className="field">
-            <label htmlFor="ou-role">Role</label>
-            <select id="ou-role" name="role" value={filters.role} onChange={set}>
-              <option value="">All roles</option>
-              <option value="admin">Admin</option>
-              <option value="hr">HR</option>
-              <option value="employee">Employee</option>
             </select>
           </div>
           <div className="field">
@@ -70,12 +62,12 @@ const OwnerUsers = () => {
               <option value="inactive">Deactivated</option>
             </select>
           </div>
-          <span className="toolbar-count">{users ? users.length : 0} users</span>
+          <span className="toolbar-count">{users ? users.length : 0} admin{users && users.length === 1 ? "" : "s"}</span>
         </div>
-        <OwnerUserTable users={users} loading={users === null} onChanged={load} showOrg onOpenOrg={(id) => navigate(`/owner/organisations/${id}`)} />
+        <OwnerAdminTable users={users} loading={users === null} onChanged={load} showOrg onOpenOrg={(id) => navigate(`/owner/organisations/${id}`)} />
       </div>
     </AppLayout>
   );
 };
 
-export default OwnerUsers;
+export default OwnerAdmins;

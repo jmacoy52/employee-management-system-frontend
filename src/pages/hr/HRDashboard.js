@@ -31,7 +31,9 @@ const HRDashboard = () => {
     }
   };
 
-  // Last 10 audit entries (HR can read these via /api/audit-logs/recent)
+  // Last 10 audit entries. Only organisation admins may read the audit log (HR gets 403 from
+  // /api/audit-logs/recent), so HR accounts do not see this panel at all.
+  const isAdmin = user?.role === "admin";
   const fetchActivity = async () => {
     try {
       const res = await api.get("/api/audit-logs/recent");
@@ -43,7 +45,8 @@ const HRDashboard = () => {
 
   useEffect(() => {
     fetchEmployees();
-    fetchActivity();
+    if (isAdmin) fetchActivity();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Headcount per department, largest first (replaces the old duplicate "Quick Stats").
@@ -86,7 +89,7 @@ const HRDashboard = () => {
 
       <EmployeeStats employees={employees} departmentCount={activeDepartments} />
 
-      <div className="two-col section">
+      <div className={isAdmin ? "two-col section" : "section"}>
         <section className="card">
           <div className="card-header">
             <h2 className="card-title">Employees by department</h2>
@@ -114,6 +117,7 @@ const HRDashboard = () => {
           )}
         </section>
 
+        {isAdmin && (
         <section className="card card-flush">
           <div className="card-header activity-header">
             <h2 className="card-title">Recent activity</h2>
@@ -137,6 +141,7 @@ const HRDashboard = () => {
             </ul>
           )}
         </section>
+        )}
       </div>
     </AppLayout>
   );

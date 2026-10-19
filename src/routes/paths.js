@@ -28,7 +28,8 @@ export const PATHS = {
   owner: "/owner",
   ownerOrganisations: "/owner/organisations",
   ownerOrganisation: "/owner/organisations/:id",
-  ownerUsers: "/owner/users",
+  ownerAdmins: "/owner/admins",
+  ownerUsers: "/owner/users", // old "All users" page: redirects to ownerAdmins
   ownerAuditLog: "/owner/audit-log",
   ownerEnquiries: "/owner/enquiries",
   ownerAccount: "/owner/account",

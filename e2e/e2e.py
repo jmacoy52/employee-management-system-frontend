@@ -262,12 +262,23 @@ with sync_playwright() as p:
     ok("new organisation cannot delete a demo employee (404)", api_json(phb, f"/api/employees/{demo_emp}", tb, "DELETE")["status"]==404 and api_json(ph, f"/api/employees/{demo_emp}", demo_hr_tok)["status"]==200)
     demo_body=json.dumps(api_json(ph, "/api/employees", demo_hr_tok)["body"])
     ok("demo organisation does not see the new organisation's records", emp_b not in demo_body and "Sales Lead" not in demo_body)
-    # Owner console: users across organisations and audit log
-    pw_.goto(B+"/owner/users", wait_until="networkidle"); pw_.fill("#ou-search", "kumasi.example"); time.sleep(1.5)
-    ok("owner sees the new organisation's users", pw_.locator(".owner-user-table tbody tr").count()==3)
-    if S: pw_.screenshot(path=f"{S}/owner_users_1366.png", full_page=True)
+    # Owner console: tenant boundary. Organisation admins only, head counts, platform-level audit log
+    pw_.goto(B+"/owner/users", wait_until="networkidle"); pw_.wait_for_url("**/owner/admins", timeout=15000)
+    pw_.fill("#ou-search", "kumasi.example"); time.sleep(1.5)
+    rows=pw_.inner_text(".owner-admin-table tbody")
+    ok("owner 'Organisation admins' lists the new organisation's admin only (old All users redirects)", pw_.locator(".owner-admin-table tbody tr").count()==1 and org_admin in rows and hr_b not in rows and emp_b not in rows, rows[:200])
+    if S: pw_.screenshot(path=f"{S}/owner_admins_1366.png", full_page=True)
+    pw_.goto(org_url, wait_until="networkidle"); pw_.wait_for_selector(".org-user-counts", timeout=15000); body=pw_.inner_text("body")
+    ok("owner org detail: admin account holder and role counts, no HR/employee names or e-mails", org_admin in pw_.inner_text(".org-admins-card") and hr_b not in body and emp_b not in body and "Kofi Boateng" not in body and pw_.inner_text(".org-user-counts tr[data-role=hr] .role-active").strip()=="1" and pw_.inner_text(".org-user-counts tr[data-role=employee] .role-active").strip()=="1", body[:300])
+    otok=pw_.evaluate("localStorage.getItem('token')")
+    det=api_json(pw_, org_url.replace(B,"").replace("/owner/organisations/","/api/platform/organizations/"), otok)["body"]
+    ok("owner API org detail returns no staff personal data", hr_b not in json.dumps(det) and emp_b not in json.dumps(det) and "users" not in det and det["user_counts"]["hr"]["active"]==1)
+    hr_id=[u for u in api_json(po, "/api/users/all", po.evaluate("localStorage.getItem('token')"))["body"] if u["email"]==hr_b][0]["id"]
+    ok("owner cannot act on an organisation's HR account (404)", api_json(pw_, f"/api/platform/admins/{hr_id}/temporary-password", otok, "POST")["status"]==404)
+    ok("HR has no audit-log access (403)", api_json(phb, "/api/audit-logs/recent", tb)["status"]==403 and api_json(phb, "/api/audit-logs", tb)["status"]==403)
     pw_.goto(B+"/owner/audit-log", wait_until="networkidle"); time.sleep(1.5); body=pw_.inner_text("body")
     ok("platform audit log shows owner and organisation events", all(x in body for x in ["APPROVE_ORGANIZATION","REGISTER_ORGANIZATION","BOOTSTRAP_OWNER"]) and org_name in body)
+    ok("platform audit log hides routine activity inside organisations", all(x not in body for x in ["CREATE_EMPLOYEE","CREATE_DEPARTMENT","REGISTER_USER","VIEW_EMPLOYEES"]), body[:300])
     if S: pw_.screenshot(path=f"{S}/owner_audit_log_1366.png")
     # Owner suspends: the organisation's sessions end and sign-in explains why; reactivate restores
     pw_.goto(org_url, wait_until="networkidle"); pw_.wait_for_selector(".suspend-btn"); pw_.click(".suspend-btn"); pw_.wait_for_selector(".reactivate-btn", timeout=15000)

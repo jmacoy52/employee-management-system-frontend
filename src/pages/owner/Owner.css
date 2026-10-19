@@ -353,3 +353,30 @@
 .owner-form .form-actions {
   margin-top: 0;
 }
+
+/* Organisation detail: admin account holder(s) and head counts by role (tenant boundary) */
+.owner-card-note {
+  padding: 0 var(--space-5) var(--space-3);
+  margin: 0;
+}
+.role-count-table th.num,
+.role-count-table td.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.role-count-table td,
+.role-count-table th {
+  padding-top: var(--space-3);
+  padding-bottom: var(--space-3);
+}
+@media (max-width: 600px) {
+  .owner-card-note {
+    padding: 0 var(--space-4) var(--space-3);
+  }
+  .role-count-table th,
+  .role-count-table td {
+    padding-left: var(--space-3);
+    padding-right: var(--space-3);
+  }
+}

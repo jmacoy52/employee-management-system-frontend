@@ -41,7 +41,7 @@ const OwnerOverview = () => {
     { label: "Pending approval", value: v("pending"), icon: Hourglass, tone: "accent", to: "/owner/organisations?status=pending" },
     { label: "New enquiries", value: v("enquiries_new"), icon: Inbox, tone: "accent", to: "/owner/enquiries" },
     { label: "Active organisations", value: v("active"), icon: Building2, tone: "", to: "/owner/organisations?status=active" },
-    { label: "User accounts", value: v("users"), icon: Users, tone: "", to: "/owner/users" },
+    { label: "User accounts", value: v("users"), icon: Users, tone: "", to: "/owner/admins" },
     { label: "Employee records", value: v("employees"), icon: IdCard, tone: "" },
     { label: "New sign-ups (30 days)", value: v("signups_30d"), icon: TrendingUp, tone: "accent" },
   ];
@@ -106,11 +106,11 @@ const OwnerOverview = () => {
 
           <section className="card">
             <h2 className="card-title">Manage the platform</h2>
-            <p className="owner-section-note">Approve or reject new registrations, follow up demo requests, change plans and seat limits, help users who are locked out, and review every organisation&apos;s audit trail.</p>
+            <p className="owner-section-note">Approve or reject new registrations, follow up demo requests, change plans and seat limits, help organisation admins who are locked out, and review platform-level activity in the audit log.</p>
             <div className="owner-actions" style={{ padding: "var(--space-4) 0 0" }}>
               <button type="button" className="btn btn-secondary btn-sm" onClick={() => navigate("/owner/organisations")}>Organisations <ArrowRight size={14} /></button>
               <button type="button" className="btn btn-secondary btn-sm" onClick={() => navigate("/owner/enquiries")}>Enquiries <ArrowRight size={14} /></button>
-              <button type="button" className="btn btn-secondary btn-sm" onClick={() => navigate("/owner/users")}>All users <ArrowRight size={14} /></button>
+              <button type="button" className="btn btn-secondary btn-sm" onClick={() => navigate("/owner/admins")}>Organisation admins <ArrowRight size={14} /></button>
               <button type="button" className="btn btn-secondary btn-sm" onClick={() => navigate("/owner/audit-log")}>Audit log <ArrowRight size={14} /></button>
               <button type="button" className="btn btn-secondary btn-sm" onClick={() => navigate("/owner/account")}>My account <ArrowRight size={14} /></button>
             </div>

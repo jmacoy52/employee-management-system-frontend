@@ -5,11 +5,13 @@ import { toast } from "react-hot-toast";
 import api, { getErrorMessage } from "../../api/client";
 import OwnerNav from "../../components/layout/OwnerNav";
 import AppLayout from "../../components/layout/AppLayout";
-import OwnerUserTable from "./OwnerUserTable";
+import OwnerAdminTable from "./OwnerAdminTable";
 import RejectModal from "./RejectModal";
 import { OrgStatusBadge, formatDate, seatsLabel, placeLabel, notifyOwnerCountsChanged } from "./ownerShared";
 import { ORG_TYPES, SIZE_RANGES, sizeLabel } from "../../config/signupOptions";
 import "./Owner.css";
+
+const ROLE_ROWS = [["admin", "Admins"], ["hr", "HR"], ["employee", "Employees"]];
 
 const OwnerOrganisationDetail = () => {
   const { id } = useParams();
@@ -220,9 +222,38 @@ const OwnerOrganisationDetail = () => {
             </section>
           </div>
 
-          <section className="card card-flush section">
-            <div className="card-header"><h2 className="card-title">Users ({org.users.length})</h2></div>
-            <OwnerUserTable users={org.users} loading={false} onChanged={load} />
+          {/* Tenant boundary: the owner sees the account holder(s) and head counts, never the
+              organisation's HR and employee accounts (the API does not return them either) */}
+          <section className="card card-flush section org-admins-card">
+            <div className="card-header">
+              <h2 className="card-title">Organisation admin{(org.admins || []).length === 1 ? "" : "s"} ({(org.admins || []).length})</h2>
+            </div>
+            <p className="owner-section-note owner-card-note">The account holder(s) you support. Each organisation&apos;s admins manage their own HR and employee accounts.</p>
+            <OwnerAdminTable users={org.admins || []} loading={false} onChanged={load} />
+          </section>
+
+          <section className="card card-flush section org-user-counts">
+            <div className="card-header"><h2 className="card-title">User accounts by role</h2></div>
+            <div className="table-wrap">
+              <table className="data-table role-count-table">
+                <thead>
+                  <tr><th>Role</th><th className="num">Active</th><th className="num">Deactivated</th><th className="num">Total</th></tr>
+                </thead>
+                <tbody>
+                  {ROLE_ROWS.map(([role, label]) => {
+                    const c = (org.user_counts || {})[role] || { active: 0, inactive: 0 };
+                    return (
+                      <tr key={role} data-role={role}>
+                        <td className="cell-strong">{label}</td>
+                        <td className="num role-active">{c.active}</td>
+                        <td className="num role-inactive">{c.inactive}</td>
+                        <td className="num role-total">{c.active + c.inactive}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </section>
           <RejectModal org={rejecting} onClose={() => setRejecting(null)} onDone={() => { setRejecting(null); load(); }} />
         </>

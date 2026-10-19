@@ -30,7 +30,7 @@ const OwnerNav = () => {
     { to: "/owner", label: "Overview", icon: LayoutDashboard },
     { to: "/owner/organisations", label: "Organisations", icon: Building2, end: false, badge: counts.pending, badgeLabel: "waiting for approval" },
     { to: "/owner/enquiries", label: "Enquiries", icon: Inbox, badge: counts.enquiries_new, badgeLabel: "new" },
-    { to: "/owner/users", label: "All users", icon: Users },
+    { to: "/owner/admins", label: "Organisation admins", icon: Users },
     { to: "/owner/audit-log", label: "Audit log", icon: ScrollText },
     { to: "/owner/account", label: "My account", icon: UserCog },
   ];

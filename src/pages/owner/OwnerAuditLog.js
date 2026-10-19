@@ -31,7 +31,7 @@ const OwnerAuditLog = () => {
   }, [logs, query]);
 
   return (
-    <AppLayout nav={<OwnerNav />} title="Platform audit log" subtitle="Sign-ins and changes in every organisation, and every owner action, newest first." className="owner-audit">
+    <AppLayout nav={<OwnerNav />} title="Platform audit log" subtitle="Owner actions and organisation-level events (registrations, approvals, suspensions, admin support, enquiries), newest first. Routine activity inside an organisation is visible only to its admins." className="owner-audit">
       {error && <p className="error page-error" role="alert">{error}</p>}
       <div className="card card-flush">
         <div className="toolbar">
@@ -39,7 +39,7 @@ const OwnerAuditLog = () => {
             <label htmlFor="oa-org">Organisation</label>
             <select id="oa-org" value={org} onChange={(e) => setOrg(e.target.value)}>
               <option value="">All organisations</option>
-              <option value="platform">Platform events only</option>
+              <option value="platform">Not tied to an organisation</option>
               {orgs.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
             </select>
           </div>
