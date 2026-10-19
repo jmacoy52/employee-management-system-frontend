@@ -6,11 +6,15 @@ Built and maintained by [Joseph Migbodzi](https://mjay-portfolio.vercel.app) ([G
 
 > **Real (non-demo) deployment:** set `REACT_APP_DEMO_MODE=false` and follow the backend's [docs/PRODUCTION.md](https://github.com/jmacoy52/employee-management-backend/blob/v1/aiven-production/docs/PRODUCTION.md).
 
+## Full system guide
+
+The complete documentation for both repositories (architecture, data model, design decisions, security and tenancy, payroll, scaling, operations runbook and user guides per role) lives in the backend repository: [docs/guide](https://github.com/jmacoy52/employee-management-backend/blob/v1/aiven-production/docs/guide/README.md).
+
 ## Features
 
 - Sign in with JWT authentication. Each role lands on its own dashboard (`/admin`, `/hr`, `/employee`).
 - **Admin:** overview (user counts, recent activity), create users, change roles, activate/deactivate users, reset passwords (temporary password or one-time link), delete users, read and filter the audit log, manage departments, and open the HR dashboard.
-- **HR:** dashboard (headcount, headcount by department, average salary, recent activity), search/filter by department, add, edit and delete employees (department chosen from a list), link employee records to user accounts, and manage their own profile.
+- **HR:** dashboard (headcount, headcount by department, average salary; the recent-activity panel appears only when an admin opens it, as HR has no audit-log access), search/filter by department, add, edit and delete employees (department chosen from a list), link employee records to user accounts, and manage their own profile.
 - **Departments** (`/hr/departments`, `/admin/departments`): list with heads and employee counts, create/edit, activate/deactivate, delete (only when empty), view members, add or remove employees, and set the head of department.
 - **Payroll** (`/hr/payroll`, `/admin/payroll`): set each employee's pay details (basic salary, named allowances, other deductions, bank and SSNIT number) with a live net-pay calculation, run payroll for a month (all or selected employees) as drafts, review the month with totals (gross, PAYE, SSNIT, net), publish, and view or download any payslip. The *Tax rates* tab shows the Ghana PAYE bands and SSNIT rates the server uses.
 - **Employee:** view and update their own profile, see the employment record HR linked to them, **My payslips** (`/employee/payslips`: every published month with View, Download PDF and Print; a print stylesheet prints just the payslip on A4), change their password.
