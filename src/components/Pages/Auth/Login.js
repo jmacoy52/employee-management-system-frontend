@@ -82,6 +82,7 @@ const Login = () => {
         </button>
       </form>
       <div className="auth-links">
+        <Link to="/forgot-password">Forgot password?</Link>
         <Link to="/register">Don't have an account? 
         Register</Link>
         <Link to="/">Back to Home</Link>

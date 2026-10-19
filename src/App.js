@@ -7,6 +7,8 @@ import Register from "./components/Pages/Auth/Register";
 import Privacy from "./components/Pages/Privacy";
 import Terms from "./components/Pages/Terms";
 import Contact from "./components/Pages/Contact";
+import NotFound from "./components/Pages/NotFound";
+import ForgotPassword from "./components/Pages/Auth/ForgotPassword";
 import HRDashboard from "./components/Pages/Dashboards/HRDashboard/HRDashboard";
 import AdminDashboard from "./components/Pages/Dashboards/AdminDashboard/AdminDashboard";
 import PrivateRoute from "./components/Pages/Auth/PrivateRoute";
@@ -31,6 +33,7 @@ function App() {
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
 
         {/* HR Routes - Protected */}
         <Route element={<PrivateRoute allowedRoles={["hr", "admin"]} />}>
@@ -54,6 +57,9 @@ function App() {
           <Route path="/admin/hr" element={<HRDashboard />} />
          
         </Route>
+
+        {/* Catch-all */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
   );
