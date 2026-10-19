@@ -1,107 +1,197 @@
-/* Shared page layout for public/content pages */
+/* Page frames: public content pages (PageLayout) and the signed-in app (AppLayout). */
+
+/* ---------- Public content pages ---------- */
 .page-layout {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #f1f5f9;
+  background: var(--color-bg);
 }
 
 .page-main {
   flex: 1;
   width: 100%;
-  box-sizing: border-box;
 }
 
 .content-page {
-  max-width: 820px;
-  margin: 2.5rem auto;
-  padding: 2rem 2.25rem;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
-  color: #334155;
-  line-height: 1.65;
-  box-sizing: border-box;
   width: calc(100% - 2rem);
+  max-width: 820px;
+  margin: var(--space-10) auto;
+  padding: var(--space-8) var(--space-8);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  color: var(--color-text-2);
+  line-height: 1.7;
 }
 
 .content-page h1 {
-  color: #1f2937;
   margin-top: 0;
+  font-size: var(--text-3xl);
 }
 
 .content-page h2 {
-  color: #1e3a8a;
-  font-size: 1.15rem;
-  margin-top: 1.75rem;
-}
-
-.content-page a {
-  color: #2563eb;
+  margin-top: var(--space-8);
+  color: var(--color-ink);
+  font-size: var(--text-lg);
 }
 
 .content-page .muted {
-  color: #64748b;
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
 }
 
 .contact-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1rem;
-  margin: 1.5rem 0;
+  gap: var(--space-4);
+  margin: var(--space-6) 0;
 }
 
 .contact-card {
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 1.1rem 1.25rem;
-  background: #f8fafc;
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface-2);
 }
 
 .contact-card h3 {
-  margin: 0 0 0.35rem;
-  font-size: 1rem;
-  color: #1f2937;
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-base);
 }
 
 .contact-card p {
-  margin: 0 0 0.6rem;
-  font-size: 0.92rem;
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-sm);
 }
 
 .not-found {
+  padding: var(--space-16) var(--space-4);
   text-align: center;
-  padding: 4rem 1rem;
 }
 
 .not-found .code {
+  margin: 0;
   font-size: 4.5rem;
   font-weight: 800;
-  color: #2563eb;
-  margin: 0;
+  color: var(--color-primary);
+  letter-spacing: -0.04em;
+}
+
+.not-found p {
+  color: var(--color-muted);
 }
 
 .not-found .actions {
   display: flex;
-  gap: 0.75rem;
-  justify-content: center;
   flex-wrap: wrap;
-  margin-top: 1.5rem;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
 }
 
-.btn-link {
-  display: inline-block;
-  padding: 0.65rem 1.25rem;
-  border-radius: 8px;
-  font-weight: 600;
-  text-decoration: none;
-  background: #2563eb;
-  color: #fff !important;
+@media (max-width: 600px) {
+  .content-page {
+    margin: var(--space-4) auto;
+    padding: var(--space-6) var(--space-5);
+  }
+  .content-page h1 {
+    font-size: var(--text-2xl);
+  }
 }
 
-.btn-link.outline {
-  background: transparent;
-  color: #2563eb !important;
-  border: 2px solid #2563eb;
+/* ---------- Signed-in app ---------- */
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+}
+
+.app-main {
+  flex: 1;
+  width: 100%;
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-6) var(--space-12);
+}
+
+.app-main-wide {
+  max-width: 1360px;
+}
+
+.app-main-narrow {
+  max-width: 820px;
+}
+
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.page-title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: 700;
+}
+
+.page-subtitle {
+  margin: var(--space-1) 0 0;
+  color: var(--color-muted);
+}
+
+.page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.section {
+  margin-top: var(--space-8);
+}
+
+.section-title {
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-lg);
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-6);
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .two-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .app-main {
+    padding: var(--space-5) var(--space-4) var(--space-10);
+  }
+  .page-title {
+    font-size: var(--text-xl);
+  }
+  .page-actions {
+    width: 100%;
+  }
+  .page-actions .btn {
+    flex: 1 1 auto;
+  }
+}
+
+.change-password-card {
+  max-width: 520px;
+}
+
+.change-password-card form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
 }

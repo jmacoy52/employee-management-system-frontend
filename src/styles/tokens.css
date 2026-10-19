@@ -1,0 +1,74 @@
+/* EmploCore design tokens: the one place colours, type, spacing, radius and shadows are defined.
+   Every other stylesheet uses these variables instead of hard-coded values. */
+:root {
+  /* Brand */
+  --color-primary: #2453d6;
+  --color-primary-hover: #1b41ae;
+  --color-primary-soft: #eef3fd;
+  --color-primary-soft-2: #dce6fb;
+  --color-accent: #14b8a6;
+  --color-accent-strong: #0d9488;
+  --color-accent-soft: #e6faf7;
+  --color-ink: #0f1e3d; /* deep navy: logo tile, footer, auth brand panel */
+  --color-ink-2: #172a52;
+
+  /* Neutrals (slate) */
+  --color-text: #0f172a;
+  --color-text-2: #334155;
+  --color-muted: #64748b;
+  --color-subtle: #94a3b8;
+  --color-border-strong: #cbd5e1;
+  --color-border: #e2e8f0;
+  --color-surface-2: #f1f5f9;
+  --color-bg: #f6f8fb;
+  --color-surface: #ffffff;
+  --color-white: #ffffff;
+  --color-core: #5eead4; /* light teal: the "core" block in the logo, on dark backgrounds */
+  --color-on-dark: #e2e8f0;
+  --color-on-dark-muted: #9fb0cc;
+
+  /* Status */
+  --color-success: #15803d;
+  --color-success-soft: #dcfce7;
+  --color-warning: #b45309;
+  --color-warning-soft: #fef3c7;
+  --color-danger: #dc2626;
+  --color-danger-hover: #b91c1c;
+  --color-danger-soft: #fee2e2;
+
+  /* Type */
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2.25rem;
+
+  /* Spacing (4px scale) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  /* Shape and depth */
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-lg: 14px;
+  --radius-pill: 999px;
+  --shadow-sm: 0 1px 2px rgba(15, 30, 61, 0.06);
+  --shadow: 0 1px 3px rgba(15, 30, 61, 0.08), 0 4px 12px rgba(15, 30, 61, 0.05);
+  --shadow-lg: 0 10px 30px rgba(15, 30, 61, 0.12);
+  --focus-ring: 0 0 0 3px rgba(36, 83, 214, 0.25);
+
+  --container: 1200px;
+  --nav-height: 64px;
+}
