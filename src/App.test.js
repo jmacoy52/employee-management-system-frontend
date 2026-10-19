@@ -51,7 +51,8 @@ test("landing page is product-focused: no sample figures, tech stack or placehol
   expect(screen.getByRole("heading", { name: /why organisations choose emplocore/i })).toBeInTheDocument();
   const org = document.getElementById("organisations");
   expect(within(org).getByRole("heading", { name: /bring emplocore to your organisation/i })).toBeInTheDocument();
-  expect(within(org).getByRole("link", { name: /contact us/i })).toHaveAttribute("href", "/contact");
+  expect(within(org).getByRole("link", { name: /request a demo/i })).toHaveAttribute("href", "/contact");
+  expect(within(org).getByRole("link", { name: /register your organisation/i })).toHaveAttribute("href", "/register-organisation");
   expect(screen.queryByRole("img")).toBeNull(); // no product screenshots or mockups
   expect(text).not.toMatch(/Kwame Mensah|Nana Agyeman|Adwoa Boateng|Departments ·/);
 });

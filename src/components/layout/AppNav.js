@@ -5,7 +5,7 @@ import Logo from "../brand/Logo";
 import { logout as signOut, getStoredUser } from "../../auth/session";
 import "./AppNav.css";
 
-const ROLE_LABEL = { admin: "Admin", hr: "HR", employee: "Employee" };
+const ROLE_LABEL = { owner: "Platform owner", admin: "Admin", hr: "HR", employee: "Employee" };
 
 // Top bar shared by the admin, HR and employee areas.
 //   items:   [{ to, label, icon: LucideIcon, end }]
@@ -58,7 +58,10 @@ const AppNav = ({ items, home, label, actions = null, className = "" }) => {
                 </span>
                 <span className="nav-user-text">
                   <span className="nav-user-name">{displayName}</span>
-                  <span className="nav-user-role">{ROLE_LABEL[user.role] || user.role}</span>
+                  <span className="nav-user-role">
+                    {ROLE_LABEL[user.role] || user.role}
+                    {user.organization?.name && <span className="nav-user-org"> · {user.organization.name}</span>}
+                  </span>
                 </span>
               </span>
             )}

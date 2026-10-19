@@ -1,7 +1,8 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import Login from "../pages/auth/Login";
-import Register, { passwordProblem } from "../pages/auth/Register";
+import { passwordProblem } from "../pages/auth/Register";
+import RegisterOrganisation from "../pages/auth/RegisterOrganisation";
 
 const renderAt = (ui, path = "/") => render(<MemoryRouter initialEntries={[path]}>{ui}</MemoryRouter>);
 
@@ -44,12 +45,13 @@ test("unknown demo key leaves the form empty", () => {
   expect(screen.getByLabelText("Email")).toHaveValue("");
 });
 
-test("register shows the password rule inline before calling the server", () => {
-  renderAt(<Register />, "/register");
-  fireEvent.change(screen.getByLabelText("Username"), { target: { value: "Ama" } });
-  fireEvent.change(screen.getByLabelText("Email"), { target: { value: "ama@example.com" } });
+test("organisation sign-up shows the password rule inline before calling the server", () => {
+  renderAt(<RegisterOrganisation />, "/register-organisation");
+  fireEvent.change(screen.getByLabelText("Organisation name"), { target: { value: "Accra Logistics" } });
+  fireEvent.change(screen.getByLabelText("Your name"), { target: { value: "Ama Owusu" } });
+  fireEvent.change(screen.getByLabelText("Work e-mail"), { target: { value: "ama@example.com" } });
   fireEvent.change(screen.getByLabelText("Password"), { target: { value: "abcdefghij" } });
-  fireEvent.click(screen.getByRole("button", { name: "Register" }));
+  fireEvent.click(screen.getByRole("button", { name: "Register organisation" }));
   expect(screen.getByRole("alert")).toHaveTextContent(/at least one letter and one number/i);
   expect(screen.getByLabelText("Password")).toHaveAttribute("aria-invalid", "true");
 });
@@ -58,4 +60,14 @@ test("password rule helper", () => {
   expect(passwordProblem("short1")).toMatch(/at least 8/);
   expect(passwordProblem("abcdefgh")).toMatch(/letter and one number/);
   expect(passwordProblem("abcdefg1")).toBe("");
+});
+
+test("sign-in page explains a suspended or pending organisation", () => {
+  renderAt(<Login />, "/login?notice=suspended");
+  expect(screen.getByRole("alert")).toHaveTextContent(/organisation's EmploCore account is suspended/i);
+});
+
+test("sign-in page links to organisation sign-up, not employee self-sign-up", () => {
+  renderAt(<Login />, "/login");
+  expect(screen.getByRole("link", { name: /register your organisation/i })).toHaveAttribute("href", "/register-organisation");
 });

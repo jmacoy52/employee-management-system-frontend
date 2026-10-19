@@ -10,6 +10,7 @@ import Contact from "../pages/public/Contact";
 import NotFound from "../pages/public/NotFound";
 import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
+import RegisterOrganisation from "../pages/auth/RegisterOrganisation";
 import ForgotPassword from "../pages/auth/ForgotPassword";
 import ResetPassword from "../pages/auth/ResetPassword";
 import ChangePassword from "../pages/auth/ChangePassword";
@@ -23,6 +24,11 @@ import AdminDashboard from "../pages/admin/AdminDashboard";
 import UserList from "../pages/admin/UserList";
 import UserManagement from "../pages/admin/UserManagement";
 import AuditLog from "../pages/admin/AuditLog";
+import OwnerOverview from "../pages/owner/OwnerOverview";
+import OwnerOrganisations from "../pages/owner/OwnerOrganisations";
+import OwnerOrganisationDetail from "../pages/owner/OwnerOrganisationDetail";
+import OwnerUsers from "../pages/owner/OwnerUsers";
+import OwnerAuditLog from "../pages/owner/OwnerAuditLog";
 
 const AppRoutes = () => (
   <Routes>
@@ -30,6 +36,7 @@ const AppRoutes = () => (
     <Route path={PATHS.home} element={<Home />} />
     <Route path={PATHS.login} element={<Login />} />
     <Route path={PATHS.register} element={<Register />} />
+    <Route path={PATHS.registerOrganisation} element={<RegisterOrganisation />} />
     <Route path={PATHS.forgotPassword} element={<ForgotPassword />} />
     <Route path={PATHS.resetPassword} element={<ResetPassword />} />
     <Route path={PATHS.privacy} element={<Privacy />} />
@@ -39,7 +46,20 @@ const AppRoutes = () => (
     {/* Employee (any signed-in role) */}
     <Route element={<PrivateRoute allowedRoles={["employee", "hr", "admin"]} />}>
       <Route path={PATHS.employee} element={<EmployeeDashboard />} />
+    </Route>
+
+    {/* Any signed-in account, including the platform owner */}
+    <Route element={<PrivateRoute allowedRoles={["employee", "hr", "admin", "owner"]} />}>
       <Route path={PATHS.changePassword} element={<ChangePassword />} />
+    </Route>
+
+    {/* Platform owner console */}
+    <Route element={<PrivateRoute allowedRoles={["owner"]} />}>
+      <Route path={PATHS.owner} element={<OwnerOverview />} />
+      <Route path={PATHS.ownerOrganisations} element={<OwnerOrganisations />} />
+      <Route path={PATHS.ownerOrganisation} element={<OwnerOrganisationDetail />} />
+      <Route path={PATHS.ownerUsers} element={<OwnerUsers />} />
+      <Route path={PATHS.ownerAuditLog} element={<OwnerAuditLog />} />
     </Route>
 
     {/* HR (admins are allowed too) */}

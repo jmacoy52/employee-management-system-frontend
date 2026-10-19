@@ -122,6 +122,10 @@ CRA reads these at **build time**, so you must rebuild or redeploy after changin
 
 The old URLs `/AdminDashboard`, `/HRDashboard`, `/EmployeeDashboard`, `/admin/usermanagement` and `/admin/auditlog` redirect to their new paths.
 
+## Organisations and owner console
+
+EmploCore is multi-tenant. Organisations sign up at `/register-organisation`. They start as *pending* until the platform owner approves them. The owner signs in at `/login` and lands on the owner console (`/owner`: overview, organisations, users and audit log). Admins and HR add their own staff; anonymous employee self-sign-up is closed. Users of pending or suspended organisations are sent back to `/login` with a notice. Billing (Paystack) will later drive each organisation's plan and status; there is no payment code yet.
+
 ## Security notes
 
 - Public registration creates **employee** accounts only, with a minimum password length of 8 characters (letters and numbers). The **backend must enforce the same rules**, because a client-side check can be bypassed.

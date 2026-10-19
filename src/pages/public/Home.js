@@ -85,7 +85,7 @@ const STEPS = [
     role: "Administrator",
     badge: "badge-admin",
     steps: [
-      "Sign in with the administrator account created for your organisation.",
+      "Register your organisation, or sign in once EmploCore has approved it.",
       "Create accounts for your HR team and other administrators.",
       "Manage roles, deactivate leavers and help people who are locked out.",
       "Review the audit log to see who changed what, and when.",
@@ -105,7 +105,7 @@ const STEPS = [
     role: "Employee",
     badge: "badge-employee",
     steps: [
-      "Sign in with the account your organisation gave you, or register.",
+      "Sign in with the account your organisation's admin or HR team created for you.",
       "Add your name, phone number and address to your profile.",
       "See your position and department once HR links your record.",
       "Change your password at any time from the menu.",
@@ -114,8 +114,8 @@ const STEPS = [
 ];
 
 const ORGANISATION_POINTS = [
-  "A private deployment with its own database, separate from the public demo",
-  "Your departments and first administrator account set up from the start",
+  "Your own private organisation space: your staff records are never visible to other organisations",
+  "Register online with your first administrator account; we approve new organisations before they go live",
   "Suitable for SMEs, schools, NGOs and other organisations with staff to manage",
 ];
 
@@ -375,10 +375,9 @@ const Home = () => {
             <p className="eyebrow">For organisations</p>
             <h2>Bring EmploCore to your organisation</h2>
             <p>
-              Whether you run a growing business, a school or an NGO, EmploCore can be set up
-              for your team with your own secure database, your departments and your
-              administrator accounts. Tell us about your organisation and we will arrange a
-              walkthrough.
+              Whether you run a growing business, a school or an NGO, register your organisation
+              and set up your departments, HR team and staff accounts yourself. Prefer a
+              walkthrough first? Request a demo and we will arrange a time.
             </p>
             <ul className="org-points">
               {ORGANISATION_POINTS.map((p) => (
@@ -387,11 +386,15 @@ const Home = () => {
             </ul>
           </div>
           <div className="org-card">
-            <Mail size={28} aria-hidden="true" />
-            <h3>Request a demo</h3>
-            <p>Tell us how many staff and departments you have and how you manage them now. We will get back to you to arrange a time.</p>
-            <Link to="/contact" className="btn btn-primary btn-block">
-              Contact us <ArrowRight size={16} />
+            <Building2 size={28} aria-hidden="true" />
+            <h3>Get started</h3>
+            <p>Register your organisation with your first administrator account. Once we have approved it, you can sign in and add your team.</p>
+            <Link to="/register-organisation" className="btn btn-primary btn-block register-org-cta">
+              Register your organisation <ArrowRight size={16} />
+            </Link>
+            <p className="org-card-or">or</p>
+            <Link to="/contact" className="btn btn-secondary btn-block">
+              <Mail size={16} aria-hidden="true" /> Request a demo
             </Link>
           </div>
         </div>
@@ -402,11 +405,12 @@ const Home = () => {
         <div className="section-inner cta-band-inner">
           <div>
             <h2>Ready to bring order to your staff records?</h2>
-            <p>{demo ? "Explore the demo, or talk to us about your organisation." : "Talk to us about your organisation, or sign in to your account."}</p>
+            <p>{demo ? "Explore the demo, register your organisation, or talk to us first." : "Register your organisation, talk to us first, or sign in to your account."}</p>
           </div>
           <div className="cta">
             {demo && <a href="#demo" className="btn btn-lg btn-light">Try the demo</a>}
-            <Link to="/contact" className={`btn btn-lg ${demo ? "btn-on-dark" : "btn-light"}`}>Request a demo</Link>
+            <Link to="/register-organisation" className={`btn btn-lg ${demo ? "btn-on-dark" : "btn-light"}`}>Register your organisation</Link>
+            <Link to="/contact" className="btn btn-lg btn-on-dark">Request a demo</Link>
             {!demo && <Link to="/login" className="btn btn-lg btn-on-dark">Sign in</Link>}
           </div>
         </div>

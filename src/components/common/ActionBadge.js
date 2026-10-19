@@ -2,9 +2,9 @@ import React from "react";
 
 // Colour group for an audit action name, e.g. DELETE_USER -> danger.
 export function actionTone(action = "") {
-  if (/DELETE|DEACTIVATE/.test(action)) return "danger";
+  if (/DELETE|DEACTIVATE|SUSPEND/.test(action)) return "danger";
   if (/PASSWORD|RESET/.test(action)) return "warning";
-  if (/CREATE|REGISTER|ACTIVATE|LINK/.test(action)) return "success";
+  if (/CREATE|REGISTER|ACTIVATE|LINK|APPROVE|BOOTSTRAP/.test(action)) return "success";
   if (/LOGIN|LOGOUT/.test(action)) return "primary";
   return "neutral";
 }

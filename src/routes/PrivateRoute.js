@@ -13,7 +13,9 @@ function isExpired(token) {
 }
 
 // Guards a group of routes. Not signed in -> /login. Signed in but wrong role ->
-// that role's own home page. Admins can open every protected route.
+// that role's own home page. Admins can open every organisation route, but not the platform
+// owner console; the owner (not an organisation user) only has the owner console and the
+// change-password page. The API enforces the same rules.
 const PrivateRoute = ({ allowedRoles }) => {
   const location = useLocation();
   const token = localStorage.getItem("token");
@@ -38,7 +40,8 @@ const PrivateRoute = ({ allowedRoles }) => {
     return <Navigate to={PATHS.changePassword} replace />;
   }
 
-  if (user.role === "admin") return <Outlet />;
+  const ownerArea = Boolean(allowedRoles && allowedRoles.includes("owner"));
+  if (user.role === "admin" && !ownerArea) return <Outlet />;
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {
     return <Navigate to={ROLE_HOME[user.role] || PATHS.login} replace />;

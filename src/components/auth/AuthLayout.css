@@ -271,3 +271,60 @@
   flex: none;
   margin-top: 2px;
 }
+
+/* Organisation sign-up / account choice */
+.register-choice {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.register-option {
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.register-option h2 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-base);
+}
+
+.register-option p {
+  margin: 0 0 var(--space-4);
+  color: var(--color-text-2);
+  font-size: var(--text-sm);
+}
+
+.register-success {
+  text-align: center;
+}
+
+.register-success svg {
+  color: var(--color-success);
+}
+
+.register-success h2 {
+  margin: var(--space-3) 0 var(--space-2);
+  font-size: var(--text-xl);
+}
+
+.register-success p {
+  margin: 0 0 var(--space-6);
+  color: var(--color-text-2);
+}
+
+.hp-field {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.login-notice {
+  margin-bottom: var(--space-4);
+}

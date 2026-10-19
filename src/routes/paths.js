@@ -3,6 +3,7 @@ export const PATHS = {
   home: "/",
   login: "/login",
   register: "/register",
+  registerOrganisation: "/register-organisation",
   forgotPassword: "/forgot-password",
   privacy: "/privacy",
   terms: "/terms",
@@ -18,6 +19,12 @@ export const PATHS = {
   hrCreateEmployee: "/hr/create-employee",
   hrProfile: "/hr/profile",
   hrDepartments: "/hr/departments",
+
+  owner: "/owner",
+  ownerOrganisations: "/owner/organisations",
+  ownerOrganisation: "/owner/organisations/:id",
+  ownerUsers: "/owner/users",
+  ownerAuditLog: "/owner/audit-log",
 
   admin: "/admin",
   adminUsers: "/admin/users",
@@ -38,6 +45,7 @@ export const LEGACY_REDIRECTS = {
 
 // Where each role lands after signing in.
 export const ROLE_HOME = {
+  owner: PATHS.owner,
   admin: PATHS.admin,
   hr: PATHS.hr,
   employee: PATHS.employee,

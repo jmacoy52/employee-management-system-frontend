@@ -23,11 +23,14 @@ api.interceptors.response.use(
   (error) => {
     const status = error.response?.status;
     const hadToken = Boolean(localStorage.getItem("token"));
-    const isAuthCall = /\/api\/users\/(login|register)$/.test(error.config?.url || "");
+    const isAuthCall = /\/api\/(users\/(login|register)|organizations\/register|platform\/bootstrap-owner)$/.test(error.config?.url || "");
     if (status === 401 && hadToken && !isAuthCall) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      if (window.location.pathname !== "/login") window.location.assign("/login");
+      // The organisation was suspended (or is not approved): say so on the sign-in page
+      const code = error.response?.data?.code;
+      const notice = code === "ORGANISATION_SUSPENDED" ? "?notice=suspended" : code === "ORGANISATION_PENDING" ? "?notice=pending" : "";
+      if (window.location.pathname !== "/login") window.location.assign(`/login${notice}`);
     }
     // An admin issued a temporary password: the user must set their own first.
     if (status === 403 && error.response?.data?.code === "PASSWORD_CHANGE_REQUIRED") {

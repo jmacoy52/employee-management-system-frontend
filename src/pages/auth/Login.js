@@ -10,11 +10,18 @@ import { DEMO_ACCOUNTS, findDemoAccount, isDemoMode } from "../../config/demo";
 import { toast } from "react-hot-toast"; // toast for notifications
 import { saveSession } from "../../auth/session";
 
+const LOGIN_NOTICES = {
+  suspended: "Your organisation's EmploCore account is suspended, so you have been signed out. Please contact EmploCore.",
+  pending: "Your organisation is waiting for approval. You can sign in once EmploCore has approved it.",
+};
+
 const Login = () => {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   // /login?demo=admin|hr|employee pre-fills a public demo account (from the landing page)
   const preset = findDemoAccount(params.get("demo"));
+  // Signed out because the organisation was suspended / is awaiting approval
+  const notice = LOGIN_NOTICES[params.get("notice")] || "";
   const [formData, setFormData] = useState({
     email: preset?.email || "",
     password: preset?.password || "",
@@ -69,11 +76,14 @@ const Login = () => {
       footer={
         <>
           <span>
-            Don't have an account? <Link to="/register">Register</Link>
+            New to EmploCore? <Link to="/register-organisation">Register your organisation</Link>
           </span>
         </>
       }
     >
+      {notice && !error && (
+        <p className="error login-notice" role="alert">{notice}</p>
+      )}
       <form onSubmit={handleSubmit}>
         <div className="field">
           <label htmlFor="login-email">Email</label>

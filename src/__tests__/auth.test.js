@@ -30,10 +30,49 @@ function renderGuarded(path, user) {
 
 afterEach(() => localStorage.clear());
 
-test("public register has no role choice (employee-only sign-up)", () => {
+test("/register has no public sign-up form: it points to your organisation or organisation sign-up", () => {
   render(<MemoryRouter><Register /></MemoryRouter>);
+  expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
   expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
-  expect(screen.getByText(/HR and admin accounts are created/i)).toBeInTheDocument();
+  expect(screen.getByText(/admin or HR team creates your account/i)).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: /register your organisation/i })).toHaveAttribute("href", "/register-organisation");
+});
+
+function renderAll(path, user) {
+  localStorage.setItem("token", fakeToken({ id: user.id, role: user.role }));
+  localStorage.setItem("user", JSON.stringify(user));
+  return render(
+    <MemoryRouter initialEntries={[path]}>
+      <Routes>
+        <Route element={<PrivateRoute allowedRoles={["hr", "admin"]} />}>
+          <Route path="/hr" element={<p>HR page</p>} />
+        </Route>
+        <Route element={<PrivateRoute allowedRoles={["admin"]} />}>
+          <Route path="/admin" element={<p>Admin page</p>} />
+        </Route>
+        <Route element={<PrivateRoute allowedRoles={["owner"]} />}>
+          <Route path="/owner" element={<p>Owner console</p>} />
+        </Route>
+        <Route path="/login" element={<p>Login page</p>} />
+      </Routes>
+    </MemoryRouter>
+  );
+}
+
+test("admins cannot open the owner console; the owner cannot open organisation pages", () => {
+  renderAll("/owner", { id: 1, role: "admin" });
+  expect(screen.getByText("Admin page")).toBeInTheDocument();
+  localStorage.clear();
+});
+
+test("owner is sent from organisation pages to the owner console", () => {
+  renderAll("/hr", { id: 9, role: "owner", organization: null });
+  expect(screen.getByText("Owner console")).toBeInTheDocument();
+});
+
+test("owner can open the owner console", () => {
+  renderAll("/owner", { id: 9, role: "owner", organization: null });
+  expect(screen.getByText("Owner console")).toBeInTheDocument();
 });
 
 test("user with a temporary password is sent to change password", () => {

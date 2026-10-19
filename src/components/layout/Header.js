@@ -67,7 +67,7 @@ const Header = () => {
         <div className="help-sections">
           <div className="help-section">
             <h4>Getting Started</h4>
-            <p>Welcome to EmploCore! Sign in with the account your administrator gave you, or register an employee account.{isDemoMode() && " You can also try one of the demo logins on the home page."}</p>
+            <p>Welcome to EmploCore! Sign in with the account your organisation's admin or HR team created for you. Setting up EmploCore for your organisation? Use Register your organisation.{isDemoMode() && " You can also try one of the demo logins on the home page."}</p>
           </div>
           <div className="help-section">
             <h4>User Roles</h4>

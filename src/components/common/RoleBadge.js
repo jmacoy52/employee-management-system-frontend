@@ -1,6 +1,6 @@
 import React from "react";
 
-const ROLE_LABEL = { admin: "Admin", hr: "HR", employee: "Employee" };
+const ROLE_LABEL = { owner: "Owner", admin: "Admin", hr: "HR", employee: "Employee" };
 
 export const RoleBadge = ({ role }) => (
   <span className={`badge badge-${role}`}>{ROLE_LABEL[role] || role}</span>

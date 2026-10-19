@@ -2,6 +2,8 @@
 # with demo data loaded (SEED_DEMO=true). Never run against production: it creates and changes users.
 #   E2E_BASE_URL (default http://127.0.0.1:5056)  E2E_API_URL (default http://127.0.0.1:5055)
 #   E2E_CHROME (optional browser executable)      E2E_OUT (screenshots/results dir, default ./e2e/out)
+#   E2E_SETUP_TOKEN  owner setup token whose bcrypt hash the local backend has in OWNER_SETUP_TOKEN_HASH
+#   E2E_SCREENS      optional dir for owner-console screenshots (desktop + phone)
 import json, time, re, os
 from playwright.sync_api import sync_playwright
 B=os.environ.get("E2E_BASE_URL","http://127.0.0.1:5056"); O=os.environ.get("E2E_OUT","e2e/out"); os.makedirs(O, exist_ok=True); R=[]; stamp=str(int(time.time()))
@@ -17,13 +19,15 @@ with sync_playwright() as p:
     def newpage():
         c=b.new_context(viewport={"width":1366,"height":900}); pg=c.new_page(); errs=[]
         pg.on("pageerror",lambda e: errs.append(str(e))); pg.on("dialog", lambda d: d.accept()); return pg, errs
-    # 1. Register (UI) a new employee, then log in -> /employee
-    pg, errs = newpage()
-    pg.goto(B+"/register", wait_until="networkidle")
+    def admin_create_user(pg, name, mail, role="employee", pw="Password123"):
+        pg.goto(B+"/admin", wait_until="networkidle"); pg.click(".floating-add-btn"); time.sleep(.3)
+        pg.fill("input[name=username]", name); pg.fill("input[name=email]", mail); pg.fill("input[name=password]", pw); pg.select_option("select[name=role]", role)
+        pg.click(".create-user-form button[type=submit]"); pg.wait_for_selector("text=User account created", timeout=15000)
+    # 1. The demo admin creates an employee account (no public self-sign-up), then the employee logs in
+    pa0, _ = newpage(); login(pa0, "admin@emplocore.demo", "Admin@EmploCore2026")
     email=f"ui.employee.{stamp}@example.com"
-    pg.fill("input[name=username]","Yaa Asantewaa"); pg.fill("input[name=email]",email); pg.fill("input[name=password]","Password123")
-    pg.click("button[type=submit]")
-    pg.wait_for_url("**/login", timeout=15000); ok("UI register employee -> redirected to /login", pg.url.endswith("/login"))
+    admin_create_user(pa0, "Yaa Asantewaa", email); ok("admin creates an employee account", True)
+    pg, errs = newpage()
     login(pg, email, "Password123"); ok("new employee login -> /employee", pg.url.endswith("/employee"), pg.url)
     pg.wait_for_selector("text=Username", timeout=15000)
     body=pg.inner_text("body"); ok("employee dashboard shows own profile", email in body and "employee" in body)
@@ -40,8 +44,10 @@ with sync_playwright() as p:
     ok("landing has no 'today', tech stack or GitHub link", "today" not in body.lower() and "tech stack" not in body.lower() and pg.locator("a[href*='github.com']").count()==0)
     ok("landing has no product image or mockup", pg.locator(".hero img, .product-shot, .preview-bar").count()==0)
     ok("landing (demo build) shows demo logins", pg.locator("#demo .demo-card").count()==3)
-    # 2. Public register cannot pick admin
-    pg.goto(B+"/register", wait_until="networkidle"); ok("register has no role choice (employee-only sign-up)", pg.query_selector("select[name=role]") is None)
+    # 2. No public self-sign-up form; /register points to your organisation or organisation sign-up
+    pg.goto(B+"/register", wait_until="networkidle")
+    ok("/register has no sign-up form", pg.locator("input[name=email]").count()==0 and pg.locator("a[href='/register-organisation']").count()>=1)
+    pg.goto(B+"/", wait_until="networkidle"); ok("landing has 'Register your organisation' CTA", pg.locator("#organisations a[href='/register-organisation']").count()==1 and pg.locator("#organisations a[href='/contact']").count()==1)
     # 3. Wrong password message
     login(pg, "admin@emplocore.demo", "wrong-pass-123"); err=pg.inner_text(".error") if pg.query_selector(".error") else ""
     ok("wrong password shows backend error", "Invalid credentials" in err, err)
@@ -126,12 +132,11 @@ with sync_playwright() as p:
     def api_status(pg, path, token, method="GET"):
         return pg.evaluate("""async ([u,t,m]) => (await fetch(u,{method:m,headers:{Authorization:'Bearer '+t}})).status""", [API+path, token, method])
     email2=f"ui.second.{stamp}@example.com"
-    pg2, errs2 = newpage(); pg2.goto(B+"/register", wait_until="networkidle")
-    pg2.fill("input[name=username]","Efua Appiah"); pg2.fill("input[name=email]",email2); pg2.fill("input[name=password]","Password123"); pg2.click("button[type=submit]")
-    pg2.wait_for_url("**/login", timeout=15000); ok("register second employee", True)
-    # weak password rejected in UI
-    pg2.goto(B+"/register", wait_until="networkidle"); pg2.fill("input[name=username]","Weak One"); pg2.fill("input[name=email]",f"weak.{stamp}@example.com"); pg2.fill("input[name=password]","abcdefghij"); pg2.click("button[type=submit]")
-    ok("register rejects password without a number", "letter and one number" in pg2.inner_text("body"))
+    admin_create_user(pa0, "Efua Appiah", email2); ok("admin creates second employee account", True)
+    pg2, errs2 = newpage()
+    # weak password rejected in the organisation sign-up form
+    pg2.goto(B+"/register-organisation", wait_until="networkidle"); pg2.fill("input[name=organizationName]","Weak Org"); pg2.fill("input[name=adminName]","Weak One"); pg2.fill("input[name=email]",f"weak.{stamp}@example.com"); pg2.fill("input[name=password]","abcdefghij"); pg2.click("button[type=submit]")
+    ok("organisation sign-up rejects password without a number", "letter and one number" in pg2.inner_text("body"))
     # seeded linked employee sees own record
     pk, errk = newpage(); login(pk, "kwame.mensah@emplocore.demo", "Staff@EmploCore2026"); pk.wait_for_selector("text=My Employment Record")
     pk.wait_for_selector("text=Software Engineer", timeout=15000); ok("linked employee sees own employment record", True)
@@ -190,6 +195,91 @@ with sync_playwright() as p:
     pa.goto(B+"/admin/audit-log", wait_until="networkidle"); time.sleep(1.5); body=pa.inner_text("body")
     ok("audit log shows new security events", all(x in body for x in ["LOGOUT","DEACTIVATE_USER","ACTIVATE_USER","RESET_PASSWORD","RESET_LINK_CREATED","CHANGE_PASSWORD","LINK_EMPLOYEE_USER"]), body[:300])
     ok("no page errors (new features)", not (errs2 or erra or errk or errs3), [errs2, erra, errk, errs3])
+
+    # 8. Multi-tenant: organisation sign-up -> pending -> owner approves -> admin sets up team -> isolation
+    S=os.environ.get("E2E_SCREENS")
+    if S: os.makedirs(S, exist_ok=True)
+    def api_json(pg, path, token=None, method="GET", body=None):
+        return pg.evaluate("""async ([u,t,m,b]) => { const h={'Content-Type':'application/json'}; if(t) h.Authorization='Bearer '+t;
+            const r=await fetch(u,{method:m,headers:h,body:b?JSON.stringify(b):undefined}); let j=null; try{j=await r.json()}catch(e){}; return {status:r.status, body:j}; }""", [API+path, token, method, body])
+    org_name=f"Kumasi Traders {stamp[-4:]}"; org_admin=f"yaa.{stamp}@kumasi.example"
+    po, erro = newpage(); po.goto(B+"/register-organisation", wait_until="networkidle")
+    po.fill("input[name=organizationName]", org_name); po.fill("input[name=adminName]","Yaa Mensah"); po.fill("input[name=email]", org_admin); po.fill("input[name=password]","Kumasi2026pass")
+    po.click("button[type=submit]"); po.wait_for_selector("text=Registration received", timeout=15000)
+    ok("organisation sign-up -> waiting for approval", "waiting for approval" in po.inner_text("body"))
+    if S: po.screenshot(path=f"{S}/register_org_done_1366.png")
+    login(po, org_admin, "Kumasi2026pass"); txt=po.inner_text(".error") if po.query_selector(".error") else ""
+    ok("pending organisation's admin cannot sign in (message)", "waiting for approval" in txt and po.url.endswith("/login"), txt)
+    # Owner: one-time bootstrap, then 410
+    owner_email=f"owner.{stamp}@platform.example"; owner_pw="Platform-Console-2026"
+    tok=os.environ.get("E2E_SETUP_TOKEN","")
+    r=api_json(po, "/api/platform/bootstrap-owner", None, "POST", {"setupToken":tok,"email":owner_email,"name":"Platform Owner","password":owner_pw})
+    if r["status"]==410: ok("owner bootstrap (already set up in this database)", True)
+    else: ok("owner bootstrap creates the owner", r["status"]==201, r)
+    ok("owner bootstrap is then disabled (410)", api_json(po, "/api/platform/bootstrap-owner", None, "POST", {"setupToken":tok,"email":"x@y.example","name":"X Y","password":owner_pw})["status"]==410)
+    pw_, errw = newpage(); login(pw_, owner_email, owner_pw); ok("owner login -> /owner", pw_.url.endswith("/owner"), pw_.url)
+    pw_.wait_for_selector(".owner-pending-list >> text="+org_name, timeout=15000); ok("owner overview lists the pending organisation", True)
+    if S: pw_.screenshot(path=f"{S}/owner_overview_1366.png", full_page=True)
+    pw_.goto(B+"/admin", wait_until="networkidle"); ok("owner kept out of org admin area -> /owner", pw_.url.endswith("/owner"))
+    pw_.goto(B+"/owner/organisations?status=pending", wait_until="networkidle"); pw_.wait_for_selector(f"text={org_name}")
+    if S: pw_.screenshot(path=f"{S}/owner_organisations_1366.png", full_page=True)
+    pw_.click(f".org-open:has-text('{org_name}')"); pw_.wait_for_selector(".approve-btn")
+    pw_.click(".approve-btn"); pw_.wait_for_selector(".suspend-btn", timeout=15000)
+    ok("owner approves the organisation", "Active" in pw_.inner_text(".owner-detail-grid"))
+    org_url=pw_.url
+    # Admin of the new organisation: signs in, creates HR and an employee account
+    login(po, org_admin, "Kumasi2026pass"); ok("approved admin signs in -> /admin", po.url.endswith("/admin"), po.url)
+    ok("nav shows the organisation name", org_name in po.inner_text(".app-nav"))
+    hr_b=f"kofi.hr.{stamp}@kumasi.example"; emp_b=f"ama.{stamp}@kumasi.example"
+    admin_create_user(po, "Kofi Boateng", hr_b, "hr"); admin_create_user(po, "Ama Owusu", emp_b, "employee")
+    po.goto(B+"/admin/users", wait_until="networkidle"); po.wait_for_selector(f"text={hr_b}", timeout=15000); body=po.inner_text("body")
+    ok("new organisation's user list: only its own accounts", emp_b in body and org_admin in body and "emplocore.demo" not in body, body[:300])
+    phb, errhb = newpage(); login(phb, hr_b, "Password123"); ok("new organisation's HR signs in -> /hr", phb.url.endswith("/hr"))
+    phb.goto(B+"/hr/employees", wait_until="networkidle"); time.sleep(1.5); body=phb.inner_text("body")
+    ok("new organisation's HR sees no demo employees", "Kofi Asante" not in body and "Efua Appiah" not in body, body[:300])
+    phb.goto(B+"/hr/departments", wait_until="networkidle"); time.sleep(1.5)
+    ok("new organisation starts with no departments", phb.locator(".departments-table tbody tr", has_text="Engineering").count()==0)
+    phb.click("button.new-department"); phb.fill("#dept-name","Engineering"); phb.click("button:has-text('Create department')")
+    phb.wait_for_selector(".departments-table >> text=Engineering", timeout=15000); ok("same department name as the demo organisation is allowed", True)
+    phb.goto(B+"/hr/create-employee", wait_until="networkidle"); phb.fill("input[name=FullName]","Ama Owusu"); phb.fill("input[name=email]",emp_b); phb.fill("input[name=position]","Sales Lead")
+    phb.wait_for_selector("select[name=department_id] option:has-text('Engineering')", state="attached", timeout=15000); phb.select_option("select[name=department_id]", label="Engineering"); phb.fill("input[name=salary]","5000")
+    phb.click("button:has-text('Create Employee')"); phb.wait_for_url("**/hr/employees", timeout=15000); phb.wait_for_selector("text=Ama Owusu", timeout=15000)
+    ok("new organisation's HR adds an employee record", phb.locator(".employee-table tbody tr").count()==1)
+    # API isolation with the new organisation's token against demo records
+    tb=phb.evaluate("localStorage.getItem('token')"); ta=pk.evaluate("localStorage.getItem('token')")
+    demo_hr_tok=ph.evaluate("localStorage.getItem('token')")
+    demo_emps=api_json(ph, "/api/employees", demo_hr_tok)["body"]; demo_emp=[e for e in demo_emps if e["FullName"]=="Kofi Asante"][0]["id"]
+    ok("new organisation gets 404 for a demo employee", api_json(phb, f"/api/employees/{demo_emp}", tb)["status"]==404)
+    ok("new organisation cannot delete a demo employee (404)", api_json(phb, f"/api/employees/{demo_emp}", tb, "DELETE")["status"]==404 and api_json(ph, f"/api/employees/{demo_emp}", demo_hr_tok)["status"]==200)
+    demo_body=json.dumps(api_json(ph, "/api/employees", demo_hr_tok)["body"])
+    ok("demo organisation does not see the new organisation's records", emp_b not in demo_body and "Sales Lead" not in demo_body)
+    # Owner console: users across organisations and audit log
+    pw_.goto(B+"/owner/users", wait_until="networkidle"); pw_.fill("#ou-search", "kumasi.example"); time.sleep(1.5)
+    ok("owner sees the new organisation's users", pw_.locator(".owner-user-table tbody tr").count()==3)
+    if S: pw_.screenshot(path=f"{S}/owner_users_1366.png", full_page=True)
+    pw_.goto(B+"/owner/audit-log", wait_until="networkidle"); time.sleep(1.5); body=pw_.inner_text("body")
+    ok("platform audit log shows owner and organisation events", all(x in body for x in ["APPROVE_ORGANIZATION","REGISTER_ORGANIZATION","BOOTSTRAP_OWNER"]) and org_name in body)
+    if S: pw_.screenshot(path=f"{S}/owner_audit_log_1366.png")
+    # Owner suspends: the organisation's sessions end and sign-in explains why; reactivate restores
+    pw_.goto(org_url, wait_until="networkidle"); pw_.wait_for_selector(".suspend-btn"); pw_.click(".suspend-btn"); pw_.wait_for_selector(".reactivate-btn", timeout=15000)
+    if S: pw_.screenshot(path=f"{S}/owner_org_detail_1366.png", full_page=True)
+    phb.goto(B+"/hr/employees", wait_until="networkidle"); time.sleep(2)
+    ok("suspended organisation: HR session ends -> sign-in with notice", "/login" in phb.url and "suspended" in phb.inner_text("body").lower(), phb.url)
+    login(phb, hr_b, "Password123"); txt=phb.inner_text(".error") if phb.query_selector(".error") else ""
+    ok("suspended organisation: sign-in refused with message", "suspended" in txt.lower(), txt)
+    pw_.click(".reactivate-btn"); pw_.wait_for_selector(".suspend-btn", timeout=15000)
+    login(phb, hr_b, "Password123"); ok("reactivated organisation: HR signs in again", phb.url.endswith("/hr"))
+    # Demo still works after all of this
+    pd, errd = newpage(); login(pd, "hr@emplocore.demo", "Hr@EmploCore2026"); pd.goto(B+"/hr/employees", wait_until="networkidle"); pd.wait_for_selector("text=Kofi Asante", timeout=15000)
+    ok("demo HR still sees the demo employees", "Ama Owusu" not in pd.inner_text(".employee-table"))
+    if S:
+        ph_=b.new_context(viewport={"width":390,"height":844}, is_mobile=True, has_touch=True).new_page()
+        ph_.goto(B+"/login", wait_until="networkidle"); ph_.fill("input[name=email]",owner_email); ph_.fill("input[name=password]",owner_pw); ph_.click("button[type=submit]"); ph_.wait_for_url("**/owner", timeout=15000); time.sleep(1.5)
+        ph_.screenshot(path=f"{S}/owner_overview_390.png", full_page=True)
+        ph_.goto(B+"/owner/organisations", wait_until="networkidle"); time.sleep(1.5); ph_.screenshot(path=f"{S}/owner_organisations_390.png", full_page=True)
+        ph_.goto(org_url.replace(B,B), wait_until="networkidle"); time.sleep(1.5); ph_.screenshot(path=f"{S}/owner_org_detail_390.png", full_page=True)
+        ok("owner console has no horizontal overflow on a phone", ph_.evaluate("()=>document.documentElement.scrollWidth<=document.documentElement.clientWidth"))
+    ok("no page errors (multi-tenant)", not (erro or errw or errhb or errd), [erro, errw, errhb, errd])
     b.close()
 passed=sum(1 for _,c,_ in R if c); print(f"\n{passed}/{len(R)} passed")
 json.dump([{"name":n,"ok":c,"extra":str(e)} for n,c,e in R], open(f"{O}/e2e.json","w"), indent=1)
