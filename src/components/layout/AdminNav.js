@@ -1,5 +1,5 @@
 import React from "react";
-import { Users, Settings, ScrollText, UserCheck, Home, KeyRound } from "lucide-react";
+import { Users, Settings, ScrollText, UserCheck, Home, KeyRound, Building2 } from "lucide-react";
 import AppNav from "./AppNav";
 
 const ADMIN_ITEMS = [
@@ -7,6 +7,7 @@ const ADMIN_ITEMS = [
   { to: "/admin/users", label: "View Users", icon: Users },
   { to: "/admin/user-management", label: "User Management", icon: Settings },
   { to: "/admin/audit-log", label: "Audit Log", icon: ScrollText },
+  { to: "/admin/departments", label: "Departments", icon: Building2 },
   { to: "/admin/hr", label: "HR Dashboard", icon: UserCheck },
   { to: "/account/password", label: "Change Password", icon: KeyRound },
 ];

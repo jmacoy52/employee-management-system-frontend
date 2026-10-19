@@ -30,7 +30,7 @@ const EmploymentRecord = () => {
         <dl className="detail-list profile-details">
           <div><dt>Name</dt><dd>{record.FullName}</dd></div>
           <div><dt>Position</dt><dd>{record.position}</dd></div>
-          <div><dt>Department</dt><dd><span className="badge">{record.Department}</span></dd></div>
+          <div><dt>Department</dt><dd><span className="badge">{record.department_name || record.Department || "None"}</span></dd></div>
           <div><dt>Joined</dt><dd>{new Date(record.created_at).toLocaleDateString()}</dd></div>
           <div className="span-2"><dt>Monthly Salary</dt><dd className="record-salary">{formatCedis(record.salary)}</dd></div>
         </dl>

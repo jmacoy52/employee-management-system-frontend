@@ -18,6 +18,7 @@ import HRDashboard from "../pages/hr/HRDashboard";
 import EmployeeListPage from "../pages/hr/EmployeeListPage";
 import AddEmployeePage from "../pages/hr/AddEmployeePage";
 import MyProfilePage from "../pages/hr/MyProfilePage";
+import DepartmentsPage from "../pages/hr/DepartmentsPage";
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import UserList from "../pages/admin/UserList";
 import UserManagement from "../pages/admin/UserManagement";
@@ -47,6 +48,7 @@ const AppRoutes = () => (
       <Route path={PATHS.hrEmployees} element={<EmployeeListPage />} />
       <Route path={PATHS.hrCreateEmployee} element={<AddEmployeePage />} />
       <Route path={PATHS.hrProfile} element={<MyProfilePage />} />
+      <Route path={PATHS.hrDepartments} element={<DepartmentsPage />} />
     </Route>
 
     {/* Admin */}
@@ -56,6 +58,7 @@ const AppRoutes = () => (
       <Route path={PATHS.adminUserManagement} element={<UserManagement />} />
       <Route path={PATHS.adminAuditLog} element={<AuditLog />} />
       <Route path={PATHS.adminHr} element={<HRDashboard />} />
+      <Route path={PATHS.adminDepartments} element={<DepartmentsPage />} />
     </Route>
 
     {/* Old URLs keep working */}

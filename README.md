@@ -4,16 +4,21 @@ EmploCore is an employee management system with role-based dashboards for **admi
 
 Built and maintained by [Joseph Migbodzi](https://mjay-portfolio.vercel.app) ([GitHub](https://github.com/jmacoy52)).
 
+> **Real (non-demo) deployment:** set `REACT_APP_DEMO_MODE=false` and follow the backend's [docs/PRODUCTION.md](https://github.com/jmacoy52/employee-management-backend/blob/v1/aiven-production/docs/PRODUCTION.md).
+
 ## Features
 
 - Sign in with JWT authentication. Each role lands on its own dashboard (`/admin`, `/hr`, `/employee`).
-- **Admin:** overview (user counts, recent activity), create users, change roles, activate/deactivate users, reset passwords (temporary password or one-time link), delete users, read and filter the audit log, and open the HR dashboard.
-- **HR:** dashboard (headcount, departments, average salary, recent activity), search/filter, add, edit and delete employees, link employee records to user accounts, and manage their own profile.
+- **Admin:** overview (user counts, recent activity), create users, change roles, activate/deactivate users, reset passwords (temporary password or one-time link), delete users, read and filter the audit log, manage departments, and open the HR dashboard.
+- **HR:** dashboard (headcount, headcount by department, average salary, recent activity), search/filter by department, add, edit and delete employees (department chosen from a list), link employee records to user accounts, and manage their own profile.
+- **Departments** (`/hr/departments`, `/admin/departments`): list with heads and employee counts, create/edit, activate/deactivate, delete (only when empty), view members, add or remove employees, and set the head of department.
 - **Employee:** view and update their own profile, see the employment record HR linked to them, change their password.
-- Public pages: landing page (features, getting started, public demo logins, tech stack), privacy policy, terms, contact, forgot password (handled by an administrator) and a 404 page.
+- Public pages: landing page (product screenshot, features, roles, why EmploCore, getting started, demo logins in demo mode, "For organisations" with a request-a-demo call to action), privacy policy, terms, contact / request a demo, forgot password (handled by an administrator) and a 404 page. The landing page holds no sample figures and no technical details.
 - Responsive from 360px phones up: menus collapse, tables turn into cards on small screens.
 
 ## Demo logins
+
+Shown on the landing and sign-in pages only when `REACT_APP_DEMO_MODE=true` (the public deployment).
 
 | Role | Email | Password |
 |---|---|---|
@@ -59,7 +64,7 @@ src/
 │   ├── auth/            # AuthLayout, PasswordInput (show/hide), SubmitButton
 │   ├── layout/          # Header, Footer, PageLayout, AppLayout, AppNav (+ AdminNav, HRNav, EmployeeNav)
 │   └── common/          # Modal, ProfilePanel, EmployeeForm, EmployeeList, EmployeeStats, badges
-├── config/demo.js       # public demo accounts and author links
+├── config/demo.js       # demo mode switch, public demo accounts and author link
 ├── styles/
 │   ├── tokens.css       # design tokens (colours, type, spacing, radius, shadows)
 │   ├── ui.css           # shared buttons, cards, fields, tables, badges, alerts
@@ -86,6 +91,7 @@ npm start                 # http://localhost:3000
 |---|---|---|
 | `REACT_APP_API_URL` | `https://employee-management-system-backend-vxar.onrender.com` | Backend base URL. No trailing slash and no `/api` |
 | `REACT_APP_API_TIMEOUT_MS` | `60000` | Request timeout, in milliseconds |
+| `REACT_APP_DEMO_MODE` | `true` in production builds (committed `.env.production`), off otherwise | `true` shows the public demo logins, "Try the demo" buttons and demo-account badges. **The one switch for a real deployment:** set it to `false` in Vercel (Vercel values override `.env.production`) |
 
 CRA reads these at **build time**, so you must rebuild or redeploy after changing them.
 
@@ -111,8 +117,8 @@ CRA reads these at **build time**, so you must rebuild or redeploy after changin
 |---|---|
 | `/`, `/login`, `/register`, `/forgot-password`, `/privacy`, `/terms`, `/contact` | Public |
 | `/employee` | Any signed-in user |
-| `/hr`, `/hr/employees`, `/hr/create-employee`, `/hr/profile` | HR and admin |
-| `/admin`, `/admin/users`, `/admin/user-management`, `/admin/audit-log`, `/admin/hr` | Admin |
+| `/hr`, `/hr/employees`, `/hr/create-employee`, `/hr/departments`, `/hr/profile` | HR and admin |
+| `/admin`, `/admin/users`, `/admin/user-management`, `/admin/audit-log`, `/admin/departments`, `/admin/hr` | Admin |
 
 The old URLs `/AdminDashboard`, `/HRDashboard`, `/EmployeeDashboard`, `/admin/usermanagement` and `/admin/auditlog` redirect to their new paths.
 

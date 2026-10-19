@@ -7,6 +7,7 @@ import AppLayout from "../../components/layout/AppLayout";
 import { useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
 import toast from "react-hot-toast";
+import useDepartments, { departmentOptions } from "../../api/useDepartments";
 import "./HRDashboard.css";
 
 const EmployeeListPage = () => {
@@ -21,9 +22,10 @@ const EmployeeListPage = () => {
   const [formData, setFormData] = useState({
     FullName: "",
     position: "",
-    Department: "",
+    department_id: "",
     salary: "",
   });
+  const { departments } = useDepartments();
 
   const fetchEmployees = async () => {
     try {
@@ -69,7 +71,7 @@ const EmployeeListPage = () => {
     setFormData({
       FullName: employee.FullName,
       position: employee.position,
-      Department: employee.Department,
+      department_id: employee.department_id || "",
       salary: employee.salary,
     });
     setIsModalOpen(true);
@@ -78,7 +80,7 @@ const EmployeeListPage = () => {
   const handleUpdate = async () => {
     setSaving(true);
     try {
-      await api.put(`/api/employees/${editingEmployee.id}`, formData);
+      await api.put(`/api/employees/${editingEmployee.id}`, { ...formData, department_id: Number(formData.department_id) });
       toast.success("Employee updated successfully!");
       setIsModalOpen(false);
       setEditingEmployee(null);
@@ -122,6 +124,7 @@ const EmployeeListPage = () => {
         onDelete={handleDelete}
         linkableUsers={linkableUsers}
         onLink={handleLink}
+        departments={departments}
         loading={loading}
       />
 
@@ -153,13 +156,17 @@ const EmployeeListPage = () => {
           </div>
           <div className="form-group field">
             <label htmlFor="edit-department">Department</label>
-            <input
+            <select
               id="edit-department"
-              type="text"
-              value={formData.Department}
-              onChange={(e) => setFormData({ ...formData, Department: e.target.value })}
+              value={formData.department_id}
+              onChange={(e) => setFormData({ ...formData, department_id: e.target.value })}
               required
-            />
+            >
+              <option value="">Select a department</option>
+              {departmentOptions(departments, editingEmployee?.department_id).map((d) => (
+                <option key={d.id} value={d.id}>{d.name}{d.is_active ? "" : " (deactivated)"}</option>
+              ))}
+            </select>
           </div>
           <div className="form-group field">
             <label htmlFor="edit-salary">Monthly salary (₵)</label>

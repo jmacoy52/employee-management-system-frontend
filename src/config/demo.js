@@ -1,3 +1,9 @@
+// Demo mode: the public portfolio deployment shows demo logins on the landing and sign-in
+// pages. Set REACT_APP_DEMO_MODE=false (Vercel env, or .env.production) for a real deployment;
+// the demo logins, "Try the demo" buttons and demo-account badges then disappear.
+// Read at call time so tests can switch it; the build inlines the value.
+export const isDemoMode = () => String(process.env.REACT_APP_DEMO_MODE).toLowerCase() === "true";
+
 // Public demo accounts (seeded by the backend's db/seed.sql). They are shown on the
 // landing and sign-in pages on purpose so visitors can try each role.
 export const DEMO_ACCOUNTS = [
@@ -15,7 +21,7 @@ export const DEMO_ACCOUNTS = [
     name: "Adwoa Boateng",
     email: "hr@emplocore.demo",
     password: "Hr@EmploCore2026",
-    summary: "Add, edit and delete employee records and link them to user accounts.",
+    summary: "Manage departments and employee records, and link records to user accounts.",
   },
   {
     key: "employee",
@@ -27,11 +33,10 @@ export const DEMO_ACCOUNTS = [
   },
 ];
 
-export const findDemoAccount = (key) => DEMO_ACCOUNTS.find((a) => a.key === key) || null;
+export const findDemoAccount = (key) => (isDemoMode() && DEMO_ACCOUNTS.find((a) => a.key === key)) || null;
 
 // The backend refuses destructive changes to these logins (403), so the UI labels them.
 export const isDemoEmail = (email) =>
-  DEMO_ACCOUNTS.some((a) => a.email === String(email || "").trim().toLowerCase());
+  isDemoMode() && DEMO_ACCOUNTS.some((a) => a.email === String(email || "").trim().toLowerCase());
 
 export const PORTFOLIO_URL = "https://mjay-portfolio.vercel.app";
-export const GITHUB_URL = "https://github.com/jmacoy52";

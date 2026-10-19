@@ -1,12 +1,13 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { getStoredUser } from "../../auth/session";
-import { Users, Plus, UserCircle, Home, ArrowLeft, KeyRound } from "lucide-react";
+import { Users, Plus, UserCircle, Home, ArrowLeft, KeyRound, Building2 } from "lucide-react";
 import AppNav from "./AppNav";
 
 const HR_ITEMS = [
   { to: "/hr", label: "Dashboard", icon: Home },
   { to: "/hr/employees", label: "Employee List", icon: Users },
+  { to: "/hr/departments", label: "Departments", icon: Building2 },
   { to: "/hr/create-employee", label: "Add Employee", icon: Plus },
   { to: "/hr/profile", label: "My Profile", icon: UserCircle },
   { to: "/account/password", label: "Change Password", icon: KeyRound },

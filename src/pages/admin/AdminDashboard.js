@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./AdminDashboard.css";
-import { Users, Settings, ScrollText, UserCheck, Plus, UserX, ShieldCheck, ArrowRight } from "lucide-react";
+import { Users, Settings, ScrollText, UserCheck, Plus, UserX, ShieldCheck, ArrowRight, Building2 } from "lucide-react";
 import api, { getErrorMessage } from "../../api/client";
 import { getStoredUser } from "../../auth/session";
 import { toast } from "react-hot-toast";
@@ -16,6 +16,7 @@ const SHORTCUTS = [
   { to: "/admin/user-management", icon: Settings, title: "User Management", text: "Create, edit, and remove user accounts." },
   { to: "/admin/audit-log", icon: ScrollText, title: "Audit Log", text: "Review admin activity and changes made in the system." },
   { to: "/admin/hr", icon: UserCheck, title: "HR Dashboard", text: "Access HR functionalities and manage employee data." },
+  { to: "/admin/departments", icon: Building2, title: "Departments", text: "Set up departments, their heads and their members." },
 ];
 
 const AdminDashboard = () => {

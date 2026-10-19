@@ -5,9 +5,10 @@ import { Users, Building2, BadgeDollarSign, Link2 } from "lucide-react";
 export const formatCedis = (n) =>
   `₵${Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
 
-const EmployeeStats = ({ employees }) => {
+// departmentCount: active departments from /api/departments (falls back to names in the list)
+const EmployeeStats = ({ employees, departmentCount }) => {
   const totalEmployees = employees.length;
-  const Departments = new Set(employees.map((e) => e.Department));
+  const Departments = new Set(employees.map((e) => e.department_name || e.Department).filter(Boolean));
   const avgSalary = totalEmployees
     ? employees.reduce((acc, curr) => acc + parseFloat(curr.salary || 0), 0) / totalEmployees
     : 0; // no employees yet: show 0 instead of NaN
@@ -26,7 +27,7 @@ const EmployeeStats = ({ employees }) => {
         <span className="stat-icon accent"><Building2 size={22} /></span>
         <div>
           <p className="stat-label">Departments</p>
-          <p className="stat-value">{Departments.size}</p>
+          <p className="stat-value">{departmentCount ?? Departments.size}</p>
         </div>
       </div>
       <div className="stat-tile">

@@ -5,6 +5,13 @@ import Register, { passwordProblem } from "../pages/auth/Register";
 
 const renderAt = (ui, path = "/") => render(<MemoryRouter initialEntries={[path]}>{ui}</MemoryRouter>);
 
+beforeEach(() => {
+  process.env.REACT_APP_DEMO_MODE = "true";
+});
+afterEach(() => {
+  delete process.env.REACT_APP_DEMO_MODE;
+});
+
 test("login has labelled fields and the password can be shown and hidden", () => {
   renderAt(<Login />, "/login");
   const password = screen.getByLabelText("Password");
@@ -22,6 +29,14 @@ test("?demo=hr pre-fills the HR demo account, and the demo buttons fill others",
   expect(screen.getByLabelText("Password")).toHaveValue("Hr@EmploCore2026");
   fireEvent.click(screen.getByRole("button", { name: "Employee" }));
   expect(screen.getByLabelText("Email")).toHaveValue("kwame.mensah@emplocore.demo");
+});
+
+test("with demo mode off, the sign-in page has no demo picker and ignores ?demo=", () => {
+  process.env.REACT_APP_DEMO_MODE = "false";
+  renderAt(<Login />, "/login?demo=hr");
+  expect(screen.getByLabelText("Email")).toHaveValue("");
+  expect(screen.queryByText(/demo account/i)).toBeNull();
+  expect(screen.queryByRole("button", { name: "Employee" })).toBeNull();
 });
 
 test("unknown demo key leaves the form empty", () => {

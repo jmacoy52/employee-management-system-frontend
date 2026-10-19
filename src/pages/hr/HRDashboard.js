@@ -6,7 +6,8 @@ import AppLayout from "../../components/layout/AppLayout";
 import ActionBadge from "../../components/common/ActionBadge";
 import { getStoredUser } from "../../auth/session";
 import { useNavigate } from "react-router-dom";
-import { Plus, Users } from "lucide-react";
+import { Plus, Users, Building2 } from "lucide-react";
+import useDepartments from "../../api/useDepartments";
 import "./HRDashboard.css";
 import toast from "react-hot-toast";
 
@@ -16,6 +17,7 @@ const HRDashboard = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const user = getStoredUser();
+  const { departments } = useDepartments();
 
 
   const fetchEmployees = async () => {
@@ -45,13 +47,17 @@ const HRDashboard = () => {
   }, []);
 
   // Headcount per department, largest first (replaces the old duplicate "Quick Stats").
+  // Uses the real departments (with their employee counts); people without one are listed last.
   const byDepartment = useMemo(() => {
-    const counts = {};
-    employees.forEach((e) => {
-      counts[e.Department] = (counts[e.Department] || 0) + 1;
-    });
-    return Object.entries(counts).sort((a, b) => b[1] - a[1]);
-  }, [employees]);
+    const rows = (departments || [])
+      .filter((d) => d.is_active || d.employee_count > 0)
+      .map((d) => [d.name, d.employee_count]);
+    const unassigned = employees.filter((e) => !e.department_id).length;
+    rows.sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+    if (unassigned) rows.push(["No department", unassigned]);
+    return rows;
+  }, [departments, employees]);
+  const activeDepartments = departments ? departments.filter((d) => d.is_active).length : undefined;
 
   const today = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
   const firstName = (user?.username || "").split(" ")[0];
@@ -70,12 +76,15 @@ const HRDashboard = () => {
           <button className="btn btn-secondary" onClick={() => navigate("/hr/employees")}>
             <Users size={18} /> View Employees
           </button>
+          <button className="btn btn-secondary" onClick={() => navigate("/hr/departments")}>
+            <Building2 size={18} /> Departments
+          </button>
         </div>
       }
     >
       {error && <p className="error page-error" role="alert">{error}</p>}
 
-      <EmployeeStats employees={employees} />
+      <EmployeeStats employees={employees} departmentCount={activeDepartments} />
 
       <div className="two-col section">
         <section className="card">
@@ -83,7 +92,11 @@ const HRDashboard = () => {
             <h2 className="card-title">Employees by department</h2>
           </div>
           {byDepartment.length === 0 ? (
-            <p className="muted">No employees yet. Add your first employee to see a breakdown.</p>
+            <p className="muted">
+              {departments && departments.length === 0
+                ? "No departments yet. Create your departments to see headcount by department."
+                : "No employees yet. Add your first employee to see a breakdown."}
+            </p>
           ) : (
             <ul className="dept-list">
               {byDepartment.map(([dept, n]) => (
@@ -93,7 +106,7 @@ const HRDashboard = () => {
                     <span className="dept-count">{n}</span>
                   </div>
                   <div className="dept-bar" aria-hidden="true">
-                    <span style={{ width: `${(n / employees.length) * 100}%` }} />
+                    <span style={{ width: `${employees.length ? (n / employees.length) * 100 : 0}%` }} />
                   </div>
                 </li>
               ))}

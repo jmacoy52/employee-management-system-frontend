@@ -1,5 +1,7 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import api, { getErrorMessage } from "../../api/client";
+import useDepartments, { departmentOptions } from "../../api/useDepartments";
 import "./EmployeeForm.css";
 
 const EmployeeForm = ({ onSuccess, onCancel }) => {
@@ -7,11 +9,13 @@ const EmployeeForm = ({ onSuccess, onCancel }) => {
     FullName: "",
     email: "",
     position: "",
-    Department: "",
+    department_id: "",
     salary: "",
   });
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const { departments } = useDepartments();
+  const options = departmentOptions(departments);
 
 
 
@@ -29,6 +33,7 @@ const EmployeeForm = ({ onSuccess, onCancel }) => {
     const payload = {
       ...formData,
       salary: Number(formData.salary),
+      department_id: Number(formData.department_id),
     };
 
     setSaving(true);
@@ -87,15 +92,23 @@ const EmployeeForm = ({ onSuccess, onCancel }) => {
         </div>
         <div className="field">
           <label htmlFor="emp-department">Department</label>
-          <input
+          <select
             id="emp-department"
-            type="text"
-            name="Department"
-            placeholder="e.g. Finance"
-            value={formData.Department}
+            name="department_id"
+            value={formData.department_id}
             onChange={handleChange}
             required
-          />
+          >
+            <option value="">{departments === null ? "Loading…" : "Select a department"}</option>
+            {options.map((d) => (
+              <option key={d.id} value={d.id}>{d.name}</option>
+            ))}
+          </select>
+          {departments && options.length === 0 && (
+            <p className="field-hint">
+              No departments yet. <Link to="/hr/departments">Create one first</Link>.
+            </p>
+          )}
         </div>
         <div className="field">
           <label htmlFor="emp-salary">Monthly salary (₵)</label>

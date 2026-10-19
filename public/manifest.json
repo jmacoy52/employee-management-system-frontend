@@ -1,7 +1,7 @@
 {
   "short_name": "EmploCore",
   "name": "EmploCore – Employee Management System",
-  "description": "Role-based employee management: employee records, user accounts, password resets and an audit log.",
+  "description": "Staff records, departments and controlled access with a full audit trail.",
   "icons": [
     {
       "src": "favicon.svg",

@@ -17,12 +17,14 @@ export const PATHS = {
   hrEmployees: "/hr/employees",
   hrCreateEmployee: "/hr/create-employee",
   hrProfile: "/hr/profile",
+  hrDepartments: "/hr/departments",
 
   admin: "/admin",
   adminUsers: "/admin/users",
   adminUserManagement: "/admin/user-management",
   adminAuditLog: "/admin/audit-log",
   adminHr: "/admin/hr",
+  adminDepartments: "/admin/departments",
 };
 
 // Old URLs that may be bookmarked or linked elsewhere -> new URLs.

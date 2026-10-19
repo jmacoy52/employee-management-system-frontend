@@ -3,13 +3,15 @@ import { Link, NavLink, useLocation } from "react-router-dom";
 import { Menu, X, CircleHelp } from "lucide-react";
 import Logo from "../brand/Logo";
 import Modal from "../common/Modal";
+import { isDemoMode } from "../../config/demo";
 import "./Header.css";
 
 // Public pages: logo, section links, Help and Sign in. Collapses into a menu on small screens.
 const SECTION_LINKS = [
   { href: "/#features", label: "Features" },
-  { href: "/#get-started", label: "Get started" },
-  { href: "/#demo", label: "Demo" },
+  { href: "/#why", label: "Why EmploCore" },
+  { href: "/#organisations", label: "For organisations" },
+  { href: "/#demo", label: "Demo", demoOnly: true },
 ];
 
 const Header = () => {
@@ -42,7 +44,7 @@ const Header = () => {
           </button>
           <nav id="public-nav" className={`navbar ${menuOpen ? "open" : ""}`} aria-label="Main">
             <ul className="navbar-links">
-              {SECTION_LINKS.map((l) => (
+              {SECTION_LINKS.filter((l) => !l.demoOnly || isDemoMode()).map((l) => (
                 <li key={l.href}>
                   <a href={l.href}>{l.label}</a>
                 </li>
@@ -65,24 +67,24 @@ const Header = () => {
         <div className="help-sections">
           <div className="help-section">
             <h4>Getting Started</h4>
-            <p>Welcome to EmploCore! Sign in with the account your administrator gave you, or register an employee account. You can also try one of the demo logins on the home page.</p>
+            <p>Welcome to EmploCore! Sign in with the account your administrator gave you, or register an employee account.{isDemoMode() && " You can also try one of the demo logins on the home page."}</p>
           </div>
           <div className="help-section">
             <h4>User Roles</h4>
             <ul>
               <li><strong>Admin:</strong> Full access to user management, audit logs, and HR functions.</li>
-              <li><strong>HR:</strong> Manage employees, view profiles, and access HR dashboard.</li>
+              <li><strong>HR:</strong> Manage employee records and departments, and link records to user accounts.</li>
               <li><strong>Employee:</strong> View and update your own profile and see your employment record.</li>
             </ul>
           </div>
           <div className="help-section">
             <h4>Features</h4>
             <ul>
-              <li>Secure role-based access control</li>
-              <li>Employee management system</li>
-              <li>User profile management</li>
-              <li>Audit logging for security</li>
-              <li>Responsive dashboards</li>
+              <li>Role-based access for administrators, HR and employees</li>
+              <li>Staff records organised by department</li>
+              <li>Self-service profiles for employees</li>
+              <li>An audit trail of sign-ins and changes</li>
+              <li>Works on phone, tablet and desktop</li>
             </ul>
           </div>
           <div className="help-section">

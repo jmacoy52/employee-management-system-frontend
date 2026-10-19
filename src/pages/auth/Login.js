@@ -6,7 +6,7 @@ import AuthLayout from "../../components/auth/AuthLayout";
 import PasswordInput from "../../components/auth/PasswordInput";
 import SubmitButton from "../../components/auth/SubmitButton";
 import { ROLE_HOME, PATHS } from "../../routes/paths";
-import { DEMO_ACCOUNTS, findDemoAccount } from "../../config/demo";
+import { DEMO_ACCOUNTS, findDemoAccount, isDemoMode } from "../../config/demo";
 import { toast } from "react-hot-toast"; // toast for notifications
 import { saveSession } from "../../auth/session";
 
@@ -122,6 +122,7 @@ const Login = () => {
         </SubmitButton>
       </form>
 
+      {isDemoMode() && (
       <div className="demo-picker">
         <p>Trying EmploCore? Fill in a demo account:</p>
         <div className="demo-picker-buttons">
@@ -138,6 +139,7 @@ const Login = () => {
           ))}
         </div>
       </div>
+      )}
     </AuthLayout>
   );
 };

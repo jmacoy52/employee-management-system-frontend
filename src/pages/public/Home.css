@@ -69,14 +69,20 @@
   color: var(--color-muted);
 }
 
-/* Product preview card */
-.preview {
+/* Product screenshot in a browser frame */
+.product-shot {
+  margin: 0;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-surface);
   box-shadow: var(--shadow-lg);
   overflow: hidden;
-  font-size: var(--text-sm);
+}
+
+.product-shot img {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 .preview-bar {
@@ -104,87 +110,6 @@
   font-size: var(--text-xs);
 }
 
-.preview-body {
-  padding: var(--space-5);
-}
-
-.preview-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-3);
-  margin-bottom: var(--space-4);
-}
-
-.preview-stats div {
-  padding: var(--space-3);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-}
-
-.preview-stats small {
-  display: block;
-  color: var(--color-muted);
-  font-size: var(--text-xs);
-}
-
-.preview-stats strong {
-  font-size: var(--text-lg);
-  color: var(--color-ink);
-}
-
-.preview-table {
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-
-.preview-row {
-  display: grid;
-  grid-template-columns: 1.1fr 1.3fr 1fr;
-  gap: var(--space-3);
-  padding: var(--space-2) var(--space-3);
-  border-top: 1px solid var(--color-border);
-  color: var(--color-text-2);
-  white-space: nowrap;
-}
-
-.preview-row span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.preview-row span:first-child {
-  color: var(--color-text);
-  font-weight: 600;
-}
-
-.preview-row.head {
-  border-top: none;
-  background: var(--color-surface-2);
-  color: var(--color-muted);
-  font-size: var(--text-xs);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.preview-row.head span:first-child {
-  color: var(--color-muted);
-  font-weight: 700;
-}
-
-.dot {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  margin-right: 6px;
-  border-radius: 2px;
-  vertical-align: 1px;
-}
-.dot-blue { background: var(--color-primary); }
-.dot-teal { background: var(--color-accent); }
-.dot-amber { background: var(--color-warning); }
-.dot-slate { background: var(--color-subtle); }
 
 /* ---------- Sections ---------- */
 .section-block {
@@ -419,42 +344,115 @@
   color: var(--color-muted);
 }
 
-/* ---------- Stack ---------- */
-.stack-list {
+/* ---------- Why EmploCore ---------- */
+.benefit-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-5);
+}
+
+.benefit {
+  display: flex;
   gap: var(--space-4);
+  padding: var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.benefit-icon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+}
+
+.benefit h3 {
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-lg);
+  color: var(--color-ink);
+}
+
+.benefit p {
+  margin: 0;
+  color: var(--color-text-2);
+  line-height: 1.6;
+}
+
+/* ---------- For organisations ---------- */
+.org-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-12);
+}
+
+.org-copy h2 {
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-3xl);
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+}
+
+.org-copy > p:not(.eyebrow) {
+  margin: 0 0 var(--space-6);
+  font-size: var(--text-lg);
+  line-height: 1.6;
+  color: var(--color-text-2);
+}
+
+.org-points {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.stack-list li {
+.org-points li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  color: var(--color-text);
+}
+
+.org-points svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--color-accent-strong);
+}
+
+.org-card {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
-  padding: var(--space-5);
-  border-top: 3px solid var(--color-primary);
-  border-radius: var(--radius);
-  background: var(--color-bg);
+  gap: var(--space-3);
+  padding: var(--space-8);
+  border-radius: var(--radius-lg);
+  background: var(--color-ink);
+  color: var(--color-on-dark);
+  box-shadow: var(--shadow-lg);
 }
 
-.stack-list li:nth-child(even) {
-  border-top-color: var(--color-accent);
+.org-card svg {
+  color: var(--color-core);
 }
 
-.stack-list strong {
-  color: var(--color-ink);
+.org-card h3 {
+  margin: 0;
+  font-size: var(--text-xl);
+  color: var(--color-white);
 }
 
-.stack-list span {
-  font-size: var(--text-sm);
-  color: var(--color-text-2);
-}
-
-.stack-links {
-  margin: var(--space-6) 0 0;
-  color: var(--color-text-2);
+.org-card p {
+  margin: 0 0 var(--space-3);
+  color: var(--color-on-dark-muted);
+  line-height: 1.6;
 }
 
 /* ---------- Closing CTA ---------- */
@@ -505,12 +503,6 @@
 }
 
 /* ---------- Responsive ---------- */
-@media (max-width: 1080px) {
-  .stack-list {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
 @media (max-width: 960px) {
   .hero-inner {
     grid-template-columns: 1fr;
@@ -521,6 +513,10 @@
   .steps-grid,
   .demo-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .org-inner {
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
   }
 }
 
@@ -547,24 +543,20 @@
   .role-grid,
   .steps-grid,
   .demo-grid,
-  .stack-list {
+  .benefit-grid {
     grid-template-columns: 1fr;
   }
-  .preview-stats {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--space-2);
+  .benefit {
+    padding: var(--space-5);
   }
-  .preview-stats strong {
+  .org-copy h2 {
+    font-size: var(--text-2xl);
+  }
+  .org-copy > p:not(.eyebrow) {
     font-size: var(--text-base);
   }
-  .preview-body {
-    padding: var(--space-3);
-  }
-  .preview-row {
-    grid-template-columns: 1fr 1fr;
-  }
-  .preview-row span:nth-child(3) {
-    display: none;
+  .org-card {
+    padding: var(--space-6);
   }
   .cta-band {
     padding: var(--space-10) var(--space-4);

@@ -5,19 +5,26 @@ import { formatCedis } from "./EmployeeStats";
 import "./EmployeeForm.css";
 
 // linkableUsers/onLink are optional: when given, an Account column lets HR link a user account.
-const EmployeeList = ({ employees, onEdit, onDelete, linkableUsers, onLink, loading = false }) => {
+// departments (from /api/departments) feeds the department filter; without it the filter
+// falls back to the department names found in the list.
+const EmployeeList = ({ employees, onEdit, onDelete, linkableUsers, onLink, departments, loading = false }) => {
     const [selectedDept, setSelectedDept] = useState("All");
     const [query, setQuery] = useState("");
 
-  const departments = [
-    "All",
-    ...Array.from(new Set(employees.map((emp) => emp.Department))),
-  ];
+  const deptName = (emp) => emp.department_name || emp.Department || "";
+  const filterOptions = departments
+    ? departments.map((d) => ({ value: String(d.id), label: d.is_active ? d.name : `${d.name} (deactivated)` }))
+    : Array.from(new Set(employees.map(deptName).filter(Boolean))).map((n) => ({ value: n, label: n }));
+  const matchesDept = (emp) => {
+    if (selectedDept === "All") return true;
+    if (selectedDept === "none") return !emp.department_id && !emp.Department;
+    return departments ? String(emp.department_id) === selectedDept : deptName(emp) === selectedDept;
+  };
 
   const q = query.trim().toLowerCase();
   const filteredEmployees = employees.filter(
     (emp) =>
-      (selectedDept === "All" || emp.Department === selectedDept) &&
+      matchesDept(emp) &&
       (!q || `${emp.FullName} ${emp.email} ${emp.position}`.toLowerCase().includes(q))
   );
   return (
@@ -40,11 +47,13 @@ const EmployeeList = ({ employees, onEdit, onDelete, linkableUsers, onLink, load
             value={selectedDept}
             onChange={(e) => setSelectedDept(e.target.value)}
           >
-            {departments.map((dept) => (
-              <option key={dept} value={dept}>
-                {dept}
+            <option value="All">All departments</option>
+            {filterOptions.map((dept) => (
+              <option key={dept.value} value={dept.value}>
+                {dept.label}
               </option>
             ))}
+            {employees.some((emp) => !emp.department_id && !emp.Department) && <option value="none">No department</option>}
           </select>
         </div>
         <span className="toolbar-count">{filteredEmployees.length} of {employees.length}</span>
@@ -71,7 +80,7 @@ const EmployeeList = ({ employees, onEdit, onDelete, linkableUsers, onLink, load
               <td data-label="ID" className="cell-muted">{emp.id}</td>
               <td data-label="Full Name" className="cell-strong">{emp.FullName}</td>
               <td data-label="Position">{emp.position}</td>
-              <td data-label="Department"><span className="badge">{emp.Department}</span></td>
+              <td data-label="Department">{deptName(emp) ? <span className="badge">{deptName(emp)}</span> : <span className="cell-muted">None</span>}</td>
               <td data-label="Salary" className="cell-nowrap">{formatCedis(emp.salary)}</td>
               <td data-label="Email">{emp.email}</td>
                <td data-label="Joined" className="cell-muted cell-nowrap">{new Date(emp.created_at).toLocaleDateString()}</td>
