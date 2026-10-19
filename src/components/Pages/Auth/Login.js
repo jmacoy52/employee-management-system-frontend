@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import api from "../../../api/client";
+import api, { getErrorMessage } from "../../../api/client";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-hot-toast"; // toast for notifications
@@ -9,6 +9,7 @@ const Login = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   // handle field change
   const handleChange = (e) =>
@@ -18,6 +19,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
     try {
       const res = await api.post("/api/users/login",
@@ -45,9 +47,9 @@ const Login = () => {
         navigate("/EmployeeDashboard");
       }
     } catch (err) {
-      setError(
-        err.response?.data?.error || "Login failed. Please try again."
-      );
+      setError(getErrorMessage(err, "Login failed. Please try again."));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -72,9 +74,10 @@ const Login = () => {
           onChange={handleChange}
           required
         />
-        {error && <p className="error">{error}</p>}
-        <button type="submit" className="btn-login">
-          Login
+        {loading && <p className="auth-hint">Contacting the server… this can take up to 20 seconds if it is waking up.</p>}
+        {error && <p className="error" role="alert">{error}</p>}
+        <button type="submit" className="btn-login" disabled={loading}>
+          {loading ? "Signing in…" : "Login"}
         </button>
       </form>
       <div className="auth-links">

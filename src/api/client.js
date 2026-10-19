@@ -18,7 +18,7 @@ api.interceptors.request.use((config) => {
 });
 
 export const SERVER_UNAVAILABLE_MESSAGE =
-  "Server is waking up or unavailable, try again in a minute.";
+  "Server is waking up or unavailable, try again.";
 
 // Turn an axios error into a message that is safe to show to users.
 export function getErrorMessage(err, fallback = "Something went wrong. Please try again.") {

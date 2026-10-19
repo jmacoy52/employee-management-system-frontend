@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import api from "../../../api/client";
+import api, { getErrorMessage } from "../../../api/client";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-hot-toast"; //toast for notifications
 import "./Register.css";
@@ -14,6 +14,7 @@ const Register = () => {
   });
 
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -25,6 +26,7 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
     try {
       const response = await api.post("/api/users/register", formData);
@@ -34,7 +36,9 @@ const Register = () => {
         navigate("/login"); // redirect to login
       }
     } catch (err) {
-      setError(err.response?.data?.error || "Registration failed. Try again.");
+      setError(getErrorMessage(err, "Registration failed. Try again."));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -74,8 +78,11 @@ const Register = () => {
           onChange={handleChange}
           required
         />
-        {error && <p className="error">{error}</p>}
-        <button type="submit" className="btn-register">Register</button>
+        {loading && <p className="auth-hint">Contacting the server… this can take up to 20 seconds if it is waking up.</p>}
+        {error && <p className="error" role="alert">{error}</p>}
+        <button type="submit" className="btn-register" disabled={loading}>
+          {loading ? "Creating account…" : "Register"}
+        </button>
       </form>
       <div className="auth-links">
         <Link to="/login">Already have an account? Login</Link>
