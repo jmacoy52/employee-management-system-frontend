@@ -1,70 +1,98 @@
-# Getting Started with Create React App
+# EmploCore — Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+EmploCore is an employee management system with role-based dashboards for **admins**, **HR** and **employees**. This repository is the React single-page app. It is live at **https://emplocore.vercel.app**.
 
-## Available Scripts
+Built and maintained by [Joseph Migbodzi](https://mjay-portfolio.vercel.app) ([GitHub](https://github.com/jmacoy52)).
 
-In the project directory, you can run:
+## Features
 
-### `npm start`
+- Sign in with JWT authentication. Each role lands on its own dashboard (`/admin`, `/hr`, `/employee`).
+- **Admin:** view users, change roles, delete users, read the audit log, and open the HR dashboard.
+- **HR:** list, add, edit and delete employees, and manage their own profile.
+- **Employee:** view and update their own profile.
+- Public pages: home, privacy policy, terms, contact, forgot password (handled by an administrator) and a 404 page.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Tech stack
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- React 19, Create React App 5 (`react-scripts`)
+- React Router 7
+- Axios, through a single shared client (`src/api/client.js`)
+- react-hot-toast, lucide-react, jwt-decode
+- Backend: Node.js / Express / MySQL REST API, hosted on Render (separate repository)
 
-### `npm test`
+## Project structure
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```
+src/
+├── api/client.js        # axios instance: base URL, 20s timeout, auth header, error messages
+├── config/env.js        # reads REACT_APP_* environment variables
+├── routes/
+│   ├── AppRoutes.js     # route table, legacy redirects, 404
+│   ├── PrivateRoute.js  # role-based guard
+│   └── paths.js         # all route paths + role home pages
+├── pages/
+│   ├── public/          # Home, Privacy, Terms, Contact, NotFound
+│   ├── auth/            # Login, Register, ForgotPassword
+│   ├── employee/        # EmployeeDashboard
+│   ├── hr/              # HRDashboard, EmployeeListPage, AddEmployeePage, MyProfilePage
+│   └── admin/           # AdminDashboard, UserList, UserManagement, AuditLog
+├── components/
+│   ├── layout/          # Header, Footer, PageLayout, AdminNav, HRNav, EmployeeNav
+│   └── common/          # Modal, ProfilePanel, EmployeeForm, EmployeeList, EmployeeStats
+├── styles/pages.css     # shared page/layout styles
+├── App.js               # router + toaster
+└── index.js
+```
 
-### `npm run build`
+## Getting started
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Requirements: Node.js 18+ and npm.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```bash
+git clone https://github.com/jmacoy52/employee-management-system-frontend.git
+cd employee-management-system-frontend
+npm install
+cp .env.example .env      # then edit if you use a different API
+npm start                 # http://localhost:3000
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Environment variables
 
-### `npm run eject`
+| Variable | Default | Purpose |
+|---|---|---|
+| `REACT_APP_API_URL` | `https://employee-management-system-backend-vxar.onrender.com` | Backend base URL. No trailing slash and no `/api` |
+| `REACT_APP_API_TIMEOUT_MS` | `20000` | Request timeout, in milliseconds |
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+CRA reads these at **build time**, so you must rebuild or redeploy after changing them.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Scripts
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+| Command | What it does |
+|---|---|
+| `npm start` | Runs the dev server on port 3000 |
+| `npm test` | Runs the Jest tests (smoke test in `src/App.test.js`) |
+| `npm run build` | Builds for production into `build/` |
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## Deployment (Vercel)
 
-## Learn More
+- **Framework preset:** Create React App. **Build command:** `npm run build`. **Output directory:** `build` (see `vercel.json`).
+- Set `REACT_APP_API_URL` in Vercel → Project → Settings → Environment Variables.
+- Deploy from the GitHub `main` branch through Vercel's Git integration, so production always matches the repository.
+- The backend's CORS settings must allow the frontend origin (`https://emplocore.vercel.app`).
+- The backend runs on Render's free tier, which sleeps when idle. The first request can take up to a minute. The UI shows a "server is waking up" message if a request times out.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Routes
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+| Path | Access |
+|---|---|
+| `/`, `/login`, `/register`, `/forgot-password`, `/privacy`, `/terms`, `/contact` | Public |
+| `/employee` | Any signed-in user |
+| `/hr`, `/hr/employees`, `/hr/create-employee`, `/hr/profile` | HR and admin |
+| `/admin`, `/admin/users`, `/admin/user-management`, `/admin/audit-log`, `/admin/hr` | Admin |
 
-### Code Splitting
+The old URLs `/AdminDashboard`, `/HRDashboard`, `/EmployeeDashboard`, `/admin/usermanagement` and `/admin/auditlog` redirect to their new paths.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## Security notes
 
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- Public registration offers only the **employee** and **hr** roles, with a minimum password length of 8 characters. The **backend must enforce the same rules**, because a client-side check can be bypassed.
+- Tokens are kept in `localStorage` and removed on logout.

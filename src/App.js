@@ -1,55 +1,15 @@
-import { Toaster } from "react-hot-toast";
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Home from "./components/Pages/Home";
-import Login from "./components/Pages/Auth/Login";
-import Register from "./components/Pages/Auth/Register";
-import Privacy from "./components/Pages/Privacy";
-import Terms from "./components/Pages/Terms";
-import Contact from "./components/Pages/Contact";
-import HRDashboard from "./components/Pages/Dashboards/HRDashboard/HRDashboard";
-import AdminDashboard from "./components/Pages/Dashboards/AdminDashboard/AdminDashboard";
-import PrivateRoute from "./components/Pages/Auth/PrivateRoute";
-import UserList from "./components/Pages/Dashboards/AdminDashboard/UserList";
-import UserManagement from "./components/Pages/Dashboards/AdminDashboard/UserManagement";
-import AuditLog from "./components/Pages/Dashboards/AdminDashboard/AuditLog";
-import EmployeeListPage from "./components/Pages/Dashboards/HRDashboard/EmployeeListPage";
-import AddEmployeePage from "./components/Pages/Dashboards/HRDashboard/AddEmployeePage";
-import MyProfilePage from "./components/Pages/Dashboards/HRDashboard/MyProfilePage";
-
-import './App.css';
+import { BrowserRouter } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
+import AppRoutes from "./routes/AppRoutes";
+import "./styles/pages.css";
 
 function App() {
   return (
-    <Router>
+    <BrowserRouter>
       <Toaster position="top-right" reverseOrder={false} />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/privacy" element={<Privacy />} />
-        <Route path="/terms" element={<Terms />} />
-        <Route path="/contact" element={<Contact />} />
-
-        {/* HR Routes - Protected */}
-        <Route element={<PrivateRoute allowedRoles={["hr", "admin"]} />}>
-          <Route path="/HRDashboard" element={<HRDashboard />} />
-          <Route path="/hr/employees" element={<EmployeeListPage />} />
-          <Route path="/hr/create-employee" element={<AddEmployeePage />} />
-          <Route path="/hr/profile" element={<MyProfilePage />} />
-        </Route>
-
-        {/* Admin Routes - Protected */}
-        <Route element={<PrivateRoute allowedRoles={["admin"]} />}>
-          <Route path="/AdminDashboard" element={<AdminDashboard />} />
-          <Route path="/admin/users" element={<UserList />} />
-          <Route path="/admin/usermanagement" element={<UserManagement />} />
-          <Route path="/admin/auditlog" element={<AuditLog />} />
-          <Route path="/admin/hr" element={<HRDashboard />} />
-         
-        </Route>
-      </Routes>
-    </Router>
+      <AppRoutes />
+    </BrowserRouter>
   );
 }
 
