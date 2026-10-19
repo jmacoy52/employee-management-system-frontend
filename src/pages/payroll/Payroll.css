@@ -487,29 +487,13 @@
   max-width: 720px;
 }
 
+/* Employee choice in the Run payroll dialog: option rows (see .option-list), scrolling when long */
 .employee-picker {
-  max-height: 260px;
+  max-height: 300px;
   overflow-y: auto;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  padding: var(--space-2) var(--space-3);
+  -webkit-overflow-scrolling: touch;
 }
 
-.employee-picker label,
-.radio-row label {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-1) 0;
-  font-size: var(--text-sm);
-  cursor: pointer;
-}
-
-.radio-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-4);
-}
 
 .tax-bands {
   font-size: var(--text-sm);
@@ -594,8 +578,7 @@ fieldset.field {
   min-width: 0;
 }
 
-/* Money values in the stat tiles stay on one line */
+/* Money values in the stat tiles: a little smaller than the default stat value */
 .payroll-stats .stat-value {
-  font-size: var(--text-xl);
-  white-space: nowrap;
+  font-size: clamp(1.1rem, 0.9rem + 0.8vw, var(--text-xl));
 }

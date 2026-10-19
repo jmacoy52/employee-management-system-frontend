@@ -206,20 +206,24 @@ const RunPayrollForm = ({ employees, onDone, onCancel }) => {
           <input id="run-paydate" className="input" type="date" required value={payDate} onChange={(e) => setPayDate(e.target.value)} />
         </div>
       </div>
-      <fieldset className="field">
+      <fieldset className="option-list inline">
         <legend className="field-label">Employees</legend>
-        <div className="radio-row">
-          <label><input type="radio" name="scope" value="all" checked={scope === "all"} onChange={() => setScope("all")} /> All employees ({payable.length})</label>
-          <label><input type="radio" name="scope" value="selected" checked={scope === "selected"} onChange={() => setScope("selected")} /> Selected employees</label>
-        </div>
+        <label className="option-row">
+          <input type="radio" name="scope" value="all" checked={scope === "all"} onChange={() => setScope("all")} />
+          <span className="option-text">All employees ({payable.length})</span>
+        </label>
+        <label className="option-row">
+          <input type="radio" name="scope" value="selected" checked={scope === "selected"} onChange={() => setScope("selected")} />
+          <span className="option-text">Selected employees</span>
+        </label>
       </fieldset>
       {scope === "selected" && (
-        <div className="employee-picker" role="group" aria-label="Select employees">
+        <div className="employee-picker option-list" role="group" aria-label="Select employees">
           {payable.map((e) => (
-            <label key={e.employeeId}>
+            <label key={e.employeeId} className="option-row">
               <input type="checkbox" checked={selected.includes(e.employeeId)}
                 onChange={(ev) => setSelected(ev.target.checked ? [...selected, e.employeeId] : selected.filter((id) => id !== e.employeeId))} />
-              {e.name} <span className="muted">· {formatMoney(e.basic)}</span>
+              <span className="option-text">{e.name} <span className="muted">· {formatMoney(e.basic)}</span></span>
             </label>
           ))}
         </div>

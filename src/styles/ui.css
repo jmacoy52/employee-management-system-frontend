@@ -203,7 +203,7 @@
 }
 
 .input,
-.field input,
+.field input:not([type="checkbox"]):not([type="radio"]),
 .field select,
 .field textarea {
   width: 100%;
@@ -223,7 +223,7 @@
 }
 
 .input:focus,
-.field input:focus,
+.field input:not([type="checkbox"]):not([type="radio"]):focus,
 .field select:focus,
 .field textarea:focus {
   outline: none;
@@ -231,8 +231,92 @@
   box-shadow: var(--focus-ring);
 }
 
-.field input[aria-invalid="true"] {
+.field input[aria-invalid="true"]:not([type="checkbox"]):not([type="radio"]) {
   border-color: var(--color-danger);
+}
+
+/* Date and month pickers: value left-aligned like the other inputs (iOS Safari centres it) */
+.input[type="date"],
+.input[type="month"],
+.input[type="time"],
+.field input[type="date"],
+.field input[type="month"],
+.field input[type="time"] {
+  display: block;
+  text-align: left;
+  -webkit-appearance: none;
+  appearance: none;
+}
+input[type="date"]::-webkit-date-and-time-value,
+input[type="month"]::-webkit-date-and-time-value,
+input[type="time"]::-webkit-date-and-time-value {
+  text-align: left;
+  margin: 0;
+}
+
+/* Checkboxes and radios are never sized or styled like text inputs, wherever they appear */
+input[type="checkbox"],
+input[type="radio"] {
+  -webkit-appearance: auto;
+  appearance: auto;
+  flex: none;
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  box-shadow: none;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+/* Choice lists: one tappable row per option (radio or checkbox + label), full width */
+.option-list {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.option-list legend {
+  padding: 0;
+  margin-bottom: var(--space-2);
+}
+.option-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text);
+  cursor: pointer;
+  text-align: left;
+}
+.option-row:has(input:checked) {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+.option-row:has(input:focus-visible) {
+  box-shadow: var(--focus-ring);
+}
+.option-row .option-text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+@media (min-width: 601px) {
+  .option-list.inline {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
 }
 
 .select-sm {
@@ -540,12 +624,17 @@
   color: var(--color-muted);
 }
 
+.stat-tile > div {
+  min-width: 0;
+}
+
 .stat-value {
   margin: 0;
-  font-size: var(--text-2xl);
+  font-size: clamp(1.25rem, 1rem + 1vw, var(--text-2xl));
   font-weight: 700;
   color: var(--color-text);
   line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 /* ---------- Description lists (profile details) ---------- */
@@ -595,7 +684,7 @@
     padding: var(--space-4);
   }
   .stat-value {
-    font-size: var(--text-xl);
+    font-size: clamp(1.05rem, 0.8rem + 1.6vw, var(--text-xl));
   }
   .card {
     padding: var(--space-4);
@@ -605,6 +694,21 @@
   }
   .form-actions .btn {
     flex: 1 1 auto;
+  }
+}
+
+/* Small phones: one stat per row (icon beside the value), so long values such as money and
+   month names always fit */
+@media (max-width: 480px) {
+  .stat-grid {
+    grid-template-columns: 1fr;
+  }
+  .stat-tile {
+    flex-direction: row;
+    align-items: center;
+  }
+  .stat-value {
+    font-size: var(--text-xl);
   }
 }
 
