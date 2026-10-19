@@ -1,0 +1,158 @@
+# End-to-end browser checks (Playwright for Python) against a LOCAL backend + built frontend
+# with demo data loaded (SEED_DEMO=true). Never run against production: it creates and changes users.
+#   E2E_BASE_URL (default http://127.0.0.1:5056)  E2E_API_URL (default http://127.0.0.1:5055)
+#   E2E_CHROME (optional browser executable)      E2E_OUT (screenshots/results dir, default ./e2e/out)
+import json, time, re, os
+from playwright.sync_api import sync_playwright
+B=os.environ.get("E2E_BASE_URL","http://127.0.0.1:5056"); O=os.environ.get("E2E_OUT","e2e/out"); os.makedirs(O, exist_ok=True); R=[]; stamp=str(int(time.time()))
+def ok(name, cond, extra=""): R.append((name, bool(cond), extra)); print(("PASS " if cond else "FAIL ")+name+("" if cond else f"  [{extra}]"), flush=True)
+def login(pg, email, pw):
+    pg.goto(B+"/login", wait_until="networkidle"); pg.fill("input[name=email]", email); pg.fill("input[name=password]", pw)
+    pg.click("button[type=submit]")
+    try: pg.wait_for_url(lambda u: not u.endswith("/login"), timeout=15000)
+    except Exception: pass
+    pg.wait_for_load_state("networkidle")
+with sync_playwright() as p:
+    b=p.chromium.launch(**({"executable_path": os.environ["E2E_CHROME"]} if os.environ.get("E2E_CHROME") else {}), args=["--no-sandbox"])
+    def newpage():
+        c=b.new_context(viewport={"width":1366,"height":900}); pg=c.new_page(); errs=[]
+        pg.on("pageerror",lambda e: errs.append(str(e))); pg.on("dialog", lambda d: d.accept()); return pg, errs
+    # 1. Register (UI) a new employee, then log in -> /employee
+    pg, errs = newpage()
+    pg.goto(B+"/register", wait_until="networkidle")
+    email=f"ui.employee.{stamp}@example.com"
+    pg.fill("input[name=username]","Yaa Asantewaa"); pg.fill("input[name=email]",email); pg.fill("input[name=password]","Password123")
+    pg.click("button[type=submit]")
+    pg.wait_for_url("**/login", timeout=15000); ok("UI register employee -> redirected to /login", pg.url.endswith("/login"))
+    login(pg, email, "Password123"); ok("new employee login -> /employee", pg.url.endswith("/employee"), pg.url)
+    pg.wait_for_selector("text=Username:", timeout=15000)
+    body=pg.inner_text("body"); ok("employee dashboard shows own profile", email in body and "employee" in body)
+    pg.click("text=Edit Profile"); pg.fill("input[name=first_name]","Yaa"); pg.fill("input[name=last_name]","Asantewaa"); pg.fill("input[name=phone]","+233 20 000 0099")
+    pg.fill("textarea[name=address]","Kumasi"); pg.click("button:has-text('Save')"); time.sleep(1)
+    pg.reload(wait_until="networkidle"); pg.wait_for_selector("text=Username:"); body=pg.inner_text("body")
+    ok("employee profile edit persisted", "Yaa Asantewaa" in body and "Kumasi" in body, body[:200])
+    pg.screenshot(path=f"{O}/employee_dashboard.png", full_page=True)
+    pg.goto(B+"/hr", wait_until="networkidle"); ok("employee blocked from /hr -> /employee", pg.url.endswith("/employee"))
+    pg.click("text=Logout"); pg.wait_for_url(B+"/", timeout=15000); ok("employee logout -> /", pg.url.rstrip("/")==B)
+    ok("no page errors (employee)", not errs, errs)
+    # 2. Public register cannot pick admin
+    pg.goto(B+"/register", wait_until="networkidle"); ok("register has no role choice (employee-only sign-up)", pg.query_selector("select[name=role]") is None)
+    # 3. Wrong password message
+    login(pg, "admin@emplocore.demo", "wrong-pass-123"); err=pg.inner_text(".error") if pg.query_selector(".error") else ""
+    ok("wrong password shows backend error", "Invalid credentials" in err, err)
+    # 4. HR flow: list, add, edit, delete
+    pg, errs = newpage(); login(pg, "hr@emplocore.demo", "Hr@EmploCore2026"); ok("HR login -> /hr", pg.url.endswith("/hr"), pg.url)
+    pg.wait_for_timeout(1500); pg.screenshot(path=f"{O}/hr_dashboard.png", full_page=True)
+    pg.goto(B+"/hr/employees", wait_until="networkidle"); pg.wait_for_selector("text=Kofi Asante", timeout=15000)
+    rows=pg.locator("tbody tr").count(); ok("HR employee list shows seeded employees", rows>=8, rows)
+    pg.screenshot(path=f"{O}/hr_employee_list.png", full_page=True)
+    pg.goto(B+"/hr/create-employee", wait_until="networkidle")
+    pg.fill("input[name=FullName]","Kojo Antwi"); pg.fill("input[name=email]",f"kojo.{stamp}@example.com"); pg.fill("input[name=position]","Logistics Officer")
+    pg.fill("input[name=Department]","Operations"); pg.fill("input[name=salary]","6100"); pg.click("button:has-text('Create Employee')")
+    pg.wait_for_url("**/hr/employees", timeout=15000); pg.wait_for_selector("text=Kojo Antwi", timeout=15000); ok("HR create employee via UI", True)
+    row=pg.locator("tbody tr", has_text="Kojo Antwi"); row.locator(".icon.edit").click(); time.sleep(.5)
+    inp=pg.locator("form .form-group input").nth(1); inp.fill("Senior Logistics Officer"); pg.click("button:has-text('Update')"); time.sleep(1.5)
+    ok("HR edit employee via UI", pg.locator("tbody tr", has_text="Senior Logistics Officer").count()==1)
+    pg.locator("tbody tr", has_text="Kojo Antwi").locator(".icon.delete").click(); time.sleep(1.5)
+    ok("HR delete employee via UI", pg.locator("tbody tr", has_text="Kojo Antwi").count()==0)
+    pg.goto(B+"/hr/profile", wait_until="networkidle"); pg.wait_for_selector("text=Username:"); ok("HR profile page loads", "hr@emplocore.demo" in pg.inner_text("body"))
+    pg.goto(B+"/admin", wait_until="networkidle"); ok("HR blocked from /admin -> /hr", pg.url.endswith("/hr"))
+    ok("no page errors (hr)", not errs, errs)
+    # 5. Admin flow
+    pg, errs = newpage(); login(pg, "admin@emplocore.demo", "Admin@EmploCore2026"); ok("Admin login -> /admin", pg.url.endswith("/admin"), pg.url)
+    pg.screenshot(path=f"{O}/admin_dashboard.png", full_page=True)
+    pg.goto(B+"/admin/users", wait_until="networkidle"); pg.wait_for_selector("text=hr@emplocore.demo", timeout=15000); ok("Admin user list loads", True)
+    pg.goto(B+"/admin/user-management", wait_until="networkidle"); pg.wait_for_selector(f"text={email}", timeout=15000)
+    r=pg.locator("tbody tr", has_text=email); r.locator("select").select_option("hr"); time.sleep(1.5)
+    pg.reload(wait_until="networkidle"); pg.wait_for_selector(f"text={email}")
+    ok("Admin role change via UI persisted", pg.locator("tbody tr", has_text=email).locator("select").input_value()=="hr")
+    pg.screenshot(path=f"{O}/admin_user_management.png", full_page=True)
+    pg.locator("tbody tr", has_text=email).locator("button:has-text('Delete')").click(); time.sleep(1.5)
+    ok("Admin delete user via UI", pg.locator("tbody tr", has_text=email).count()==0)
+    pg.goto(B+"/admin", wait_until="networkidle"); pg.click(".floating-add-btn"); time.sleep(.3)
+    pg.fill(".modal-content input[name=username], input[name=username]","Second Admin")
+    pg.fill("input[name=email]",f"admin.ui.{stamp}@example.com"); pg.fill("input[name=password]","Password123"); pg.select_option("select[name=role]","admin")
+    pg.click("button:has-text('Create')"); time.sleep(1.5)
+    ok("Admin creates admin account via dashboard", "User account created" in pg.inner_text("body"))
+    pg.goto(B+"/admin/audit-log", wait_until="networkidle"); time.sleep(1.5); body=pg.inner_text("body")
+    ok("Audit log shows actions", all(x in body for x in ["LOGIN","CREATE_EMPLOYEE","UPDATE_EMPLOYEE","DELETE_EMPLOYEE","UPDATE_USER_ROLE","DELETE_USER","REGISTER_USER"]), body[:300])
+    pg.screenshot(path=f"{O}/admin_audit_log.png")
+    pg.goto(B+"/admin/hr", wait_until="networkidle"); time.sleep(1); ok("Admin can open HR dashboard", pg.url.endswith("/admin/hr"))
+    pg.goto(B+"/AdminDashboard", wait_until="networkidle"); ok("legacy /AdminDashboard -> /admin", pg.url.endswith("/admin"))
+    # 6. Expired session handling
+    pg.evaluate("localStorage.setItem('token','eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwiZW1haWwiOiJ4Iiwicm9sZSI6ImFkbWluIiwiZXhwIjoxfQ.x')")
+    pg.goto(B+"/admin/users", wait_until="networkidle"); ok("expired token -> sent to /login", pg.url.endswith("/login"))
+    ok("no page errors (admin)", not errs, errs)
+    # 7. New features
+    API=os.environ.get("E2E_API_URL","http://127.0.0.1:5055")
+    def api_status(pg, path, token, method="GET"):
+        return pg.evaluate("""async ([u,t,m]) => (await fetch(u,{method:m,headers:{Authorization:'Bearer '+t}})).status""", [API+path, token, method])
+    email2=f"ui.second.{stamp}@example.com"
+    pg2, errs2 = newpage(); pg2.goto(B+"/register", wait_until="networkidle")
+    pg2.fill("input[name=username]","Efua Appiah"); pg2.fill("input[name=email]",email2); pg2.fill("input[name=password]","Password123"); pg2.click("button[type=submit]")
+    pg2.wait_for_url("**/login", timeout=15000); ok("register second employee", True)
+    # weak password rejected in UI
+    pg2.goto(B+"/register", wait_until="networkidle"); pg2.fill("input[name=username]","Weak One"); pg2.fill("input[name=email]",f"weak.{stamp}@example.com"); pg2.fill("input[name=password]","abcdefghij"); pg2.click("button[type=submit]")
+    ok("register rejects password without a number", "letter and one number" in pg2.inner_text("body"))
+    # seeded linked employee sees own record
+    pk, errk = newpage(); login(pk, "kwame.mensah@emplocore.demo", "Staff@EmploCore2026"); pk.wait_for_selector("text=My Employment Record")
+    pk.wait_for_selector("text=Software Engineer", timeout=15000); ok("linked employee sees own employment record", True)
+    pk.screenshot(path=f"{O}/employee_record.png", full_page=True)
+    # HR links second account to Efua Appiah
+    ph, errh = newpage(); login(ph, "hr@emplocore.demo", "Hr@EmploCore2026")
+    ph.goto(B+"/hr/employees", wait_until="networkidle"); ph.wait_for_selector("text=Efua Appiah", timeout=15000); time.sleep(1)
+    ph.locator("tbody tr", has_text="Efua Appiah").locator("select.link-select").select_option(label=email2); time.sleep(1.5)
+    ph.reload(wait_until="networkidle"); ph.wait_for_selector("text=Efua Appiah"); time.sleep(1)
+    sel=ph.locator("tbody tr", has_text="Efua Appiah").locator("select.link-select")
+    ok("HR links account to employee record (persisted)", sel.evaluate("e=>e.options[e.selectedIndex].text")==email2)
+    ph.screenshot(path=f"{O}/hr_link_account.png", full_page=True)
+    ok("no page errors (hr link)", not errh, errh)
+    login(pg2, email2, "Password123"); pg2.wait_for_selector("text=QA Engineer", timeout=15000); ok("newly linked employee sees QA Engineer record", True)
+    # logout revokes token server-side
+    tok=pg2.evaluate("localStorage.getItem('token')")
+    ok("token works before logout", api_status(pg2, "/api/users/profile", tok)==200)
+    pg2.click("text=Logout"); pg2.wait_for_url(B+"/", timeout=15000); ok("employee logout -> /", pg2.url.rstrip("/")==B)
+    ok("old token rejected after logout (server-side revocation)", api_status(pg2, "/api/users/profile", tok)==401)
+    # admin deactivates / activates
+    pa, erra = newpage(); login(pa, "admin@emplocore.demo", "Admin@EmploCore2026")
+    pa.goto(B+"/admin/user-management", wait_until="networkidle"); pa.wait_for_selector(f"text={email2}", timeout=15000)
+    row=lambda: pa.locator("tbody tr", has_text=email2)
+    row().locator("button:has-text('Deactivate')").click(); time.sleep(1.5)
+    ok("admin deactivates user (badge)", "Deactivated" in row().inner_text())
+    pa.screenshot(path=f"{O}/admin_user_management.png", full_page=True)
+    login(pg2, email2, "Password123"); txt=pg2.inner_text(".error") if pg2.query_selector(".error") else ""
+    ok("deactivated user cannot log in (message shown)", "deactivated" in txt.lower() and pg2.url.endswith("/login"), txt)
+    row().locator("button:has-text('Activate')").click(); time.sleep(1.5)
+    ok("admin reactivates user", "Active" in row().inner_text() and "Deactivated" not in row().inner_text())
+    # admin temporary password -> forced change
+    row().locator("button:has-text('Reset Password')").click(); pa.click("button:has-text('Set temporary password')"); pa.wait_for_selector(".reset-result")
+    temp=pa.input_value(".reset-result"); ok("admin gets one-time temporary password", len(temp)>=8)
+    pa.screenshot(path=f"{O}/admin_reset_password.png"); pa.click(".modal-close")
+    login(pg2, email2, temp); ok("temporary password login -> forced to /account/password", pg2.url.endswith("/account/password"), pg2.url)
+    pg2.goto(B+"/employee", wait_until="networkidle"); ok("cannot leave change-password page while forced", pg2.url.endswith("/account/password"))
+    pg2.fill("input[name=currentPassword]", temp); pg2.fill("input[name=newPassword]","MyOwnPass789"); pg2.fill("input[name=confirmPassword]","MyOwnPass789"); pg2.click("button[type=submit]")
+    pg2.wait_for_url("**/employee", timeout=15000); ok("forced change -> lands on /employee", True)
+    # normal change password via nav
+    pg2.click("text=Change Password"); pg2.wait_for_url("**/account/password")
+    pg2.fill("input[name=currentPassword]","wrong-pass1"); pg2.fill("input[name=newPassword]","Another456"); pg2.fill("input[name=confirmPassword]","Another456"); pg2.click("button[type=submit]"); time.sleep(1.5)
+    ok("change password with wrong current is rejected", "incorrect" in pg2.inner_text("body"))
+    pg2.fill("input[name=currentPassword]","MyOwnPass789"); pg2.click("button[type=submit]"); pg2.wait_for_url("**/employee", timeout=15000)
+    ok("change password from nav works", True)
+    pg2.click("text=Logout"); pg2.wait_for_url(B+"/", timeout=15000); login(pg2, email2, "Another456"); ok("login with changed password", pg2.url.endswith("/employee"))
+    pg2.click("text=Logout"); pg2.wait_for_url(B+"/", timeout=15000)
+    # admin one-time reset link
+    row().locator("button:has-text('Reset Password')").click(); pa.click("button:has-text('Create one-time reset link')"); pa.wait_for_selector(".reset-result")
+    link=pa.input_value(".reset-result"); ok("admin gets reset link", "/reset-password?token=" in link); pa.click(".modal-close")
+    p3, errs3 = newpage(); p3.goto(link, wait_until="networkidle")
+    p3.fill("input[name=newPassword]","ViaLink2026"); p3.fill("input[name=confirmPassword]","ViaLink2026"); p3.click("button[type=submit]")
+    p3.wait_for_url("**/login", timeout=15000); ok("reset link sets new password", True)
+    p3.goto(link, wait_until="networkidle"); p3.fill("input[name=newPassword]","Again2026x"); p3.fill("input[name=confirmPassword]","Again2026x"); p3.click("button[type=submit]"); time.sleep(1.5)
+    ok("reset link cannot be reused", "invalid or has expired" in p3.inner_text("body"))
+    login(p3, email2, "ViaLink2026"); ok("login with password set via link", p3.url.endswith("/employee"))
+    pa.goto(B+"/admin/audit-log", wait_until="networkidle"); time.sleep(1.5); body=pa.inner_text("body")
+    ok("audit log shows new security events", all(x in body for x in ["LOGOUT","DEACTIVATE_USER","ACTIVATE_USER","RESET_PASSWORD","RESET_LINK_CREATED","CHANGE_PASSWORD","LINK_EMPLOYEE_USER"]), body[:300])
+    ok("no page errors (new features)", not (errs2 or erra or errk or errs3), [errs2, erra, errk, errs3])
+    b.close()
+passed=sum(1 for _,c,_ in R if c); print(f"\n{passed}/{len(R)} passed")
+json.dump([{"name":n,"ok":c,"extra":str(e)} for n,c,e in R], open(f"{O}/e2e.json","w"), indent=1)
+import sys; sys.exit(0 if passed==len(R) else 1)
