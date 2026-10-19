@@ -1,22 +1,4 @@
-/* Container */
-.auth-container {
-  width: 100%;
-  min-height: 100vh;
-  background: linear-gradient(to right, #f0f4f8, #d9e2ec);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-}
-
-/* Heading */
-.auth-container h2 {
-  font-size: 2rem;
-  margin-bottom: 1.5rem;
-  color: #333;
-  font-weight: 600;
-}
+/* Register-specific styles. Shared auth layout lives in Login.css. */
 
 /* Form Styling */
 form {
@@ -72,12 +54,6 @@ form input:focus {
   text-align: center;
 }
 
-.auth-links {
-  margin-top: 1rem;
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-}
 
 .auth-links a {
   color: #0077cc;
@@ -91,16 +67,7 @@ form input:focus {
   text-decoration: underline;
 }
 
-.auth-container button[disabled] {
-  opacity: 0.7;
-  cursor: wait;
-}
 
-.auth-hint {
-  font-size: 0.85rem;
-  color: #555;
-  margin: 0.25rem 0;
-}
 
 .auth-label {
   text-align: left;

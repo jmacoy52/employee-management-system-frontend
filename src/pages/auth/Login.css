@@ -105,3 +105,11 @@ body {
   line-height: 1.6;
   margin: 0 0 1rem;
 }
+
+/* The global form card style (Register.css) should not double up inside the auth card */
+.auth-container form {
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+  max-width: none;
+}

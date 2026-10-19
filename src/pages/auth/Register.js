@@ -3,6 +3,7 @@ import api, { getErrorMessage } from "../../api/client";
 import { useNavigate, Link } from "react-router-dom";
 import PageLayout from "../../components/layout/PageLayout";
 import { toast } from "react-hot-toast"; //toast for notifications
+import "./Login.css";
 import "./Register.css";
 
 // Public sign-up may only request these roles. Admin accounts are created by
