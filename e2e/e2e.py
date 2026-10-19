@@ -38,7 +38,7 @@ with sync_playwright() as p:
     # 1b. Landing: real product screenshot, no sample figures, demo logins in demo mode
     pg.goto(B+"/", wait_until="networkidle"); body=pg.inner_text("body")
     ok("landing has no 'today', tech stack or GitHub link", "today" not in body.lower() and "tech stack" not in body.lower() and pg.locator("a[href*='github.com']").count()==0)
-    ok("landing hero shows the product screenshot", pg.locator(".product-shot img").evaluate("i=>i.complete && i.naturalWidth>0"))
+    ok("landing has no product image or mockup", pg.locator(".hero img, .product-shot, .preview-bar").count()==0)
     ok("landing (demo build) shows demo logins", pg.locator("#demo .demo-card").count()==3)
     # 2. Public register cannot pick admin
     pg.goto(B+"/register", wait_until="networkidle"); ok("register has no role choice (employee-only sign-up)", pg.query_selector("select[name=role]") is None)

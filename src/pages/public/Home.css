@@ -21,20 +21,80 @@
 
 /* ---------- Hero ---------- */
 .hero {
-  padding: var(--space-16) var(--space-6) var(--space-16);
+  position: relative;
+  overflow: hidden;
+  padding: calc(var(--space-16) + var(--space-8)) var(--space-6);
   background:
     linear-gradient(180deg, var(--color-primary-soft) 0%, var(--color-surface) 100%);
   border-bottom: 1px solid var(--color-border);
 }
 
 .hero-inner {
-  display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
-  align-items: center;
-  gap: var(--space-12);
-  max-width: var(--container);
+  position: relative;
+  z-index: 1;
+  max-width: 820px;
   margin: 0 auto;
+  text-align: center;
 }
+
+.hero-inner .hero-subtitle {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero-inner .cta {
+  justify-content: center;
+}
+
+.hero-points {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2) var(--space-3);
+  margin: var(--space-10) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hero-points li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.75);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text-2);
+}
+
+.hero-points svg {
+  color: var(--color-primary);
+}
+
+/* Faded logo blocks behind the hero (decorative) */
+.hero-shape {
+  position: absolute;
+  top: 50%;
+  right: -150px;
+  width: 300px;
+  height: 340px;
+  transform: translateY(-50%) rotate(-8deg);
+  opacity: 0.06;
+  pointer-events: none;
+}
+
+.hs-bar {
+  position: absolute;
+  border-radius: 999px;
+  background: var(--color-primary);
+}
+
+.hs-top { top: 0; left: 0; width: 100%; height: 60px; }
+.hs-spine { top: 0; left: 0; width: 60px; height: 100%; }
+.hs-bottom { bottom: 0; left: 0; width: 100%; height: 60px; }
+.hs-core { top: 140px; left: 120px; width: 150px; height: 60px; background: var(--color-accent); }
 
 .hero-title {
   margin: 0 0 var(--space-5);
@@ -68,48 +128,6 @@
   font-size: var(--text-sm);
   color: var(--color-muted);
 }
-
-/* Product screenshot in a browser frame */
-.product-shot {
-  margin: 0;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-surface);
-  box-shadow: var(--shadow-lg);
-  overflow: hidden;
-}
-
-.product-shot img {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-.preview-bar {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: var(--space-3) var(--space-4);
-  background: var(--color-surface-2);
-  border-bottom: 1px solid var(--color-border);
-}
-
-.preview-bar span {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--color-border-strong);
-}
-
-.preview-bar p {
-  margin: 0 0 0 var(--space-3);
-  padding: 2px var(--space-3);
-  border-radius: var(--radius-pill);
-  background: var(--color-surface);
-  color: var(--color-muted);
-  font-size: var(--text-xs);
-}
-
 
 /* ---------- Sections ---------- */
 .section-block {
@@ -287,11 +305,6 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-2);
-}
-
-.demo-name {
-  font-size: var(--text-sm);
-  color: var(--color-muted);
 }
 
 .demo-summary {
@@ -504,9 +517,9 @@
 
 /* ---------- Responsive ---------- */
 @media (max-width: 960px) {
-  .hero-inner {
-    grid-template-columns: 1fr;
-    gap: var(--space-10);
+  .hero-shape {
+    right: -110px;
+    opacity: 0.06;
   }
   .features,
   .role-grid,
@@ -522,7 +535,21 @@
 
 @media (max-width: 640px) {
   .hero {
-    padding: var(--space-10) var(--space-4) var(--space-12);
+    padding: var(--space-12) var(--space-4) var(--space-12);
+  }
+  .hero-shape {
+    top: -20px;
+    right: -60px;
+    transform: rotate(-8deg) scale(0.55);
+    transform-origin: top right;
+  }
+  .hero-points {
+    gap: var(--space-2);
+    margin-top: var(--space-8);
+  }
+  .hero-points li {
+    padding: 6px var(--space-3);
+    font-size: var(--text-xs);
   }
   .hero-subtitle {
     font-size: var(--text-base);

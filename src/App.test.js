@@ -52,7 +52,8 @@ test("landing page is product-focused: no sample figures, tech stack or placehol
   const org = document.getElementById("organisations");
   expect(within(org).getByRole("heading", { name: /bring emplocore to your organisation/i })).toBeInTheDocument();
   expect(within(org).getByRole("link", { name: /contact us/i })).toHaveAttribute("href", "/contact");
-  expect(screen.getByRole("img", { name: /departments screen/i })).toHaveAttribute("src", "/img/product-departments.webp");
+  expect(screen.queryByRole("img")).toBeNull(); // no product screenshots or mockups
+  expect(text).not.toMatch(/Kwame Mensah|Nana Agyeman|Adwoa Boateng|Departments ·/);
 });
 
 test("footer has a subtle credit to Joseph Migbodzi and no source-code links", () => {

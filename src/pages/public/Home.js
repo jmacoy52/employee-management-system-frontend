@@ -119,25 +119,22 @@ const ORGANISATION_POINTS = [
   "Suitable for SMEs, schools, NGOs and other organisations with staff to manage",
 ];
 
-// Genuine screenshots of the Departments screen (captured from the app, no salaries shown);
-// a phone-sized capture on small screens so the text stays readable.
-const ProductShot = () => (
-  <figure className="product-shot">
-    <div className="preview-bar" aria-hidden="true">
-      <span /><span /><span />
-      <p>EmploCore · Departments</p>
-    </div>
-    <picture>
-      <source media="(max-width: 640px)" srcSet="/img/product-departments-mobile.webp" width="780" height="1040" />
-      <img
-        src="/img/product-departments.webp"
-        width="1200"
-        height="750"
-        alt="The EmploCore Departments screen: a list of departments with their heads, headcounts and status."
-      />
-    </picture>
-  </figure>
+// Decorative brand shape: the logo's "E" blocks, enlarged and faded. No data, purely visual.
+const HeroShape = () => (
+  <div className="hero-shape" aria-hidden="true">
+    <span className="hs-bar hs-top" />
+    <span className="hs-bar hs-spine" />
+    <span className="hs-bar hs-core" />
+    <span className="hs-bar hs-bottom" />
+  </div>
 );
+
+const HERO_POINTS = [
+  { icon: ShieldCheck, label: "Role-based access" },
+  { icon: ScrollText, label: "Full audit trail" },
+  { icon: Building2, label: "Departments and heads" },
+  { icon: Smartphone, label: "Phone and desktop" },
+];
 
 // Wakes the free API server in the background so the first sign-in is quicker.
 // Only used on the demo deployment (it backs the "Waking the server" notice).
@@ -196,6 +193,7 @@ const Home = () => {
 
       {/* HERO SECTION */}
       <section className="hero">
+        <HeroShape />
         <div className="hero-inner">
           <div className="hero-copy">
             <p className="eyebrow">Staff records and access control</p>
@@ -222,8 +220,12 @@ const Home = () => {
               </Link>
             </div>
             {demo && <p className="hero-note">Public demo logins below. No sign-up needed.</p>}
+            <ul className="hero-points">
+              {HERO_POINTS.map(({ icon: Icon, label }) => (
+                <li key={label}><Icon size={16} aria-hidden="true" /> {label}</li>
+              ))}
+            </ul>
           </div>
-          <ProductShot />
         </div>
       </section>
 
@@ -340,7 +342,6 @@ const Home = () => {
               <article className="demo-card" key={a.key}>
                 <div className="demo-card-head">
                   <span className={`badge badge-${a.key}`}>{a.role}</span>
-                  <span className="demo-name">{a.name}</span>
                 </div>
                 <p className="demo-summary">{a.summary}</p>
                 <dl className="demo-creds">
