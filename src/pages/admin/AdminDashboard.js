@@ -1,14 +1,30 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./AdminDashboard.css";
-import { Users, Settings, ScrollText, UserCheck, Plus, LogOut } from "lucide-react";
+import { Users, Settings, ScrollText, UserCheck, Plus, UserX, ShieldCheck, ArrowRight } from "lucide-react";
 import api, { getErrorMessage } from "../../api/client";
-import { logout as signOut } from "../../auth/session";
+import { getStoredUser } from "../../auth/session";
 import { toast } from "react-hot-toast";
+import AdminNav from "../../components/layout/AdminNav";
+import AppLayout from "../../components/layout/AppLayout";
+import ActionBadge from "../../components/common/ActionBadge";
+import Modal from "../../components/common/Modal";
+import PasswordInput from "../../components/auth/PasswordInput";
+
+const SHORTCUTS = [
+  { to: "/admin/users", icon: Users, title: "View All Users", text: "Browse and manage all registered users." },
+  { to: "/admin/user-management", icon: Settings, title: "User Management", text: "Create, edit, and remove user accounts." },
+  { to: "/admin/audit-log", icon: ScrollText, title: "Audit Log", text: "Review admin activity and changes made in the system." },
+  { to: "/admin/hr", icon: UserCheck, title: "HR Dashboard", text: "Access HR functionalities and manage employee data." },
+];
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const me = getStoredUser();
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [users, setUsers] = useState(null);
+  const [recentLogs, setRecentLogs] = useState(null);
+  const [creating, setCreating] = useState(false);
 
   const [newUser, setNewUser] = useState({
     username: "",
@@ -17,12 +33,33 @@ const AdminDashboard = () => {
     role: "employee",
   });
 
+  // Overview numbers and the latest audit entries (both from existing admin endpoints).
+  const loadOverview = useCallback(async () => {
+    try {
+      const res = await api.get("/api/users/all");
+      setUsers(res.data);
+    } catch {
+      setUsers([]);
+    }
+    try {
+      const res = await api.get("/api/audit-logs", { params: { limit: 6 } });
+      setRecentLogs(res.data);
+    } catch {
+      setRecentLogs([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadOverview();
+  }, [loadOverview]);
+
   const handleChange = (e) => {
     setNewUser({ ...newUser, [e.target.name]: e.target.value });
   };
 
   const handleCreateUser = async (e) => {
     e.preventDefault();
+    setCreating(true);
 
     try {
 
@@ -31,89 +68,128 @@ const AdminDashboard = () => {
       toast.success("User account created!");
       setShowCreateModal(false);
       setNewUser({ username: "", email: "", password: "", role: "employee" });
+      loadOverview();
     } catch (err) {
       toast.error(getErrorMessage(err, "Failed to create user"));
+    } finally {
+      setCreating(false);
     }
   };
 
+  const count = (fn) => (users ? users.filter(fn).length : "–");
+  const stats = [
+    { label: "Total users", value: users ? users.length : "–", icon: Users, tone: "" },
+    { label: "Admins / HR", value: users ? `${count((u) => u.role === "admin")} / ${count((u) => u.role === "hr")}` : "–", icon: ShieldCheck, tone: "accent" },
+    { label: "Employees", value: count((u) => u.role === "employee"), icon: UserCheck, tone: "" },
+    { label: "Deactivated", value: count((u) => !u.is_active), icon: UserX, tone: "danger" },
+  ];
+
   return (
-    <div className="admin-dashboard">
-
-      {/* SIDEBAR */}
-      <aside className="admin-sidebar">
-        <h2 className="sidebar-title">Admin Panel</h2>
-        <ul className="sidebar-menu">
-          <li onClick={() => navigate("/admin/users")}> <Users size={20} /> View Users </li>
-          <li onClick={() => navigate("/admin/user-management")}> <Settings size={20} /> User Management </li>
-          <li onClick={() => navigate("/admin/audit-log")}> <ScrollText size={20} /> Audit Log </li>
-          <li onClick={() => navigate("/admin/hr")}> <UserCheck size={20} /> HR Dashboard </li>
-        </ul>
-        <button className="logout-btn" onClick={async () => { await signOut(); navigate("/"); }}>
-          <LogOut size={18} /> Logout
+    <AppLayout
+      nav={<AdminNav />}
+      className="admin-dashboard"
+      title="Admin Dashboard"
+      subtitle={`Signed in as ${me?.username || me?.email || "admin"}. Manage accounts, roles and access.`}
+      actions={
+        <button type="button" className="btn btn-primary" onClick={() => setShowCreateModal(true)}>
+          <Plus size={18} /> New user
         </button>
-      </aside>
-
-      {/* MAIN CONTENT */}
-      <main className="admin-main">
-        <h1 className="admin-title">Admin Dashboard</h1>
-
-        <div className="admin-cards-container">
-          <div className="admin-card" onClick={() => navigate("/admin/users")}>
-            <Users size={30} className="card-icon" />
-            <h2>View All Users</h2>
-            <p>Browse and manage all registered users.</p>
+      }
+    >
+      <div className="stat-grid">
+        {stats.map(({ label, value, icon: Icon, tone }) => (
+          <div className="stat-tile" key={label}>
+            <span className={`stat-icon ${tone}`}><Icon size={22} /></span>
+            <div>
+              <p className="stat-label">{label}</p>
+              <p className="stat-value">{value}</p>
+            </div>
           </div>
+        ))}
+      </div>
 
-          <div className="admin-card" onClick={() => navigate("/admin/user-management")}>
-            <Settings size={30} className="card-icon" />
-            <h2>User Management</h2>
-            <p>Create, edit, and remove user accounts.</p>
+      <div className="admin-grid section">
+        <section>
+          <h2 className="section-title">Shortcuts</h2>
+          <div className="admin-cards-container">
+            {SHORTCUTS.map(({ to, icon: Icon, title, text }) => (
+              <button type="button" className="admin-card" key={to} onClick={() => navigate(to)}>
+                <span className="stat-icon"><Icon size={22} className="card-icon" /></span>
+                <span className="admin-card-text">
+                  <span className="admin-card-title">{title}</span>
+                  <span className="admin-card-desc">{text}</span>
+                </span>
+                <ArrowRight size={18} className="admin-card-arrow" />
+              </button>
+            ))}
           </div>
+        </section>
 
-          <div className="admin-card" onClick={() => navigate("/admin/audit-log")}>
-            <ScrollText size={30} className="card-icon" />
-            <h2>Audit Log</h2>
-            <p>Review admin activity and changes made in the system.</p>
+        <section className="card card-flush recent-card">
+          <div className="card-header recent-header">
+            <h2 className="card-title">Recent activity</h2>
+            <button type="button" className="btn btn-ghost btn-sm" onClick={() => navigate("/admin/audit-log")}>
+              View all
+            </button>
           </div>
-
-          <div className="admin-card" onClick={() => navigate("/admin/hr")}>
-            <UserCheck size={30} className="card-icon" />
-            <h2>HR Dashboard</h2>
-            <p>Access HR functionalities and manage employee data.</p>
-          </div>
-        </div>
-      </main>
+          {recentLogs === null ? (
+            <p className="recent-empty">Loading…</p>
+          ) : recentLogs.length === 0 ? (
+            <p className="recent-empty">No activity yet.</p>
+          ) : (
+            <ul className="recent-list">
+              {recentLogs.map((log) => (
+                <li key={log.LogId}>
+                  <ActionBadge action={log.actions} />
+                  <span className="recent-desc">{log.descriptions}</span>
+                  <time className="recent-time" dateTime={log.created_at}>
+                    {new Date(log.created_at).toLocaleString()}
+                  </time>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      </div>
 
       {/* FLOATING BUTTON */}
-      <button className="floating-add-btn" onClick={() => setShowCreateModal(true)}>
+      <button type="button" className="floating-add-btn" onClick={() => setShowCreateModal(true)} aria-label="Create new user">
         <Plus size={22} />
       </button>
 
       {/* CREATE USER MODAL */}
-      {showCreateModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h2>Create New User</h2>
-            <form onSubmit={handleCreateUser} className="create-user-form">
-              <input type="text" name="username" placeholder="Username" value={newUser.username} onChange={handleChange} required />
-              <input type="email" name="email" placeholder="Email" value={newUser.email} onChange={handleChange} required />
-              <input type="password" name="password" placeholder="Password (min. 8 characters)" minLength={8} value={newUser.password} onChange={handleChange} required />
-              <select name="role" value={newUser.role} onChange={handleChange} required>
-                <option value="employee">Employee</option>
-                <option value="hr">HR</option>
-                <option value="admin">Admin</option>
-              </select>
-
-              <div className="modal-actions">
-                <button type="submit" className="btn-primary">Create</button>
-                <button type="button" className="btn-secondary" onClick={() => setShowCreateModal(false)}>Cancel</button>
-              </div>
-            </form>
+      <Modal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} title="Create New User" className="modal-content">
+        <form onSubmit={handleCreateUser} className="create-user-form">
+          <div className="field">
+            <label htmlFor="new-username">Username</label>
+            <input id="new-username" type="text" name="username" placeholder="e.g. Ama Mensah" value={newUser.username} onChange={handleChange} required />
           </div>
-        </div>
-      )}
+          <div className="field">
+            <label htmlFor="new-email">Email</label>
+            <input id="new-email" type="email" name="email" placeholder="name@company.com" value={newUser.email} onChange={handleChange} required />
+          </div>
+          <div className="field">
+            <label htmlFor="new-password">Password</label>
+            <PasswordInput id="new-password" name="password" placeholder="Min. 8 characters, letters and numbers" minLength={8} value={newUser.password} onChange={handleChange} required autoComplete="new-password" />
+          </div>
+          <div className="field">
+            <label htmlFor="new-role">Role</label>
+            <select id="new-role" name="role" value={newUser.role} onChange={handleChange} required>
+              <option value="employee">Employee</option>
+              <option value="hr">HR</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
 
-    </div>
+          <div className="modal-actions form-actions">
+            <button type="button" className="btn btn-secondary" onClick={() => setShowCreateModal(false)}>Cancel</button>
+            <button type="submit" className="btn btn-primary" disabled={creating}>
+              {creating && <span className="spinner" aria-hidden="true" />} Create
+            </button>
+          </div>
+        </form>
+      </Modal>
+    </AppLayout>
   );
 };
 

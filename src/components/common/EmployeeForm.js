@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import api from "../../api/client";
+import api, { getErrorMessage } from "../../api/client";
 import "./EmployeeForm.css";
 
-const EmployeeForm = ({ onSuccess }) => {
+const EmployeeForm = ({ onSuccess, onCancel }) => {
   const [formData, setFormData] = useState({
     FullName: "",
     email: "",
@@ -11,6 +11,7 @@ const EmployeeForm = ({ onSuccess }) => {
     salary: "",
   });
   const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
 
 
 
@@ -30,61 +31,96 @@ const EmployeeForm = ({ onSuccess }) => {
       salary: Number(formData.salary),
     };
 
+    setSaving(true);
     try {
      
         await api.post("/api/employees", payload)
       onSuccess();
     } catch (err) {
       const msg = err.response?.data?.errors?.[0]?.msg;
-      setError(msg || "Failed to Create employee.");
+      setError(msg || getErrorMessage(err, "Failed to Create employee."));
+    } finally {
+      setSaving(false);
     }
   };
 
   return (
     <form className="create-form" onSubmit={handleSubmit}>
-      {error && <p className="error">{error}</p>}
+      {error && <p className="error" role="alert">{error}</p>}
 
-      <input
-        type="text"
-        name="FullName"
-        placeholder="Full Name"
-        value={formData.FullName}
-        onChange={handleChange}
-        required
-      />
-      <input
-        type="email"
-        name="email"
-        placeholder="Email"
-        value={formData.email}
-        onChange={handleChange}
-        required
-      />
-      <input
-        type="text"
-        name="position"
-        placeholder="Position"
-        value={formData.position}
-        onChange={handleChange}
-        required
-      />
-      <input
-        type="text"
-        name="Department"
-        placeholder="Department"
-        value={formData.Department}
-        onChange={handleChange}
-        required
-      />
-      <input
-        type="number"
-        name="salary"
-        placeholder="Salary"
-        value={formData.salary}
-        onChange={handleChange}
-        required
-      />
-      <button type="submit">{"Create"} Employee</button>
+      <div className="form-grid">
+        <div className="field span-2">
+          <label htmlFor="emp-name">Full name</label>
+          <input
+            id="emp-name"
+            type="text"
+            name="FullName"
+            placeholder="e.g. Ama Owusu"
+            value={formData.FullName}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="field span-2">
+          <label htmlFor="emp-email">Email</label>
+          <input
+            id="emp-email"
+            type="email"
+            name="email"
+            placeholder="name@company.com"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="field">
+          <label htmlFor="emp-position">Position</label>
+          <input
+            id="emp-position"
+            type="text"
+            name="position"
+            placeholder="e.g. Accountant"
+            value={formData.position}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="field">
+          <label htmlFor="emp-department">Department</label>
+          <input
+            id="emp-department"
+            type="text"
+            name="Department"
+            placeholder="e.g. Finance"
+            value={formData.Department}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="field">
+          <label htmlFor="emp-salary">Monthly salary (₵)</label>
+          <input
+            id="emp-salary"
+            type="number"
+            name="salary"
+            min="0"
+            step="0.01"
+            placeholder="e.g. 6500"
+            value={formData.salary}
+            onChange={handleChange}
+            required
+          />
+        </div>
+      </div>
+      <div className="form-actions">
+        {onCancel && (
+          <button type="button" className="btn btn-secondary" onClick={onCancel}>Cancel</button>
+        )}
+        <button type="submit" className="btn btn-primary" disabled={saving}>
+          {saving && <span className="spinner" aria-hidden="true" />}
+          {"Create"} Employee
+        </button>
+      </div>
     </form>
   );
 };

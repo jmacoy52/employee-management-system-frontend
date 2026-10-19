@@ -3,12 +3,15 @@ import api, { getErrorMessage } from "../../api/client";
 import "./UserManagement.css";
 import { toast } from "react-hot-toast";
 import AdminNav from "../../components/layout/AdminNav";
+import AppLayout from "../../components/layout/AppLayout";
 import Modal from "../../components/common/Modal";
+import { RoleBadge, StatusBadge } from "../../components/common/RoleBadge";
 import { getStoredUser } from "../../auth/session";
 import { PATHS } from "../../routes/paths";
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [resetUser, setResetUser] = useState(null); // user whose password is being reset
   const [resetResult, setResetResult] = useState(null); // { label, value } shown once
   const me = getStoredUser();
@@ -19,6 +22,8 @@ const UserManagement = () => {
       setUsers(response.data);
     } catch (err) {
       toast.error("Failed to fetch users.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -100,76 +105,87 @@ const UserManagement = () => {
   }, []);
 
   return (
-    <div className="user-management-container">
-      <AdminNav />
-      <h2>User Management</h2>
-      <table className="user-management-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Current Role</th>
-            <th>Change Role</th>
-            <th>Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.length > 0 ? (
-            users.map((user) => (
-              <tr key={user.id}>
-                <td>{user.id}</td>
-                <td>{user.username}</td>
-                <td>{user.email}</td>
-                <td>{user.role}</td>
-                <td>
-                  <select
-                    value={user.role}
-                    onChange={(e) =>
-                      handleRoleChange(user.id, e.target.value)
-                    }
-                  >
-                    <option value="admin">Admin</option>
-                    <option value="hr">HR</option>
-                    <option value="employee">Employee</option>
-                  </select>
-                </td>
-                <td>
-                  <span className={`status-badge ${user.is_active ? "active" : "inactive"}`}>
-                    {user.is_active ? "Active" : "Deactivated"}
-                  </span>
-                </td>
-                <td className="user-actions">
-                  {me?.id !== user.id && (
-                    <>
-                      <button
-                        className={user.is_active ? "toggle-btn deactivate" : "toggle-btn activate"}
-                        onClick={() => handleToggleActive(user)}
-                      >
-                        {user.is_active ? "Deactivate" : "Activate"}
-                      </button>
-                      <button className="reset-btn" onClick={() => openReset(user)}>
-                        Reset Password
-                      </button>
-                    </>
-                  )}
-                  <button
-                    className="delete-btn"
-                    onClick={() => handleDelete(user.id)}
-                  >
-                    Delete
-                  </button>
-                </td>
+    <AppLayout
+      nav={<AdminNav />}
+      title="User Management"
+      subtitle="Change roles, deactivate or reactivate accounts, reset passwords and delete users."
+      className="user-management-container"
+    >
+      <div className="card card-flush">
+        <div className="table-wrap">
+          <table className="data-table stack user-management-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Current Role</th>
+                <th>Change Role</th>
+                <th>Status</th>
+                <th>Action</th>
               </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="7">No users available.</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+            </thead>
+            <tbody>
+              {users.length > 0 ? (
+                users.map((user) => (
+                  <tr key={user.id}>
+                    <td data-label="ID" className="cell-muted">{user.id}</td>
+                    <td data-label="Name" className="cell-strong"><span>{user.username}{me?.id === user.id && <span className="you-tag"> (you)</span>}</span></td>
+                    <td data-label="Email">{user.email}</td>
+                    <td data-label="Current Role"><RoleBadge role={user.role} /></td>
+                    <td data-label="Change Role">
+                      <select
+                        className="select-sm"
+                        aria-label={`Role for ${user.email}`}
+                        value={user.role}
+                        onChange={(e) =>
+                          handleRoleChange(user.id, e.target.value)
+                        }
+                      >
+                        <option value="admin">Admin</option>
+                        <option value="hr">HR</option>
+                        <option value="employee">Employee</option>
+                      </select>
+                    </td>
+                    <td data-label="Status">
+                      <StatusBadge active={user.is_active} />
+                    </td>
+                    <td className="user-actions td-actions">
+                      <div className="row-actions">
+                        {me?.id !== user.id && (
+                          <>
+                            <button
+                              type="button"
+                              className={user.is_active ? "btn btn-sm btn-secondary toggle-btn deactivate" : "btn btn-sm btn-success-soft toggle-btn activate"}
+                              onClick={() => handleToggleActive(user)}
+                            >
+                              {user.is_active ? "Deactivate" : "Activate"}
+                            </button>
+                            <button type="button" className="btn btn-sm btn-secondary reset-btn" onClick={() => openReset(user)}>
+                              Reset Password
+                            </button>
+                          </>
+                        )}
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-danger-soft delete-btn"
+                          onClick={() => handleDelete(user.id)}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr className="empty-row">
+                  <td colSpan="7">{loading ? "Loading users…" : "No users available."}</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       <Modal
         isOpen={Boolean(resetUser)}
@@ -179,23 +195,25 @@ const UserManagement = () => {
         {!resetResult ? (
           <>
             <p>Choose how to reset this password. No email is sent; give the result to the user yourself.</p>
-            <button className="reset-btn" onClick={issueTemporaryPassword}>
+            <button type="button" className="btn btn-primary reset-btn reset-option" onClick={issueTemporaryPassword}>
               Set temporary password (user must change it at sign-in)
             </button>
-            <button className="reset-btn" onClick={issueResetLink}>
+            <button type="button" className="btn btn-secondary reset-btn reset-option" onClick={issueResetLink}>
               Create one-time reset link
             </button>
           </>
         ) : (
           <>
             <p><strong>{resetResult.label}</strong></p>
-            <input className="reset-result" readOnly value={resetResult.value} onFocus={(e) => e.target.select()} />
-            <button className="reset-btn" onClick={copyResult}>Copy</button>
+            <div className="reset-result-row">
+              <input className="reset-result input" readOnly value={resetResult.value} onFocus={(e) => e.target.select()} aria-label={resetResult.label} />
+              <button type="button" className="btn btn-primary reset-btn" onClick={copyResult}>Copy</button>
+            </div>
             <p className="reset-note">The user's existing sessions have{resetResult.label.startsWith("Temporary") ? "" : " not"} been signed out.</p>
           </>
         )}
       </Modal>
-    </div>
+    </AppLayout>
   );
 };
 

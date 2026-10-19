@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import api, { getErrorMessage } from "../../api/client";
+import { formatCedis } from "./EmployeeStats";
 import "./ProfilePanel.css";
 
 // The employee record HR linked to the signed-in account (position, department, salary).
@@ -21,20 +22,22 @@ const EmploymentRecord = () => {
   }, []);
 
   return (
-    <div className="my-profile-page">
-      <h2>My Employment Record</h2>
+    <section className="card my-profile-page employment-record">
+      <div className="card-header">
+        <h2 className="card-title">My Employment Record</h2>
+      </div>
       {record ? (
-        <div className="profile-details">
-          <p><strong>Name:</strong> {record.FullName}</p>
-          <p><strong>Position:</strong> {record.position}</p>
-          <p><strong>Department:</strong> {record.Department}</p>
-          <p><strong>Monthly Salary:</strong> ₵{Number(record.salary).toLocaleString()}</p>
-          <p><strong>Joined:</strong> {new Date(record.created_at).toLocaleDateString()}</p>
-        </div>
+        <dl className="detail-list profile-details">
+          <div><dt>Name</dt><dd>{record.FullName}</dd></div>
+          <div><dt>Position</dt><dd>{record.position}</dd></div>
+          <div><dt>Department</dt><dd><span className="badge">{record.Department}</span></dd></div>
+          <div><dt>Joined</dt><dd>{new Date(record.created_at).toLocaleDateString()}</dd></div>
+          <div className="span-2"><dt>Monthly Salary</dt><dd className="record-salary">{formatCedis(record.salary)}</dd></div>
+        </dl>
       ) : (
         <p className="employment-record-message">{message}</p>
       )}
-    </div>
+    </section>
   );
 };
 

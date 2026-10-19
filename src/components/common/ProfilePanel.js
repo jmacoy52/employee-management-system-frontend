@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
 import api, { getErrorMessage } from "../../api/client";
 import toast from "react-hot-toast";
+import { Pencil } from "lucide-react";
+import { RoleBadge } from "./RoleBadge";
 import "./ProfilePanel.css";
 
 const ProfilePanel = ({ title = "My Profile" }) => {
+  const [saving, setSaving] = useState(false);
   const [loadError, setLoadError] = useState("");
   const [profile, setProfile] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -39,6 +42,7 @@ const ProfilePanel = ({ title = "My Profile" }) => {
   };
 
   const handleSave = async () => {
+    setSaving(true);
     try {
       await api.put("/api/users/profile", formData);
       toast.success("Profile updated successfully!");
@@ -46,7 +50,9 @@ const ProfilePanel = ({ title = "My Profile" }) => {
       setIsEditing(false);
     } catch (err) {
       console.error("Error updating profile:", err);
-      toast.error("Failed to update profile.");
+      toast.error(getErrorMessage(err, "Failed to update profile."));
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -60,66 +66,89 @@ const ProfilePanel = ({ title = "My Profile" }) => {
     setIsEditing(false);
   };
 
+  const fullName = profile && profile.first_name && profile.last_name ? `${profile.first_name} ${profile.last_name}` : "Not set";
+
   return (
-    <div className="my-profile-page">
-      <h2>{title}</h2>
+    <section className="card my-profile-page">
+      <div className="card-header">
+        <h2 className="card-title">{title}</h2>
+        {profile && !isEditing && (
+          <button type="button" className="btn btn-secondary btn-sm" onClick={() => setIsEditing(true)}>
+            <Pencil size={15} /> Edit Profile
+          </button>
+        )}
+      </div>
       {profile ? (
         <div className="profile-details">
-          <p><strong>Username:</strong> {profile.username}</p>
-          <p><strong>Email:</strong> {profile.email}</p>
-          <p><strong>Role:</strong> {profile.role}</p>
-          <p><strong>Full Name:</strong> {profile.first_name && profile.last_name ? `${profile.first_name} ${profile.last_name}` : "Not set"}</p>
-          <p><strong>Phone:</strong> {profile.phone || "Not set"}</p>
-          <p><strong>Address:</strong> {profile.address || "Not set"}</p>
           {!isEditing && (
-            <button onClick={() => setIsEditing(true)}>Edit Profile</button>
+            <dl className="detail-list">
+              <div><dt>Username</dt><dd>{profile.username}</dd></div>
+              <div><dt>Email</dt><dd>{profile.email}</dd></div>
+              <div><dt>Role</dt><dd><RoleBadge role={profile.role} /></dd></div>
+              <div><dt>Full Name</dt><dd className={fullName === "Not set" ? "muted" : ""}>{fullName}</dd></div>
+              <div><dt>Phone</dt><dd className={profile.phone ? "" : "muted"}>{profile.phone || "Not set"}</dd></div>
+              <div><dt>Address</dt><dd className={profile.address ? "" : "muted"}>{profile.address || "Not set"}</dd></div>
+            </dl>
           )}
           {isEditing && (
             <div className="edit-form">
-              <label>
-                First Name:
-                <input
-                  type="text"
-                  name="first_name"
-                  value={formData.first_name}
-                  onChange={handleInputChange}
-                />
-              </label>
-              <label>
-                Last Name:
-                <input
-                  type="text"
-                  name="last_name"
-                  value={formData.last_name}
-                  onChange={handleInputChange}
-                />
-              </label>
-              <label>
-                Phone:
-                <input
-                  type="text"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                />
-              </label>
-              <label>
-                Address:
-                <textarea
-                  name="address"
-                  value={formData.address}
-                  onChange={handleInputChange}
-                />
-              </label>
-              <button onClick={handleSave}>Save</button>
-              <button onClick={handleCancel}>Cancel</button>
+              <p className="muted edit-form-note">
+                Only your name, phone number and address can be changed here.
+              </p>
+              <div className="form-grid">
+                <div className="field">
+                  <label htmlFor="profile-first">First Name</label>
+                  <input
+                    id="profile-first"
+                    type="text"
+                    name="first_name"
+                    value={formData.first_name}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="field">
+                  <label htmlFor="profile-last">Last Name</label>
+                  <input
+                    id="profile-last"
+                    type="text"
+                    name="last_name"
+                    value={formData.last_name}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="field span-2">
+                  <label htmlFor="profile-phone">Phone</label>
+                  <input
+                    id="profile-phone"
+                    type="text"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="field span-2">
+                  <label htmlFor="profile-address">Address</label>
+                  <textarea
+                    id="profile-address"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleInputChange}
+                  />
+                </div>
+              </div>
+              <div className="form-actions">
+                <button type="button" className="btn btn-secondary" onClick={handleCancel}>Cancel</button>
+                <button type="button" className="btn btn-primary" onClick={handleSave} disabled={saving}>
+                  {saving && <span className="spinner" aria-hidden="true" />} Save
+                </button>
+              </div>
             </div>
           )}
         </div>
       ) : (
-        <p>{loadError || "Loading profile..."}</p>
+        <p className={loadError ? "error" : "muted"}>{loadError || "Loading profile..."}</p>
       )}
-    </div>
+    </section>
   );
 };
 

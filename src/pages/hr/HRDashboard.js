@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import api, { getErrorMessage } from "../../api/client";
 import EmployeeStats from "../../components/common/EmployeeStats";
 import HRNav from "../../components/layout/HRNav";
+import AppLayout from "../../components/layout/AppLayout";
+import ActionBadge from "../../components/common/ActionBadge";
+import { getStoredUser } from "../../auth/session";
 import { useNavigate } from "react-router-dom";
 import { Plus, Users } from "lucide-react";
 import "./HRDashboard.css";
@@ -9,8 +12,10 @@ import toast from "react-hot-toast";
 
 const HRDashboard = () => {
   const [employees, setEmployees] = useState([]);
+  const [activity, setActivity] = useState(null);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const user = getStoredUser();
 
 
   const fetchEmployees = async () => {
@@ -24,53 +29,103 @@ const HRDashboard = () => {
     }
   };
 
+  // Last 10 audit entries (HR can read these via /api/audit-logs/recent)
+  const fetchActivity = async () => {
+    try {
+      const res = await api.get("/api/audit-logs/recent");
+      setActivity(res.data);
+    } catch {
+      setActivity([]);
+    }
+  };
+
   useEffect(() => {
     fetchEmployees();
+    fetchActivity();
   }, []);
 
-  const today = new Date().toLocaleDateString();
+  // Headcount per department, largest first (replaces the old duplicate "Quick Stats").
+  const byDepartment = useMemo(() => {
+    const counts = {};
+    employees.forEach((e) => {
+      counts[e.Department] = (counts[e.Department] || 0) + 1;
+    });
+    return Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  }, [employees]);
+
+  const today = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  const firstName = (user?.username || "").split(" ")[0];
 
   return (
-    <div className="hr-dashboard">
-      <HRNav />
-      <div className="dashboard-content">
-        <div className="welcome-header">
-          <h2>Welcome, HR</h2>
-          <span className="date">{today}</span>
-        </div>
-
+    <AppLayout
+      nav={<HRNav />}
+      className="hr-dashboard"
+      title={firstName ? `Welcome, ${firstName}` : "Welcome, HR"}
+      subtitle={today}
+      actions={
         <div className="quick-actions">
-          <button className="btn-primary" onClick={() => navigate("/hr/create-employee")}>
+          <button className="btn btn-primary" onClick={() => navigate("/hr/create-employee")}>
             <Plus size={18} /> Add Employee
           </button>
-          <button className="btn-outline" onClick={() => navigate("/hr/employees")}>
+          <button className="btn btn-secondary" onClick={() => navigate("/hr/employees")}>
             <Users size={18} /> View Employees
           </button>
         </div>
+      }
+    >
+      {error && <p className="error page-error" role="alert">{error}</p>}
 
-        {error && <p className="error">{error}</p>}
+      <EmployeeStats employees={employees} />
 
-        <EmployeeStats employees={employees} />
-
-        <div className="recent-activity">
-          <h3>Quick Stats</h3>
-          <div className="stats-grid">
-            <div className="stat-card">
-              <h4>Total Employees</h4>
-              <p>{employees.length}</p>
-            </div>
-            <div className="stat-card">
-              <h4>Active Employees</h4>
-              <p>{employees.length}</p>
-            </div>
-            <div className="stat-card">
-              <h4>Departments</h4>
-              <p>{new Set(employees.map(emp => emp.Department)).size}</p>
-            </div>
+      <div className="two-col section">
+        <section className="card">
+          <div className="card-header">
+            <h2 className="card-title">Employees by department</h2>
           </div>
-        </div>
+          {byDepartment.length === 0 ? (
+            <p className="muted">No employees yet. Add your first employee to see a breakdown.</p>
+          ) : (
+            <ul className="dept-list">
+              {byDepartment.map(([dept, n]) => (
+                <li key={dept}>
+                  <div className="dept-row">
+                    <span>{dept}</span>
+                    <span className="dept-count">{n}</span>
+                  </div>
+                  <div className="dept-bar" aria-hidden="true">
+                    <span style={{ width: `${(n / employees.length) * 100}%` }} />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        <section className="card card-flush">
+          <div className="card-header activity-header">
+            <h2 className="card-title">Recent activity</h2>
+          </div>
+          {activity === null ? (
+            <p className="activity-empty">Loading…</p>
+          ) : activity.length === 0 ? (
+            <p className="activity-empty">No recent activity.</p>
+          ) : (
+            <ul className="activity-list">
+              {activity.map((a) => (
+                <li key={a.LogId}>
+                  <ActionBadge action={a.actions} />
+                  <span className="activity-desc">{a.descriptions}</span>
+                  <span className="activity-meta">
+                    {a.username ? `${a.username} · ` : ""}
+                    {new Date(a.created_at).toLocaleString()}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
       </div>
-    </div>
+    </AppLayout>
   );
 };
 
