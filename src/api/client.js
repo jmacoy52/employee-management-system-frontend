@@ -17,6 +17,22 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Session expired or token rejected: clear it and send the user to sign in.
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error.response?.status;
+    const hadToken = Boolean(localStorage.getItem("token"));
+    const isAuthCall = /\/api\/users\/(login|register)$/.test(error.config?.url || "");
+    if (status === 401 && hadToken && !isAuthCall) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      if (window.location.pathname !== "/login") window.location.assign("/login");
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const SERVER_UNAVAILABLE_MESSAGE =
   "Server is waking up or unavailable, try again.";
 

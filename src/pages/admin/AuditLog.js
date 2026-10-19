@@ -45,7 +45,7 @@ const AuditLog = () => {
         <tbody>
           {auditLogs.length > 0 ? (
             auditLogs.map((log) => (
-              <tr key={log.Id}>
+              <tr key={log.LogId}>
                 <td>{log.LogId}</td>
                 <td>{log.actions}</td>
                 <td>{log.descriptions}</td>

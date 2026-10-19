@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./AdminDashboard.css";
 import { Users, Settings, ScrollText, UserCheck, Plus, LogOut } from "lucide-react";
-import api from "../../api/client";
+import api, { getErrorMessage } from "../../api/client";
 import { toast } from "react-hot-toast";
 
 const AdminDashboard = () => {
@@ -13,7 +13,7 @@ const AdminDashboard = () => {
     username: "",
     email: "",
     password: "",
-    role: "",
+    role: "employee",
   });
 
   const handleChange = (e) => {
@@ -29,9 +29,9 @@ const AdminDashboard = () => {
 
       toast.success("User account created!");
       setShowCreateModal(false);
-      setNewUser({ username: "", email: "", password: "", role: "" });
+      setNewUser({ username: "", email: "", password: "", role: "employee" });
     } catch (err) {
-      toast.error(err.response?.data?.error || "Failed to create user");
+      toast.error(getErrorMessage(err, "Failed to create user"));
     }
   };
 
@@ -96,8 +96,12 @@ const AdminDashboard = () => {
             <form onSubmit={handleCreateUser} className="create-user-form">
               <input type="text" name="username" placeholder="Username" value={newUser.username} onChange={handleChange} required />
               <input type="email" name="email" placeholder="Email" value={newUser.email} onChange={handleChange} required />
-              <input type="password" name="password" placeholder="Password" value={newUser.password} onChange={handleChange} required />
-              <input type="text" name="role" placeholder="admin or hr?" value={newUser.role} onChange={handleChange} required />
+              <input type="password" name="password" placeholder="Password (min. 8 characters)" minLength={8} value={newUser.password} onChange={handleChange} required />
+              <select name="role" value={newUser.role} onChange={handleChange} required>
+                <option value="employee">Employee</option>
+                <option value="hr">HR</option>
+                <option value="admin">Admin</option>
+              </select>
 
               <div className="modal-actions">
                 <button type="submit" className="btn-primary">Create</button>
