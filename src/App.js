@@ -16,6 +16,7 @@ import AuditLog from "./components/Pages/Dashboards/AdminDashboard/AuditLog";
 import EmployeeListPage from "./components/Pages/Dashboards/HRDashboard/EmployeeListPage";
 import AddEmployeePage from "./components/Pages/Dashboards/HRDashboard/AddEmployeePage";
 import MyProfilePage from "./components/Pages/Dashboards/HRDashboard/MyProfilePage";
+import EmployeeDashboard from "./components/Pages/Dashboards/EmployeeDashboard/EmployeeDashboard";
 
 import './App.css';
 
@@ -37,6 +38,11 @@ function App() {
           <Route path="/hr/employees" element={<EmployeeListPage />} />
           <Route path="/hr/create-employee" element={<AddEmployeePage />} />
           <Route path="/hr/profile" element={<MyProfilePage />} />
+        </Route>
+
+        {/* Employee Routes - Protected (any signed-in role) */}
+        <Route element={<PrivateRoute allowedRoles={["employee", "hr", "admin"]} />}>
+          <Route path="/EmployeeDashboard" element={<EmployeeDashboard />} />
         </Route>
 
         {/* Admin Routes - Protected */}

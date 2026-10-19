@@ -45,6 +45,7 @@ const Login = () => {
         toast.success("Login successful!");
       } else {
         navigate("/EmployeeDashboard");
+        toast.success("Login successful!");
       }
     } catch (err) {
       setError(getErrorMessage(err, "Login failed. Please try again."));
