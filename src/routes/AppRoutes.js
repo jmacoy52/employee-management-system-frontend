@@ -29,6 +29,8 @@ import OwnerOrganisations from "../pages/owner/OwnerOrganisations";
 import OwnerOrganisationDetail from "../pages/owner/OwnerOrganisationDetail";
 import OwnerUsers from "../pages/owner/OwnerUsers";
 import OwnerAuditLog from "../pages/owner/OwnerAuditLog";
+import OwnerEnquiries from "../pages/owner/OwnerEnquiries";
+import OwnerAccount from "../pages/owner/OwnerAccount";
 
 const AppRoutes = () => (
   <Routes>
@@ -60,6 +62,8 @@ const AppRoutes = () => (
       <Route path={PATHS.ownerOrganisation} element={<OwnerOrganisationDetail />} />
       <Route path={PATHS.ownerUsers} element={<OwnerUsers />} />
       <Route path={PATHS.ownerAuditLog} element={<OwnerAuditLog />} />
+      <Route path={PATHS.ownerEnquiries} element={<OwnerEnquiries />} />
+      <Route path={PATHS.ownerAccount} element={<OwnerAccount />} />
     </Route>
 
     {/* HR (admins are allowed too) */}

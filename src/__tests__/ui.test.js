@@ -50,6 +50,7 @@ test("organisation sign-up shows the password rule inline before calling the ser
   fireEvent.change(screen.getByLabelText("Organisation name"), { target: { value: "Accra Logistics" } });
   fireEvent.change(screen.getByLabelText("Your name"), { target: { value: "Ama Owusu" } });
   fireEvent.change(screen.getByLabelText("Work e-mail"), { target: { value: "ama@example.com" } });
+  fireEvent.change(screen.getByLabelText("Phone number"), { target: { value: "+233 20 123 4567" } });
   fireEvent.change(screen.getByLabelText("Password"), { target: { value: "abcdefghij" } });
   fireEvent.click(screen.getByRole("button", { name: "Register organisation" }));
   expect(screen.getByRole("alert")).toHaveTextContent(/at least one letter and one number/i);
@@ -70,4 +71,37 @@ test("sign-in page explains a suspended or pending organisation", () => {
 test("sign-in page links to organisation sign-up, not employee self-sign-up", () => {
   renderAt(<Login />, "/login");
   expect(screen.getByRole("link", { name: /register your organisation/i })).toHaveAttribute("href", "/register-organisation");
+});
+
+test("organisation sign-up asks for the details EmploCore needs to review it", () => {
+  renderAt(<RegisterOrganisation />, "/register-organisation");
+  const type = screen.getByLabelText("Type of organisation");
+  const size = screen.getByLabelText("Number of staff");
+  expect(type.tagName).toBe("SELECT");
+  expect(type).toBeRequired();
+  expect(size).toBeRequired();
+  expect(screen.getByRole("option", { name: "School or college" })).toBeInTheDocument();
+  expect(screen.getByRole("option", { name: "11–50 staff" })).toHaveValue("11-50");
+  expect(screen.getByLabelText("Country")).toHaveValue("Ghana");
+  expect(screen.getByLabelText(/City or town/)).not.toBeRequired();
+  expect(screen.getByLabelText("Phone number")).toHaveAttribute("type", "tel");
+  expect(screen.getByRole("group", { name: /contact person/i })).toBeInTheDocument();
+  // A bad phone number is caught before calling the server
+  fireEvent.change(screen.getByLabelText("Phone number"), { target: { value: "call me" } });
+  fireEvent.change(screen.getByLabelText("Password"), { target: { value: "Password123" } });
+  fireEvent.click(screen.getByRole("button", { name: "Register organisation" }));
+  expect(screen.getByRole("alert")).toHaveTextContent(/valid phone number/i);
+});
+
+test("sign-in page explains a rejected registration", () => {
+  renderAt(<Login />, "/login?notice=rejected");
+  expect(screen.getByRole("alert")).toHaveTextContent(/registration was not approved/i);
+});
+
+test("the sign-in button is a clearly labelled primary submit button", () => {
+  renderAt(<Login />, "/login");
+  const button = screen.getByRole("button", { name: /^sign in$/i });
+  expect(button).toHaveAttribute("type", "submit");
+  expect(button).toHaveClass("btn-primary", "btn-block");
+  expect(button).toBeEnabled();
 });

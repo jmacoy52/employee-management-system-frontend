@@ -2,6 +2,7 @@
   display: grid;
   grid-template-columns: minmax(340px, 5fr) 7fr;
   min-height: 100vh;
+  min-height: 100dvh; /* mobile browsers: the visible height, not including the toolbars */
   background: var(--color-bg);
 }
 
@@ -229,7 +230,7 @@
 
 @media (max-width: 480px) {
   .auth-main {
-    padding: var(--space-4) var(--space-4) var(--space-8);
+    padding: var(--space-4) var(--space-4) calc(var(--space-8) + env(safe-area-inset-bottom, 0px));
     gap: var(--space-5);
   }
   .auth-container {
@@ -327,4 +328,37 @@
 
 .login-notice {
   margin-bottom: var(--space-4);
+}
+
+/* Grouped sections on "Register your organisation" */
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  margin: 0;
+  padding: 0 0 var(--space-5);
+  border: 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.form-section legend {
+  margin-bottom: var(--space-3);
+  padding: 0;
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.form-section-note {
+  margin: calc(-1 * var(--space-2)) 0 0;
+}
+
+.optional {
+  font-weight: 400;
+  color: var(--color-muted);
+}
+
+.register-org-form select {
+  width: 100%;
 }

@@ -6,8 +6,13 @@ import AuthLayout from "../../components/auth/AuthLayout";
 import PasswordInput from "../../components/auth/PasswordInput";
 import SubmitButton from "../../components/auth/SubmitButton";
 import { passwordProblem } from "./Register";
+import { ORG_TYPES, SIZE_RANGES, PHONE_RE } from "../../config/signupOptions";
 
-const EMPTY = { organizationName: "", adminName: "", email: "", password: "", website: "" };
+const EMPTY = {
+  organizationName: "", organizationType: "", sizeRange: "", country: "Ghana", city: "", phone: "",
+  contactName: "", contactEmail: "",
+  adminName: "", email: "", password: "", website: "",
+};
 
 // Public "Register your organisation": creates the organisation (pending) and its first
 // administrator. The administrator can sign in once EmploCore has approved the organisation.
@@ -26,6 +31,10 @@ const RegisterOrganisation = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    if (!PHONE_RE.test(form.phone.trim())) {
+      setError("Enter a valid phone number (digits, spaces, +, - and brackets).");
+      return;
+    }
     const problem = passwordProblem(form.password);
     if (problem) {
       setPasswordError(problem);
@@ -70,10 +79,45 @@ const RegisterOrganisation = () => {
       }
     >
       <form onSubmit={handleSubmit} className="register-org-form">
-        <div className="field">
-          <label htmlFor="org-name">Organisation name</label>
-          <input id="org-name" name="organizationName" type="text" placeholder="e.g. Accra Logistics Ltd" autoComplete="organization" minLength={2} maxLength={150} value={form.organizationName} onChange={handleChange} required />
-        </div>
+        <fieldset className="form-section">
+          <legend>Your organisation</legend>
+          <div className="field">
+            <label htmlFor="org-name">Organisation name</label>
+            <input id="org-name" name="organizationName" type="text" placeholder="e.g. Accra Logistics Ltd" autoComplete="organization" minLength={2} maxLength={150} value={form.organizationName} onChange={handleChange} required />
+          </div>
+          <div className="form-grid">
+            <div className="field">
+              <label htmlFor="org-type">Type of organisation</label>
+              <select id="org-type" name="organizationType" value={form.organizationType} onChange={handleChange} required>
+                <option value="">Choose…</option>
+                {ORG_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+              </select>
+            </div>
+            <div className="field">
+              <label htmlFor="org-size">Number of staff</label>
+              <select id="org-size" name="sizeRange" value={form.sizeRange} onChange={handleChange} required>
+                <option value="">Choose…</option>
+                {SIZE_RANGES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+              </select>
+            </div>
+            <div className="field">
+              <label htmlFor="org-country">Country</label>
+              <input id="org-country" name="country" type="text" autoComplete="country-name" minLength={2} maxLength={80} value={form.country} onChange={handleChange} required />
+            </div>
+            <div className="field">
+              <label htmlFor="org-city">City or town <span className="optional">(optional)</span></label>
+              <input id="org-city" name="city" type="text" placeholder="e.g. Kumasi" autoComplete="address-level2" maxLength={80} value={form.city} onChange={handleChange} />
+            </div>
+          </div>
+          <div className="field">
+            <label htmlFor="org-phone">Phone number</label>
+            <input id="org-phone" name="phone" type="tel" placeholder="e.g. +233 20 123 4567" autoComplete="tel" maxLength={25} value={form.phone} onChange={handleChange} required />
+          </div>
+        </fieldset>
+
+        <fieldset className="form-section">
+          <legend>Your administrator account</legend>
+          <p className="field-hint form-section-note">You will be the organisation&apos;s first administrator and can add HR and staff accounts after approval.</p>
         <div className="field">
           <label htmlFor="org-admin-name">Your name</label>
           <input id="org-admin-name" name="adminName" type="text" placeholder="e.g. Ama Owusu" autoComplete="name" minLength={2} maxLength={100} value={form.adminName} onChange={handleChange} required />
@@ -103,6 +147,22 @@ const RegisterOrganisation = () => {
             <p id="org-password-help" className="field-hint">Use 8+ characters with at least one letter and one number.</p>
           )}
         </div>
+        </fieldset>
+
+        <fieldset className="form-section">
+          <legend>Contact person <span className="optional">(optional)</span></legend>
+          <p className="field-hint form-section-note">Who should EmploCore contact about this registration? Leave empty if it is you.</p>
+          <div className="form-grid">
+            <div className="field">
+              <label htmlFor="org-contact-name">Name</label>
+              <input id="org-contact-name" name="contactName" type="text" maxLength={100} value={form.contactName} onChange={handleChange} />
+            </div>
+            <div className="field">
+              <label htmlFor="org-contact-email">E-mail</label>
+              <input id="org-contact-email" name="contactEmail" type="email" maxLength={150} value={form.contactEmail} onChange={handleChange} />
+            </div>
+          </div>
+        </fieldset>
         {/* Left empty by people; filled in by bots */}
         <div className="hp-field" aria-hidden="true">
           <label htmlFor="org-website">Website</label>

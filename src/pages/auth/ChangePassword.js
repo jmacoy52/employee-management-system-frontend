@@ -7,6 +7,7 @@ import AppLayout from "../../components/layout/AppLayout";
 import AdminNav from "../../components/layout/AdminNav";
 import HRNav from "../../components/layout/HRNav";
 import EmployeeNav from "../../components/layout/EmployeeNav";
+import OwnerNav from "../../components/layout/OwnerNav";
 import PasswordInput from "../../components/auth/PasswordInput";
 import SubmitButton from "../../components/auth/SubmitButton";
 import { ROLE_HOME, PATHS } from "../../routes/paths";
@@ -14,7 +15,7 @@ import { getStoredUser, saveSession } from "../../auth/session";
 
 const MIN_PASSWORD_LENGTH = 8;
 
-const NAV_FOR_ROLE = { admin: AdminNav, hr: HRNav, employee: EmployeeNav };
+const NAV_FOR_ROLE = { owner: OwnerNav, admin: AdminNav, hr: HRNav, employee: EmployeeNav };
 
 // Change own password. Also used to replace an admin-issued temporary password.
 const ChangePassword = () => {

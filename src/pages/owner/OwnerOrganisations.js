@@ -7,7 +7,8 @@ import OwnerNav from "../../components/layout/OwnerNav";
 import AppLayout from "../../components/layout/AppLayout";
 import Modal from "../../components/common/Modal";
 import PasswordInput from "../../components/auth/PasswordInput";
-import { OrgStatusBadge, formatDate, seatsLabel } from "./ownerShared";
+import { OrgStatusBadge, formatDate, seatsLabel, placeLabel } from "./ownerShared";
+import PendingApprovals from "./PendingApprovals";
 import "./Owner.css";
 
 const EMPTY_FORM = { name: "", contact_email: "", plan: "standard", seat_limit: "", adminName: "", adminEmail: "", adminPassword: "" };
@@ -70,7 +71,7 @@ const OwnerOrganisations = () => {
     <AppLayout
       nav={<OwnerNav />}
       title="Organisations"
-      subtitle="Every client organisation on the platform. Approve new sign-ups, change plans and seat limits, or suspend access."
+      subtitle="Every client organisation on the platform. Approve or reject new registrations, change plans and seat limits, or suspend access."
       className="owner-organisations"
       actions={
         <button type="button" className="btn btn-primary new-org-btn" onClick={() => setShowCreate(true)}>
@@ -79,11 +80,17 @@ const OwnerOrganisations = () => {
       }
     >
       {error && <p className="error page-error" role="alert">{error}</p>}
+      {/* New registrations first, with their sign-up details */}
+      {!status && (
+        <div className="section-tight">
+          <PendingApprovals onChanged={() => load(q.trim())} />
+        </div>
+      )}
       <div className="card card-flush">
         <div className="toolbar">
           <div className="field">
             <label htmlFor="org-search">Search</label>
-            <input id="org-search" type="search" placeholder="Name, slug or contact e-mail" value={q} onChange={(e) => setQ(e.target.value)} />
+            <input id="org-search" type="search" placeholder="Name, contact, city or country" value={q} onChange={(e) => setQ(e.target.value)} />
           </div>
           <div className="field">
             <label htmlFor="org-status">Status</label>
@@ -92,6 +99,7 @@ const OwnerOrganisations = () => {
               <option value="pending">Pending approval</option>
               <option value="active">Active</option>
               <option value="suspended">Suspended</option>
+              <option value="rejected">Rejected</option>
             </select>
           </div>
           <span className="toolbar-count">{orgs ? orgs.length : 0} organisations</span>
@@ -102,6 +110,8 @@ const OwnerOrganisations = () => {
               <tr>
                 <th>Organisation</th>
                 <th>Status</th>
+                <th>Type / staff</th>
+                <th>Location</th>
                 <th>Plan</th>
                 <th>Active users / seats</th>
                 <th>Employees</th>
@@ -117,6 +127,8 @@ const OwnerOrganisations = () => {
                       <button type="button" className="owner-link-btn org-open" onClick={() => navigate(`/owner/organisations/${org.id}`)}>{org.name}</button>
                     </td>
                     <td data-label="Status"><OrgStatusBadge status={org.status} /></td>
+                    <td data-label="Type / staff" className="cell-muted">{org.org_type || "–"}{org.size_range ? ` · ${org.size_range}` : ""}</td>
+                    <td data-label="Location" className="cell-muted">{placeLabel(org)}</td>
                     <td data-label="Plan">{org.plan}</td>
                     <td data-label="Active users / seats">{seatsLabel(org)}</td>
                     <td data-label="Employees">{org.employee_count}</td>
@@ -126,7 +138,7 @@ const OwnerOrganisations = () => {
                 ))
               ) : (
                 <tr className="empty-row">
-                  <td colSpan="7">{orgs === null ? "Loading organisations…" : "No organisations found."}</td>
+                  <td colSpan="9">{orgs === null ? "Loading organisations…" : "No organisations found."}</td>
                 </tr>
               )}
             </tbody>

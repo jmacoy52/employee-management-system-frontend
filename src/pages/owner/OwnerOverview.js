@@ -1,33 +1,34 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Building2, Hourglass, Ban, Users, IdCard, TrendingUp, ArrowRight } from "lucide-react";
-import { toast } from "react-hot-toast";
+import { Building2, Hourglass, Users, IdCard, TrendingUp, ArrowRight, Inbox } from "lucide-react";
 import api, { getErrorMessage } from "../../api/client";
 import OwnerNav from "../../components/layout/OwnerNav";
 import AppLayout from "../../components/layout/AppLayout";
 import { getStoredUser } from "../../auth/session";
-import { formatDate } from "./ownerShared";
+import PendingApprovals from "./PendingApprovals";
+import { formatDate, EnquiryStatusBadge } from "./ownerShared";
 import "./Owner.css";
 
-// Platform overview: real counts from /api/platform/overview and the organisations waiting for approval.
+// Platform overview: real counts from /api/platform/overview, the organisations waiting for
+// approval (with their sign-up details) and the newest demo requests.
 const OwnerOverview = () => {
   const navigate = useNavigate();
   const me = getStoredUser();
   const [stats, setStats] = useState(null);
-  const [pending, setPending] = useState(null);
+  const [enquiries, setEnquiries] = useState(null);
   const [error, setError] = useState("");
 
   const load = useCallback(async () => {
     try {
-      const [o, p] = await Promise.all([
+      const [o, e] = await Promise.all([
         api.get("/api/platform/overview"),
-        api.get("/api/platform/organizations", { params: { status: "pending" } }),
+        api.get("/api/platform/enquiries", { params: { status: "new", limit: 5 } }),
       ]);
       setStats(o.data);
-      setPending(p.data);
+      setEnquiries(e.data);
     } catch (err) {
       setError(getErrorMessage(err, "Failed to load the overview."));
-      setPending([]);
+      setEnquiries([]);
     }
   }, []);
 
@@ -35,22 +36,12 @@ const OwnerOverview = () => {
     load();
   }, [load]);
 
-  const approve = async (org) => {
-    try {
-      await api.post(`/api/platform/organizations/${org.id}/approve`);
-      toast.success(`${org.name} approved.`);
-      load();
-    } catch (err) {
-      toast.error(getErrorMessage(err, "Failed to approve."));
-    }
-  };
-
   const v = (key) => (stats ? stats[key] : "–");
   const tiles = [
-    { label: "Active organisations", value: v("active"), icon: Building2, tone: "" },
-    { label: "Pending approval", value: v("pending"), icon: Hourglass, tone: "accent" },
-    { label: "Suspended", value: v("suspended"), icon: Ban, tone: "danger" },
-    { label: "User accounts", value: stats ? `${stats.users}` : "–", icon: Users, tone: "" },
+    { label: "Pending approval", value: v("pending"), icon: Hourglass, tone: "accent", to: "/owner/organisations?status=pending" },
+    { label: "New enquiries", value: v("enquiries_new"), icon: Inbox, tone: "accent", to: "/owner/enquiries" },
+    { label: "Active organisations", value: v("active"), icon: Building2, tone: "", to: "/owner/organisations?status=active" },
+    { label: "User accounts", value: v("users"), icon: Users, tone: "", to: "/owner/users" },
     { label: "Employee records", value: v("employees"), icon: IdCard, tone: "" },
     { label: "New sign-ups (30 days)", value: v("signups_30d"), icon: TrendingUp, tone: "accent" },
   ];
@@ -64,57 +55,67 @@ const OwnerOverview = () => {
     >
       {error && <p className="error page-error" role="alert">{error}</p>}
       <div className="stat-grid owner-stats">
-        {tiles.map(({ label, value, icon: Icon, tone }) => (
-          <div className="stat-tile" key={label}>
-            <span className={`stat-icon ${tone}`}><Icon size={22} /></span>
-            <div>
-              <p className="stat-label">{label}</p>
-              <p className="stat-value">{value}</p>
-            </div>
-          </div>
-        ))}
+        {tiles.map(({ label, value, icon: Icon, tone, to }) => {
+          const body = (
+            <>
+              <span className={`stat-icon ${tone}`}><Icon size={22} /></span>
+              <div>
+                <p className="stat-label">{label}</p>
+                <p className="stat-value">{value}</p>
+              </div>
+            </>
+          );
+          return to ? (
+            <button type="button" className="stat-tile stat-tile-link" key={label} onClick={() => navigate(to)}>{body}</button>
+          ) : (
+            <div className="stat-tile" key={label}>{body}</div>
+          );
+        })}
       </div>
 
       <div className="owner-grid section">
-        <section className="card card-flush">
-          <div className="card-header">
-            <h2 className="card-title">Waiting for approval</h2>
-            <button type="button" className="btn btn-ghost btn-sm" onClick={() => navigate("/owner/organisations?status=pending")}>
-              View all
-            </button>
-          </div>
-          {pending === null ? (
-            <p className="owner-empty">Loading…</p>
-          ) : pending.length === 0 ? (
-            <p className="owner-empty">No organisations are waiting for approval.</p>
-          ) : (
-            <ul className="owner-pending-list">
-              {pending.map((org) => (
-                <li key={org.id}>
-                  <div>
-                    <button type="button" className="owner-link-btn owner-pending-name" onClick={() => navigate(`/owner/organisations/${org.id}`)}>
-                      {org.name}
-                    </button>
-                    <span className="owner-pending-meta">{org.contact_email} · registered {formatDate(org.created_at)}</span>
-                  </div>
-                  <button type="button" className="btn btn-primary btn-sm approve-btn" onClick={() => approve(org)}>
-                    Approve
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
+        <PendingApprovals limit={5} onChanged={load} />
 
-        <section className="card">
-          <h2 className="card-title">Manage the platform</h2>
-          <p className="owner-section-note">Approve and suspend organisations, change plans and seat limits, help users who are locked out, and review every organisation&apos;s audit trail.</p>
-          <div className="owner-actions" style={{ padding: "var(--space-4) 0 0" }}>
-            <button type="button" className="btn btn-secondary btn-sm" onClick={() => navigate("/owner/organisations")}>Organisations <ArrowRight size={14} /></button>
-            <button type="button" className="btn btn-secondary btn-sm" onClick={() => navigate("/owner/users")}>All users <ArrowRight size={14} /></button>
-            <button type="button" className="btn btn-secondary btn-sm" onClick={() => navigate("/owner/audit-log")}>Audit log <ArrowRight size={14} /></button>
-          </div>
-        </section>
+        <div className="owner-stack">
+          <section className="card card-flush new-enquiries">
+            <div className="card-header">
+              <h2 className="card-title owner-card-title">
+                <Inbox size={18} aria-hidden="true" /> New enquiries
+                {enquiries && enquiries.length > 0 && <span className="count-pill info">{stats?.enquiries_new ?? enquiries.length}</span>}
+              </h2>
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => navigate("/owner/enquiries")}>View all</button>
+            </div>
+            {enquiries === null ? (
+              <p className="owner-empty">Loading…</p>
+            ) : enquiries.length === 0 ? (
+              <p className="owner-empty">No new demo requests.</p>
+            ) : (
+              <ul className="owner-pending-list">
+                {enquiries.map((e) => (
+                  <li key={e.id}>
+                    <div>
+                      <span className="owner-pending-name">{e.name}{e.organization_name ? ` · ${e.organization_name}` : ""}</span>
+                      <span className="owner-pending-meta">{e.email} · {formatDate(e.created_at)}</span>
+                    </div>
+                    <EnquiryStatusBadge status={e.status} />
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          <section className="card">
+            <h2 className="card-title">Manage the platform</h2>
+            <p className="owner-section-note">Approve or reject new registrations, follow up demo requests, change plans and seat limits, help users who are locked out, and review every organisation&apos;s audit trail.</p>
+            <div className="owner-actions" style={{ padding: "var(--space-4) 0 0" }}>
+              <button type="button" className="btn btn-secondary btn-sm" onClick={() => navigate("/owner/organisations")}>Organisations <ArrowRight size={14} /></button>
+              <button type="button" className="btn btn-secondary btn-sm" onClick={() => navigate("/owner/enquiries")}>Enquiries <ArrowRight size={14} /></button>
+              <button type="button" className="btn btn-secondary btn-sm" onClick={() => navigate("/owner/users")}>All users <ArrowRight size={14} /></button>
+              <button type="button" className="btn btn-secondary btn-sm" onClick={() => navigate("/owner/audit-log")}>Audit log <ArrowRight size={14} /></button>
+              <button type="button" className="btn btn-secondary btn-sm" onClick={() => navigate("/owner/account")}>My account <ArrowRight size={14} /></button>
+            </div>
+          </section>
+        </div>
       </div>
     </AppLayout>
   );

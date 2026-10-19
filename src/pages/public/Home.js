@@ -211,7 +211,7 @@ const Home = () => {
                   Try the demo <ArrowRight size={18} />
                 </a>
               ) : (
-                <Link to="/contact" className="btn btn-primary btn-lg">
+                <Link to="/contact#request-demo" className="btn btn-primary btn-lg">
                   Request a demo <ArrowRight size={18} />
                 </Link>
               )}
@@ -393,7 +393,7 @@ const Home = () => {
               Register your organisation <ArrowRight size={16} />
             </Link>
             <p className="org-card-or">or</p>
-            <Link to="/contact" className="btn btn-secondary btn-block">
+            <Link to="/contact#request-demo" className="btn btn-secondary btn-block">
               <Mail size={16} aria-hidden="true" /> Request a demo
             </Link>
           </div>
@@ -410,7 +410,7 @@ const Home = () => {
           <div className="cta">
             {demo && <a href="#demo" className="btn btn-lg btn-light">Try the demo</a>}
             <Link to="/register-organisation" className={`btn btn-lg ${demo ? "btn-on-dark" : "btn-light"}`}>Register your organisation</Link>
-            <Link to="/contact" className="btn btn-lg btn-on-dark">Request a demo</Link>
+            <Link to="/contact#request-demo" className="btn btn-lg btn-on-dark">Request a demo</Link>
             {!demo && <Link to="/login" className="btn btn-lg btn-on-dark">Sign in</Link>}
           </div>
         </div>

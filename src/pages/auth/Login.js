@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import api, { getErrorMessage } from "../../api/client";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
-import { Loader2 } from "lucide-react";
+import { Loader2, LogIn } from "lucide-react";
 import AuthLayout from "../../components/auth/AuthLayout";
 import PasswordInput from "../../components/auth/PasswordInput";
 import SubmitButton from "../../components/auth/SubmitButton";
@@ -13,6 +13,7 @@ import { saveSession } from "../../auth/session";
 const LOGIN_NOTICES = {
   suspended: "Your organisation's EmploCore account is suspended, so you have been signed out. Please contact EmploCore.",
   pending: "Your organisation is waiting for approval. You can sign in once EmploCore has approved it.",
+  rejected: "Your organisation's registration was not approved, so you have been signed out. Please contact EmploCore if you think this is a mistake.",
 };
 
 const Login = () => {
@@ -62,7 +63,10 @@ const Login = () => {
       navigate(ROLE_HOME[user.role] || PATHS.employee);
       toast.success("Login successful!");
     } catch (err) {
-      setError(getErrorMessage(err, "Login failed. Please try again."));
+      // A rejected registration can carry the reviewer's reason
+      const reason = err.response?.data?.reason;
+      const message = getErrorMessage(err, "Login failed. Please try again.");
+      setError(reason ? `${message} Reason: ${reason}` : message);
     } finally {
       setLoading(false);
     }
@@ -127,8 +131,8 @@ const Login = () => {
             {error}
           </p>
         )}
-        <SubmitButton loading={loading} loadingText="Signing in…">
-          Login
+        <SubmitButton loading={loading} loadingText="Signing in…" className="signin-submit">
+          <LogIn size={18} aria-hidden="true" /> Sign in
         </SubmitButton>
       </form>
 

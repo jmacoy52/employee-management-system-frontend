@@ -6,7 +6,9 @@ import api, { getErrorMessage } from "../../api/client";
 import OwnerNav from "../../components/layout/OwnerNav";
 import AppLayout from "../../components/layout/AppLayout";
 import OwnerUserTable from "./OwnerUserTable";
-import { OrgStatusBadge, formatDate, seatsLabel } from "./ownerShared";
+import RejectModal from "./RejectModal";
+import { OrgStatusBadge, formatDate, seatsLabel, placeLabel, notifyOwnerCountsChanged } from "./ownerShared";
+import { ORG_TYPES, SIZE_RANGES, sizeLabel } from "../../config/signupOptions";
 import "./Owner.css";
 
 const OwnerOrganisationDetail = () => {
@@ -16,12 +18,18 @@ const OwnerOrganisationDetail = () => {
   const [error, setError] = useState("");
   const [form, setForm] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [rejecting, setRejecting] = useState(null);
 
   const load = useCallback(async () => {
     try {
       const res = await api.get(`/api/platform/organizations/${id}`);
       setOrg(res.data);
-      setForm({ name: res.data.name, plan: res.data.plan, seat_limit: res.data.seat_limit ?? "", contact_email: res.data.contact_email || "" });
+      const o = res.data;
+      setForm({
+        name: o.name, plan: o.plan, seat_limit: o.seat_limit ?? "", contact_email: o.contact_email || "",
+        contact_name: o.contact_name || "", phone: o.phone || "", org_type: o.org_type || "", size_range: o.size_range || "",
+        country: o.country || "", city: o.city || "",
+      });
       setError("");
     } catch (err) {
       setError(getErrorMessage(err, "Failed to load the organisation."));
@@ -37,6 +45,7 @@ const OwnerOrganisationDetail = () => {
     try {
       const res = await api.post(`/api/platform/organizations/${id}/${action}`);
       toast.success(res.data.message);
+      notifyOwnerCountsChanged();
       load();
     } catch (err) {
       toast.error(getErrorMessage(err, "Action failed."));
@@ -52,6 +61,12 @@ const OwnerOrganisationDetail = () => {
         plan: form.plan,
         seat_limit: form.seat_limit === "" ? null : Number(form.seat_limit),
         contact_email: form.contact_email || null,
+        contact_name: form.contact_name || null,
+        phone: form.phone || null,
+        org_type: form.org_type || null,
+        size_range: form.size_range || null,
+        country: form.country || null,
+        city: form.city || null,
       });
       toast.success("Organisation updated.");
       load();
@@ -63,10 +78,12 @@ const OwnerOrganisationDetail = () => {
   };
 
   const remove = async () => {
-    if (!window.confirm(`Delete ${org.name}? This cannot be undone.`)) return;
+    const accounts = registration && org.user_count ? ` and its ${org.user_count} sign-up account${org.user_count === 1 ? "" : "s"}` : "";
+    if (!window.confirm(`Delete ${org.name}${accounts}? This cannot be undone.`)) return;
     try {
       await api.delete(`/api/platform/organizations/${id}`);
       toast.success("Organisation deleted.");
+      notifyOwnerCountsChanged();
       navigate("/owner/organisations");
     } catch (err) {
       toast.error(getErrorMessage(err, "Failed to delete."));
@@ -74,7 +91,9 @@ const OwnerOrganisationDetail = () => {
   };
 
   const change = (e) => setForm({ ...form, [e.target.name]: e.target.value });
-  const inUse = org && (org.user_count > 0 || org.employee_count > 0);
+  // A registration that was never approved can be deleted with its sign-up account(s)
+  const registration = org && ["pending", "rejected"].includes(org.status) && org.employee_count === 0;
+  const inUse = org && !registration && (org.user_count > 0 || org.employee_count > 0);
 
   return (
     <AppLayout
@@ -93,7 +112,18 @@ const OwnerOrganisationDetail = () => {
                 <h2 className="card-title">Status and usage</h2>
                 <OrgStatusBadge status={org.status} />
               </div>
+              {org.status === "rejected" && (
+                <p className="error owner-rejected-note" role="status">
+                  Rejected {formatDate(org.reviewed_at)}{org.rejection_reason ? `: ${org.rejection_reason}` : " (no reason given)"}
+                </p>
+              )}
               <dl className="owner-facts">
+                <dt>Type</dt><dd className="org-type">{org.org_type || "–"}</dd>
+                <dt>Staff</dt><dd>{sizeLabel(org.size_range)}</dd>
+                <dt>Location</dt><dd>{placeLabel(org)}</dd>
+                <dt>Phone</dt><dd>{org.phone ? <a href={`tel:${org.phone.replace(/[^+0-9]/g, "")}`}>{org.phone}</a> : "–"}</dd>
+                <dt>Contact person</dt><dd>{org.contact_name || "–"}</dd>
+                <dt>Contact e-mail</dt><dd>{org.contact_email ? <a href={`mailto:${org.contact_email}`}>{org.contact_email}</a> : "–"}</dd>
                 <dt>Active users / seats</dt><dd>{seatsLabel(org)}</dd>
                 <dt>All user accounts</dt><dd>{org.user_count}</dd>
                 <dt>Employee records</dt><dd>{org.employee_count}</dd>
@@ -102,13 +132,16 @@ const OwnerOrganisationDetail = () => {
                 <dt>Approved</dt><dd>{formatDate(org.approved_at)}</dd>
               </dl>
               <div className="owner-actions">
-                {org.status === "pending" && (
+                {["pending", "rejected"].includes(org.status) && (
                   <button type="button" className="btn btn-primary btn-sm approve-btn" onClick={() => act("approve")}>Approve</button>
+                )}
+                {org.status === "pending" && (
+                  <button type="button" className="btn btn-danger-soft btn-sm reject-btn" onClick={() => setRejecting(org)}>Reject</button>
                 )}
                 {org.status === "suspended" && (
                   <button type="button" className="btn btn-success-soft btn-sm reactivate-btn" onClick={() => act("reactivate")}>Reactivate</button>
                 )}
-                {org.status !== "suspended" && (
+                {org.status === "active" && (
                   <button type="button" className="btn btn-danger-soft btn-sm suspend-btn" onClick={() => act("suspend", `Suspend ${org.name}? Its users are signed out and cannot sign in until you reactivate it.`)}>
                     Suspend
                   </button>
@@ -118,7 +151,7 @@ const OwnerOrganisationDetail = () => {
                   className="btn btn-ghost btn-sm delete-org-btn"
                   onClick={remove}
                   disabled={inUse}
-                  title={inUse ? "Only an organisation without users and employee records can be deleted. Suspend it instead." : "Delete this organisation"}
+                  title={inUse ? "Only an organisation without users and employee records can be deleted. Suspend it instead." : registration ? "Delete this registration and its sign-up account" : "Delete this organisation"}
                 >
                   Delete
                 </button>
@@ -142,6 +175,38 @@ const OwnerOrganisationDetail = () => {
                     <input id="edit-org-seats" name="seat_limit" type="number" min="1" placeholder="No limit" value={form.seat_limit} onChange={change} />
                   </div>
                 </div>
+                <div className="form-grid">
+                  <div className="field">
+                    <label htmlFor="edit-org-type">Type</label>
+                    <select id="edit-org-type" name="org_type" value={form.org_type} onChange={change}>
+                      <option value="">Not given</option>
+                      {ORG_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                  </div>
+                  <div className="field">
+                    <label htmlFor="edit-org-size">Staff</label>
+                    <select id="edit-org-size" name="size_range" value={form.size_range} onChange={change}>
+                      <option value="">Not given</option>
+                      {SIZE_RANGES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+                    </select>
+                  </div>
+                  <div className="field">
+                    <label htmlFor="edit-org-country">Country</label>
+                    <input id="edit-org-country" name="country" value={form.country} onChange={change} maxLength={80} />
+                  </div>
+                  <div className="field">
+                    <label htmlFor="edit-org-city">City</label>
+                    <input id="edit-org-city" name="city" value={form.city} onChange={change} maxLength={80} />
+                  </div>
+                  <div className="field">
+                    <label htmlFor="edit-org-contact-name">Contact person</label>
+                    <input id="edit-org-contact-name" name="contact_name" value={form.contact_name} onChange={change} maxLength={100} />
+                  </div>
+                  <div className="field">
+                    <label htmlFor="edit-org-phone">Phone</label>
+                    <input id="edit-org-phone" name="phone" type="tel" value={form.phone} onChange={change} maxLength={25} />
+                  </div>
+                </div>
                 <div className="field">
                   <label htmlFor="edit-org-contact">Contact e-mail</label>
                   <input id="edit-org-contact" name="contact_email" type="email" value={form.contact_email} onChange={change} />
@@ -159,6 +224,7 @@ const OwnerOrganisationDetail = () => {
             <div className="card-header"><h2 className="card-title">Users ({org.users.length})</h2></div>
             <OwnerUserTable users={org.users} loading={false} onChanged={load} />
           </section>
+          <RejectModal org={rejecting} onClose={() => setRejecting(null)} onDone={() => { setRejecting(null); load(); }} />
         </>
       )}
     </AppLayout>

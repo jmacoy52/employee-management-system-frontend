@@ -19,6 +19,11 @@ with sync_playwright() as p:
     def newpage():
         c=b.new_context(viewport={"width":1366,"height":900}); pg=c.new_page(); errs=[]
         pg.on("pageerror",lambda e: errs.append(str(e))); pg.on("dialog", lambda d: d.accept()); return pg, errs
+    def fill_org_form(pg, name, admin, mail, pw, phone="+233 20 123 4567"):
+        pg.goto(B+"/register-organisation", wait_until="networkidle")
+        pg.fill("input[name=organizationName]", name); pg.select_option("select[name=organizationType]", "Retail"); pg.select_option("select[name=sizeRange]", "11-50")
+        pg.fill("input[name=city]", "Kumasi"); pg.fill("input[name=phone]", phone)
+        pg.fill("input[name=adminName]", admin); pg.fill("input[name=email]", mail); pg.fill("input[name=password]", pw); pg.click("button[type=submit]")
     def admin_create_user(pg, name, mail, role="employee", pw="Password123"):
         pg.goto(B+"/admin", wait_until="networkidle"); pg.click(".floating-add-btn"); time.sleep(.3)
         pg.fill("input[name=username]", name); pg.fill("input[name=email]", mail); pg.fill("input[name=password]", pw); pg.select_option("select[name=role]", role)
@@ -47,7 +52,7 @@ with sync_playwright() as p:
     # 2. No public self-sign-up form; /register points to your organisation or organisation sign-up
     pg.goto(B+"/register", wait_until="networkidle")
     ok("/register has no sign-up form", pg.locator("input[name=email]").count()==0 and pg.locator("a[href='/register-organisation']").count()>=1)
-    pg.goto(B+"/", wait_until="networkidle"); ok("landing has 'Register your organisation' CTA", pg.locator("#organisations a[href='/register-organisation']").count()==1 and pg.locator("#organisations a[href='/contact']").count()==1)
+    pg.goto(B+"/", wait_until="networkidle"); ok("landing has 'Register your organisation' CTA", pg.locator("#organisations a[href='/register-organisation']").count()==1 and pg.locator("#organisations a[href='/contact#request-demo']").count()==1)
     # 3. Wrong password message
     login(pg, "admin@emplocore.demo", "wrong-pass-123"); err=pg.inner_text(".error") if pg.query_selector(".error") else ""
     ok("wrong password shows backend error", "Invalid credentials" in err, err)
@@ -135,7 +140,7 @@ with sync_playwright() as p:
     admin_create_user(pa0, "Efua Appiah", email2); ok("admin creates second employee account", True)
     pg2, errs2 = newpage()
     # weak password rejected in the organisation sign-up form
-    pg2.goto(B+"/register-organisation", wait_until="networkidle"); pg2.fill("input[name=organizationName]","Weak Org"); pg2.fill("input[name=adminName]","Weak One"); pg2.fill("input[name=email]",f"weak.{stamp}@example.com"); pg2.fill("input[name=password]","abcdefghij"); pg2.click("button[type=submit]")
+    fill_org_form(pg2, "Weak Org", "Weak One", f"weak.{stamp}@example.com", "abcdefghij")
     ok("organisation sign-up rejects password without a number", "letter and one number" in pg2.inner_text("body"))
     # seeded linked employee sees own record
     pk, errk = newpage(); login(pk, "kwame.mensah@emplocore.demo", "Staff@EmploCore2026"); pk.wait_for_selector("text=My Employment Record")
@@ -203,9 +208,7 @@ with sync_playwright() as p:
         return pg.evaluate("""async ([u,t,m,b]) => { const h={'Content-Type':'application/json'}; if(t) h.Authorization='Bearer '+t;
             const r=await fetch(u,{method:m,headers:h,body:b?JSON.stringify(b):undefined}); let j=null; try{j=await r.json()}catch(e){}; return {status:r.status, body:j}; }""", [API+path, token, method, body])
     org_name=f"Kumasi Traders {stamp[-4:]}"; org_admin=f"yaa.{stamp}@kumasi.example"
-    po, erro = newpage(); po.goto(B+"/register-organisation", wait_until="networkidle")
-    po.fill("input[name=organizationName]", org_name); po.fill("input[name=adminName]","Yaa Mensah"); po.fill("input[name=email]", org_admin); po.fill("input[name=password]","Kumasi2026pass")
-    po.click("button[type=submit]"); po.wait_for_selector("text=Registration received", timeout=15000)
+    po, erro = newpage(); fill_org_form(po, org_name, "Yaa Mensah", org_admin, "Kumasi2026pass"); po.wait_for_selector("text=Registration received", timeout=15000)
     ok("organisation sign-up -> waiting for approval", "waiting for approval" in po.inner_text("body"))
     if S: po.screenshot(path=f"{S}/register_org_done_1366.png")
     login(po, org_admin, "Kumasi2026pass"); txt=po.inner_text(".error") if po.query_selector(".error") else ""
@@ -218,12 +221,18 @@ with sync_playwright() as p:
     else: ok("owner bootstrap creates the owner", r["status"]==201, r)
     ok("owner bootstrap is then disabled (410)", api_json(po, "/api/platform/bootstrap-owner", None, "POST", {"setupToken":tok,"email":"x@y.example","name":"X Y","password":owner_pw})["status"]==410)
     pw_, errw = newpage(); login(pw_, owner_email, owner_pw); ok("owner login -> /owner", pw_.url.endswith("/owner"), pw_.url)
-    pw_.wait_for_selector(".owner-pending-list >> text="+org_name, timeout=15000); ok("owner overview lists the pending organisation", True)
+    pw_.wait_for_selector(".pending-cards >> text="+org_name, timeout=15000); ok("owner overview lists the pending organisation", True)
+    card=pw_.inner_text(f".pending-card:has-text('{org_name}')")
+    ok("pending card shows the sign-up details", all(x in card for x in ["Retail","11–50 staff","Kumasi, Ghana","+233 20 123 4567","Yaa Mensah"]), card)
+    pw_.wait_for_selector(".owner-nav .nav-badge", timeout=15000); ok("owner nav shows the pending count", pw_.inner_text(".owner-nav a[href='/owner/organisations'] .nav-badge").strip()=="1")
     if S: pw_.screenshot(path=f"{S}/owner_overview_1366.png", full_page=True)
     pw_.goto(B+"/admin", wait_until="networkidle"); ok("owner kept out of org admin area -> /owner", pw_.url.endswith("/owner"))
     pw_.goto(B+"/owner/organisations?status=pending", wait_until="networkidle"); pw_.wait_for_selector(f"text={org_name}")
     if S: pw_.screenshot(path=f"{S}/owner_organisations_1366.png", full_page=True)
+    pw_.goto(B+"/owner/organisations", wait_until="networkidle"); pw_.wait_for_selector(".pending-approvals >> text="+org_name, timeout=15000)
+    ok("organisations page: pending panel above the table", pw_.evaluate("()=>{const p=document.querySelector('.pending-approvals'),t=document.querySelector('.org-table');return p&&t&&(p.compareDocumentPosition(t)&Node.DOCUMENT_POSITION_FOLLOWING)>0}"))
     pw_.click(f".org-open:has-text('{org_name}')"); pw_.wait_for_selector(".approve-btn")
+    ok("organisation detail shows type, staff, location and phone", all(x in pw_.inner_text(".owner-facts") for x in ["Retail","11–50 staff","Kumasi, Ghana","+233 20 123 4567"]))
     pw_.click(".approve-btn"); pw_.wait_for_selector(".suspend-btn", timeout=15000)
     ok("owner approves the organisation", "Active" in pw_.inner_text(".owner-detail-grid"))
     org_url=pw_.url
@@ -269,6 +278,52 @@ with sync_playwright() as p:
     ok("suspended organisation: sign-in refused with message", "suspended" in txt.lower(), txt)
     pw_.click(".reactivate-btn"); pw_.wait_for_selector(".suspend-btn", timeout=15000)
     login(phb, hr_b, "Password123"); ok("reactivated organisation: HR signs in again", phb.url.endswith("/hr"))
+    # Reject a registration with a reason; its admin sees it; the owner then deletes the registration
+    rej_name=f"Spam Org {stamp[-4:]}"; rej_admin=f"spam.{stamp}@spam.example"
+    pr, errr = newpage(); fill_org_form(pr, rej_name, "Spam Person", rej_admin, "Spam2026pass"); pr.wait_for_selector("text=Registration received", timeout=15000)
+    pw_.goto(B+"/owner", wait_until="networkidle"); pw_.wait_for_selector(f".pending-card:has-text('{rej_name}') .reject-btn", timeout=15000)
+    pw_.click(f".pending-card:has-text('{rej_name}') .reject-btn"); pw_.fill("#reject-reason", "We could not verify this organisation."); pw_.click(".confirm-reject-btn")
+    pw_.wait_for_selector(f".pending-card:has-text('{rej_name}')", state="detached", timeout=15000); ok("owner rejects a registration with a reason", True)
+    login(pr, rej_admin, "Spam2026pass"); txt=pr.inner_text(".error") if pr.query_selector(".error") else ""
+    ok("rejected organisation's admin sees the message and reason", "not approved" in txt and "could not verify" in txt, txt)
+    pw_.goto(B+"/owner/organisations?status=rejected", wait_until="networkidle"); pw_.click(f".org-open:has-text('{rej_name}')"); pw_.wait_for_selector(".owner-rejected-note")
+    pw_.click(".delete-org-btn"); pw_.wait_for_url("**/owner/organisations", timeout=15000)
+    gone=api_json(pw_, "/api/platform/organizations?q="+rej_name.replace(" ","%20"), pw_.evaluate("localStorage.getItem('token')"))["body"]
+    ok("owner deletes the rejected registration and its sign-up account", gone==[] and api_json(pr, "/api/users/login", None, "POST", {"email":rej_admin,"password":"Spam2026pass"})["status"]==401, gone)
+    # Request a demo on /contact -> owner console Enquiries
+    pc, errc = newpage(); pc.goto(B+"/contact#request-demo", wait_until="networkidle")
+    pc.fill("#enq-name","Abena Darko"); pc.fill("#enq-org","Darko Clinic"); pc.fill("#enq-email",f"abena.{stamp}@darko.example"); pc.fill("#enq-phone","+233 24 111 2222")
+    pc.fill("#enq-message","We would like a walkthrough for our 40 staff."); pc.click(".send-demo-request"); pc.wait_for_selector("text=received your request", timeout=15000)
+    ok("contact page demo request is sent", "received your request" in pc.inner_text("body"))
+    if S: pc.screenshot(path=f"{S}/contact_demo_request_done_1366.png")
+    pw_.goto(B+"/owner/enquiries", wait_until="networkidle"); pw_.wait_for_selector(f"text=abena.{stamp}@darko.example", timeout=15000)
+    ok("owner sees the enquiry (new) with its details", "Darko Clinic" in pw_.inner_text(".enquiry-table") and "New" in pw_.inner_text(".enquiry-table"))
+    if S: pw_.screenshot(path=f"{S}/owner_enquiries_1366.png", full_page=True)
+    pw_.click(f"tr:has-text('abena.{stamp}@darko.example') .mark-contacted-btn"); pw_.wait_for_selector(f"tr:has-text('abena.{stamp}@darko.example') >> text=Contacted", timeout=15000)
+    ok("owner marks the enquiry contacted", True)
+    # My account: rename, change e-mail (needs the current password) and password; all audited
+    pw_.goto(B+"/owner/account", wait_until="networkidle"); pw_.wait_for_selector("#account-name")
+    if S: pw_.screenshot(path=f"{S}/owner_account_1366.png", full_page=True)
+    pw_.fill("#account-name", "Joseph Migbodzi"); pw_.click(".save-account-btn"); pw_.wait_for_selector("text=Your account has been updated", timeout=15000)
+    ok("owner renames themself (nav shows the new name)", "Joseph Migbodzi" in pw_.inner_text(".app-nav"))
+    new_owner_email=f"joseph.{stamp}@platform.example"
+    pw_.fill("#account-email", new_owner_email); pw_.wait_for_selector("#account-current-password"); pw_.fill("#account-current-password", owner_pw); pw_.click(".save-account-btn")
+    pw_.wait_for_function("()=>JSON.parse(localStorage.getItem('user')).email.startsWith('joseph.')", timeout=15000)
+    ok("owner changes e-mail with the current password and stays signed in", api_json(pw_, "/api/platform/overview", pw_.evaluate("localStorage.getItem('token')"))["status"]==200)
+    owner_email=new_owner_email; new_pw="Console-Key-Fresh-2027"
+    pw_.fill("#account-pw-current", owner_pw); pw_.fill("#account-pw-new", new_pw); pw_.fill("#account-pw-confirm", new_pw); pw_.click(".change-password-btn")
+    pw_.wait_for_selector("text=Password changed", timeout=15000); owner_pw=new_pw
+    pz, errz = newpage(); login(pz, owner_email, owner_pw); ok("owner signs in with the new e-mail and password -> /owner", pz.url.endswith("/owner"), pz.url)
+    pw_.goto(B+"/owner/audit-log", wait_until="networkidle"); time.sleep(1.5); body=pw_.inner_text("body")
+    ok("audit log records rejection, deletion, enquiry and account changes", all(x in body for x in ["REJECT_ORGANIZATION","DELETE_ORGANIZATION","CREATE_ENQUIRY","UPDATE_ENQUIRY","UPDATE_OWNER_ACCOUNT","CHANGE_PASSWORD"]))
+    # Phones: the sign-in button and the header Sign in are on screen
+    pm=b.new_context(viewport={"width":390,"height":664}, is_mobile=True, has_touch=True, device_scale_factor=2).new_page()
+    for w in (360, 390, 430):
+        pm.set_viewport_size({"width":w,"height":664}); pm.goto(B+"/login", wait_until="networkidle")
+        bb=pm.locator("button[type=submit]").bounding_box(); vis=pm.locator("button[type=submit]").is_visible()
+        ok(f"login submit visible on screen at {w}px", vis and bb and bb["y"]+bb["height"]<=664 and bb["x"]>=0 and bb["x"]+bb["width"]<=w, bb)
+        if S and w==390: pm.screenshot(path=f"{S}/login_390.png")
+        pm.goto(B+"/", wait_until="networkidle"); ok(f"landing header Sign in visible at {w}px", pm.locator(".signin-mobile").is_visible())
     # Demo still works after all of this
     pd, errd = newpage(); login(pd, "hr@emplocore.demo", "Hr@EmploCore2026"); pd.goto(B+"/hr/employees", wait_until="networkidle"); pd.wait_for_selector("text=Kofi Asante", timeout=15000)
     ok("demo HR still sees the demo employees", "Ama Owusu" not in pd.inner_text(".employee-table"))
@@ -279,7 +334,10 @@ with sync_playwright() as p:
         ph_.goto(B+"/owner/organisations", wait_until="networkidle"); time.sleep(1.5); ph_.screenshot(path=f"{S}/owner_organisations_390.png", full_page=True)
         ph_.goto(org_url.replace(B,B), wait_until="networkidle"); time.sleep(1.5); ph_.screenshot(path=f"{S}/owner_org_detail_390.png", full_page=True)
         ok("owner console has no horizontal overflow on a phone", ph_.evaluate("()=>document.documentElement.scrollWidth<=document.documentElement.clientWidth"))
-    ok("no page errors (multi-tenant)", not (erro or errw or errhb or errd), [erro, errw, errhb, errd])
+        for path, name in [("/owner/account","owner_account_390"),("/owner/enquiries","owner_enquiries_390")]:
+            ph_.goto(B+path, wait_until="networkidle"); time.sleep(1.5); ph_.screenshot(path=f"{S}/{name}.png", full_page=True)
+            ok(f"{path} has no horizontal overflow on a phone", ph_.evaluate("()=>document.documentElement.scrollWidth<=document.documentElement.clientWidth"))
+    ok("no page errors (multi-tenant)", not (erro or errw or errhb or errd or errr or errc or errz), [erro, errw, errhb, errd, errr, errc, errz])
     b.close()
 passed=sum(1 for _,c,_ in R if c); print(f"\n{passed}/{len(R)} passed")
 json.dump([{"name":n,"ok":c,"extra":str(e)} for n,c,e in R], open(f"{O}/e2e.json","w"), indent=1)

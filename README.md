@@ -124,7 +124,7 @@ The old URLs `/AdminDashboard`, `/HRDashboard`, `/EmployeeDashboard`, `/admin/us
 
 ## Organisations and owner console
 
-EmploCore is multi-tenant. Organisations sign up at `/register-organisation`. They start as *pending* until the platform owner approves them. The owner signs in at `/login` and lands on the owner console (`/owner`: overview, organisations, users and audit log). Admins and HR add their own staff; anonymous employee self-sign-up is closed. Users of pending or suspended organisations are sent back to `/login` with a notice. Billing (Paystack) will later drive each organisation's plan and status; there is no payment code yet.
+EmploCore is multi-tenant. Organisations sign up at `/register-organisation` (organisation name, type, number of staff, country/city, phone, optional contact person, and the first administrator account). They start as *pending* until the platform owner approves or rejects them. The owner signs in at `/login` and lands on the owner console (`/owner`: overview with the pending-approval list and new enquiries, organisations, enquiries, all users, audit log and *My account* for their own name, e-mail and password). The contact page's *Request a demo* form stores an enquiry for the owner (e-mail stays as a fallback). Admins and HR add their own staff; anonymous employee self-sign-up is closed. Users of pending or suspended organisations are sent back to `/login` with a notice. Billing (Paystack) will later drive each organisation's plan and status; there is no payment code yet.
 
 ## Security notes
 

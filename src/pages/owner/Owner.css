@@ -157,3 +157,199 @@
     margin-bottom: var(--space-2);
   }
 }
+
+.badge.org-status-rejected {
+  background: var(--color-surface-2);
+  color: var(--color-text-2);
+  border: 1px solid var(--color-border);
+}
+
+.badge.enquiry-status-new {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.badge.enquiry-status-contacted {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.badge.enquiry-status-closed {
+  background: var(--color-surface-2);
+  color: var(--color-muted);
+}
+
+/* ---------- Pending approval (overview + organisations) ---------- */
+.pending-approvals.has-pending {
+  border-color: var(--color-warning);
+  box-shadow: 0 0 0 3px var(--color-warning-soft);
+}
+
+.pending-approvals .card-title,
+.owner-card-title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.count-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: var(--color-warning);
+  color: var(--color-white);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.count-pill.info {
+  background: var(--color-primary);
+}
+
+.pending-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pending-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--color-border);
+}
+
+.pending-card:first-child {
+  border-top: 0;
+}
+
+.pending-card-main {
+  min-width: 0;
+}
+
+.pending-name {
+  font-size: var(--text-base);
+}
+
+.pending-when {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
+
+.pending-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-sm);
+  color: var(--color-text-2);
+}
+
+.pending-facts li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  overflow-wrap: anywhere;
+}
+
+.pending-facts svg {
+  flex: none;
+  color: var(--color-muted);
+}
+
+.pending-card-actions {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.owner-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.reject-form textarea,
+.owner-form textarea {
+  width: 100%;
+}
+
+.enquiry-message {
+  max-width: 420px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.enquiry-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.owner-account-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-6);
+  align-items: start;
+}
+
+@media (max-width: 960px) {
+  .owner-account-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .pending-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .pending-card-actions .btn {
+    flex: 1 1 auto;
+  }
+}
+
+/* Overview tiles that open the matching list */
+.stat-tile-link {
+  width: 100%;
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.stat-tile-link:hover {
+  border-color: var(--color-primary);
+}
+
+.section-tight {
+  margin-bottom: var(--space-6);
+}
+
+.owner-rejected-note {
+  margin: var(--space-4) var(--space-5) 0;
+}
+
+/* Space between the fields of owner forms */
+.owner-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.owner-form .form-actions {
+  margin-top: 0;
+}

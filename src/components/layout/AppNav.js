@@ -8,7 +8,7 @@ import "./AppNav.css";
 const ROLE_LABEL = { owner: "Platform owner", admin: "Admin", hr: "HR", employee: "Employee" };
 
 // Top bar shared by the admin, HR and employee areas.
-//   items:   [{ to, label, icon: LucideIcon, end }]
+//   items:   [{ to, label, icon: LucideIcon, end, badge (count, shown when > 0), badgeLabel }]
 //   home:    where the logo links to
 //   actions: extra buttons shown before Logout (e.g. "Back to Admin")
 const AppNav = ({ items, home, label, actions = null, className = "" }) => {
@@ -42,10 +42,13 @@ const AppNav = ({ items, home, label, actions = null, className = "" }) => {
 
         <div className={`app-nav-panel ${open ? "open" : ""}`}>
           <ul className="nav-menu">
-            {items.map(({ to, label: text, icon: Icon, end }) => (
+            {items.map(({ to, label: text, icon: Icon, end, badge, badgeLabel }) => (
               <li key={to}>
                 <NavLink to={to} end={end !== false}>
                   {Icon && <Icon size={17} aria-hidden="true" />} {text}
+                  {badge > 0 && (
+                    <span className="nav-badge" aria-label={`${badge} ${badgeLabel || ""}`.trim()}>{badge}</span>
+                  )}
                 </NavLink>
               </li>
             ))}

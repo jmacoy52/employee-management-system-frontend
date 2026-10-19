@@ -32,6 +32,8 @@ const Header = () => {
       <header className="header">
         <div className="header-inner">
           <Logo to="/" />
+          {/* Phones: Sign in stays visible next to the menu button */}
+          <Link to="/login" className="btn btn-primary btn-sm signin-mobile">Sign in</Link>
           <button
             type="button"
             className="icon-btn header-menu-btn"

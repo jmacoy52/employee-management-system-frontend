@@ -3,6 +3,9 @@
 
 /* ---------- Buttons ---------- */
 .btn {
+  /* No native (iOS Safari) button look: our background and text colours always apply */
+  -webkit-appearance: none;
+  appearance: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -27,8 +30,11 @@
 }
 
 .btn-primary {
-  background: var(--color-primary);
+  background-color: #2453d6; /* fallback if custom properties are unavailable */
+  background-color: var(--color-primary);
+  color: #ffffff;
   color: var(--color-white);
+  -webkit-text-fill-color: currentColor;
 }
 .btn-primary:hover:not(:disabled) {
   background: var(--color-primary-hover);
@@ -160,6 +166,13 @@
 .card-flush {
   padding: 0;
   overflow: hidden;
+}
+
+/* Header of a flush card (content runs edge to edge): padded, with a divider */
+.card-flush > .card-header {
+  margin: 0;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-border);
 }
 
 /* ---------- Form fields ---------- */

@@ -37,7 +37,7 @@ test("real deployment: no demo logins or 'Try the demo' anywhere, Request a demo
   expect(screen.queryByText(/emplocore\.demo/)).toBeNull();
   expect(screen.queryByRole("link", { name: /try the demo/i })).toBeNull();
   expect(screen.queryByRole("link", { name: /^demo$/i })).toBeNull();
-  expect(screen.getAllByRole("link", { name: /request a demo/i })[0]).toHaveAttribute("href", "/contact");
+  expect(screen.getAllByRole("link", { name: /request a demo/i })[0]).toHaveAttribute("href", "/contact#request-demo");
 });
 
 test("landing page is product-focused: no sample figures, tech stack or placeholder wording", () => {
@@ -51,7 +51,7 @@ test("landing page is product-focused: no sample figures, tech stack or placehol
   expect(screen.getByRole("heading", { name: /why organisations choose emplocore/i })).toBeInTheDocument();
   const org = document.getElementById("organisations");
   expect(within(org).getByRole("heading", { name: /bring emplocore to your organisation/i })).toBeInTheDocument();
-  expect(within(org).getByRole("link", { name: /request a demo/i })).toHaveAttribute("href", "/contact");
+  expect(within(org).getByRole("link", { name: /request a demo/i })).toHaveAttribute("href", "/contact#request-demo");
   expect(within(org).getByRole("link", { name: /register your organisation/i })).toHaveAttribute("href", "/register-organisation");
   expect(screen.queryByRole("img")).toBeNull(); // no product screenshots or mockups
   expect(text).not.toMatch(/Kwame Mensah|Nana Agyeman|Adwoa Boateng|Departments ·/);

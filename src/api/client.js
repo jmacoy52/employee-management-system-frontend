@@ -27,9 +27,9 @@ api.interceptors.response.use(
     if (status === 401 && hadToken && !isAuthCall) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      // The organisation was suspended (or is not approved): say so on the sign-in page
+      // The organisation was suspended, is not approved yet, or was rejected: say so on the sign-in page
       const code = error.response?.data?.code;
-      const notice = code === "ORGANISATION_SUSPENDED" ? "?notice=suspended" : code === "ORGANISATION_PENDING" ? "?notice=pending" : "";
+      const notice = { ORGANISATION_SUSPENDED: "?notice=suspended", ORGANISATION_PENDING: "?notice=pending", ORGANISATION_REJECTED: "?notice=rejected" }[code] || "";
       if (window.location.pathname !== "/login") window.location.assign(`/login${notice}`);
     }
     // An admin issued a temporary password: the user must set their own first.
