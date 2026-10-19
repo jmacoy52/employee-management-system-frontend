@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../../../api/client";
 import HRNav from "../../Shared/HRNav";
 import toast from "react-hot-toast";
 import "./MyProfilePage.css";
@@ -13,14 +13,11 @@ const MyProfilePage = () => {
     phone: "",
     address: "",
   });
-  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get("https://employee-management-system-backend-vxar.onrender.com/api/users/profile", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await api.get("/api/users/profile");
         setProfile(res.data);
         setFormData({
           first_name: res.data.first_name || "",
@@ -43,9 +40,7 @@ const MyProfilePage = () => {
 
   const handleSave = async () => {
     try {
-      await axios.put("https://employee-management-system-backend-vxar.onrender.com/api/users/profile", formData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.put("/api/users/profile", formData);
       toast.success("Profile updated successfully!");
       setProfile({ ...profile, ...formData });
       setIsEditing(false);

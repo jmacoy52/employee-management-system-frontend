@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../../../api/client";
 import EmployeeList from "../../Shared/EmployeeList";
 import HRNav from "../../Shared/HRNav";
 import Modal from "../../Shared/Modal";
@@ -17,13 +17,10 @@ const EmployeeListPage = () => {
     Department: "",
     salary: "",
   });
-  const token = localStorage.getItem("token");
 
   const fetchEmployees = async () => {
     try {
-      const res = await axios.get("https://employee-management-system-backend-vxar.onrender.com/api/employees", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.get("/api/employees");
       setEmployees(res.data);
     } catch (err) {
       console.error("Error fetching employees:", err);
@@ -48,9 +45,7 @@ const EmployeeListPage = () => {
 
   const handleUpdate = async () => {
     try {
-      await axios.put(`https://employee-management-system-backend-vxar.onrender.com/api/employees/${editingEmployee.id}`, formData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.put(`/api/employees/${editingEmployee.id}`, formData);
       toast.success("Employee updated successfully!");
       setIsModalOpen(false);
       setEditingEmployee(null);
@@ -64,9 +59,7 @@ const EmployeeListPage = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this employee?")) return;
     try {
-      await axios.delete(`https://employee-management-system-backend-vxar.onrender.com/api/employees/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.delete(`/api/employees/${id}`);
       toast.success("Employee deleted successfully!");
       fetchEmployees();
     } catch (err) {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../../../api/client";
 import "../Shared/EmployeeForm.css";
 import toast from "react-hot-toast";
 
@@ -32,11 +32,8 @@ const EmployeeForm = ({ onSuccess }) => {
     };
 
     try {
-      const token = localStorage.getItem("token");
      
-        await axios.post("https://employee-management-system-backend-vxar.onrender.com/api/employees", payload, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
+        await api.post("/api/employees", payload)
       onSuccess();
     } catch (err) {
       const msg = err.response?.data?.errors?.[0]?.msg;

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../../../api/client";
 import "./AuditLog.css";
 import AdminNav from "../../Shared/AdminNav";
 
@@ -11,12 +11,9 @@ const AuditLog = () => {
 
   useEffect(() => {
     const fetchAuditLogs = async () => {
-      const token = localStorage.getItem("token");
 
       try {
-        const response = await axios.get("https://employee-management-system-backend-vxar.onrender.com/api/audit-logs", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await api.get("/api/audit-logs");
         setAuditLogs(response.data);
       } catch (err) {
         setError("Failed to fetch audit logs.");

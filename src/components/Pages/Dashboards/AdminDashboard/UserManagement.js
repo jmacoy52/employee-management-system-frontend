@@ -1,18 +1,15 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../../../api/client";
 import "./UserManagement.css";
 import { toast } from "react-hot-toast";
 import AdminNav from "../../Shared/AdminNav";
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
-  const token = localStorage.getItem("token");
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get("https://employee-management-system-backend-vxar.onrender.com/api/users/all", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await api.get("/api/users/all");
       setUsers(response.data);
     } catch (err) {
       toast.error("Failed to fetch users.");
@@ -21,11 +18,8 @@ const UserManagement = () => {
 
   const handleRoleChange = async (userId, newRole) => {
     try {
-      await axios.put(
-        `https://employee-management-system-backend-vxar.onrender.com/api/users/${userId}/role`,
-        { role: newRole },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await api.put(`/api/users/${userId}/role`,
+        { role: newRole });
       toast.success("Role updated successfully.");
       fetchUsers();
     } catch (err) {
@@ -36,9 +30,7 @@ const UserManagement = () => {
   const handleDelete = async (userId) => {
     if (window.confirm("Are you sure you want to delete this user?")) {
       try {
-        await axios.delete(`https://employee-management-system-backend-vxar.onrender.com/api/users/${userId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await api.delete(`/api/users/${userId}`);
         toast.success("User deleted.");
         fetchUsers();
       } catch (err) {

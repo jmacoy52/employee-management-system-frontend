@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../../../api/client";
 import "./UserList.css";
 import AdminNav from "../../Shared/AdminNav";
 
@@ -9,12 +9,9 @@ const UserList = () => {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const token = localStorage.getItem("token");
 
       try {
-        const response = await axios.get("https://employee-management-system-backend-vxar.onrender.com/api/users/all", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await api.get("/api/users/all");
         setUsers(response.data);
       } catch (err) {
         setError("Failed to fetch users.");

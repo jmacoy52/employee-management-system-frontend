@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import api from "../../../api/client";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-hot-toast"; //toast for notifications
 import "./Register.css";
@@ -27,7 +27,7 @@ const Register = () => {
     setError("");
 
     try {
-      const response = await axios.post("https://employee-management-system-backend-vxar.onrender.com/api/users/register", formData);
+      const response = await api.post("/api/users/register", formData);
 
       if (response.status === 201) {
         toast.success("Registration successful!");

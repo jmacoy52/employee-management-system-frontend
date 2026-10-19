@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./AdminDashboard.css";
 import { Users, Settings, ScrollText, UserCheck, Plus, LogOut } from "lucide-react";
-import axios from "axios";
+import api from "../../../../api/client";
 import { toast } from "react-hot-toast";
 
 const AdminDashboard = () => {
@@ -24,11 +24,8 @@ const AdminDashboard = () => {
     e.preventDefault();
 
     try {
-      const token = localStorage.getItem("token");
 
-      await axios.post("https://employee-management-system-backend-vxar.onrender.com/api/users/register", newUser, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.post("/api/users/register", newUser);
 
       toast.success("User account created!");
       setShowCreateModal(false);

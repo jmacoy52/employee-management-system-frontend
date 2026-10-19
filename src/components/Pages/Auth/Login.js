@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import api from "../../../api/client";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-hot-toast"; // toast for notifications
@@ -20,8 +20,7 @@ const Login = () => {
     setError("");
 
     try {
-      const res = await axios.post(
-        "https://employee-management-system-backend-vxar.onrender.com/api/users/login",
+      const res = await api.post("/api/users/login",
         formData
       );
 

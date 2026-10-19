@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import api from "../../../../api/client";
 import { toast } from "react-hot-toast"; 
 import "./Register.css"; // Reuse same styles
 
@@ -25,15 +25,7 @@ const CreateUserForm = ({ onSuccess, onClose }) => {
     setError("");
 
     try {
-      const token = localStorage.getItem("token"); 
-      const response = await axios.post(
-        "https://employee-management-system-backend-vxar.onrender.com/api/users/register",formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
+      const response = await api.post("/api/users/register",formData);
 
       if (response.status === 201) {
         toast.success("User account created!");

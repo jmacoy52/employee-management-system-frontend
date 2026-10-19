@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../../api/client";
 import Modal from "./Modal";
 import "../Shared/EmployeeForm.css"; // reuse same styling
 import toast from "react-hot-toast";
@@ -34,12 +34,8 @@ const EditEmployeeModal = ({ open, onClose, employee, onUpdated }) => {
     setError("");
 
     try {
-      const token = localStorage.getItem("token");
-      await axios.put(
-        `https://employee-management-system-backend-vxar.onrender.com/api/employees/${employee.id}`,
-        { ...form, salary: Number(form.salary) },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await api.put(`/api/employees/${employee.id}`,
+        { ...form, salary: Number(form.salary) });
 
         toast.success("Employee updated successfully!");
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../../../api/client";
 import EmployeeStats from "../../Shared/EmployeeStats";
 import HRNav from "../../Shared/HRNav";
 import { useNavigate } from "react-router-dom";
@@ -12,13 +12,10 @@ const HRDashboard = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const token = localStorage.getItem("token");
 
   const fetchEmployees = async () => {
     try {
-      const res = await axios.get("https://employee-management-system-backend-vxar.onrender.com/api/employees", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.get("/api/employees");
       setEmployees(res.data);
     } catch (err) {
       console.error("Error fetching employees:", err);
