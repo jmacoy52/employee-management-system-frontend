@@ -51,6 +51,10 @@
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 
+.nav-menu a svg {
+  flex: none;
+}
+
 .nav-menu a:hover {
   background: var(--color-surface-2);
   color: var(--color-text);
@@ -130,6 +134,80 @@
 @media (max-width: 1360px) {
   .app-nav.wide .nav-user-text {
     display: none;
+  }
+}
+
+/* Wide (admin / HR) menus have many items: on desktop they show text only, and they collapse
+   into the menu button earlier (below). */
+@media (min-width: 1101px) {
+  .app-nav.wide .nav-menu a svg {
+    display: none;
+  }
+  .app-nav.wide .nav-menu a {
+    padding: var(--space-2) var(--space-2);
+  }
+}
+
+/* Wide menus: the name and role/organisation next to the avatar stay short */
+.app-nav.wide .nav-user-name,
+.app-nav.wide .nav-user-role {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (min-width: 1101px) and (max-width: 1279px) {
+  .app-nav.wide .app-nav-inner {
+    padding: 0 var(--space-4);
+  }
+  .app-nav.wide .app-nav-toggle {
+    display: inline-flex;
+  }
+  .app-nav.wide .app-nav-panel {
+    display: none;
+    position: absolute;
+    top: var(--nav-height);
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4) var(--space-4);
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: var(--shadow-lg);
+    max-height: calc(100vh - var(--nav-height));
+    overflow-y: auto;
+  }
+  .app-nav.wide .app-nav-panel.open {
+    display: flex;
+  }
+  .app-nav.wide .nav-menu {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .app-nav.wide .nav-menu a {
+    padding: var(--space-3);
+    font-size: var(--text-base);
+  }
+  .app-nav.wide .nav-menu a svg {
+    display: inline-block;
+  }
+  .app-nav.wide .nav-right {
+    flex-direction: column;
+    align-items: stretch;
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-border);
+  }
+  .app-nav.wide .nav-user-text {
+    display: flex;
+  }
+  .app-nav.wide .nav-user {
+    padding: var(--space-2) var(--space-3);
+  }
+  .app-nav.wide .nav-right .btn {
+    justify-content: flex-start;
   }
 }
 

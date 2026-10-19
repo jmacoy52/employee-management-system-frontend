@@ -12,7 +12,8 @@ Built and maintained by [Joseph Migbodzi](https://mjay-portfolio.vercel.app) ([G
 - **Admin:** overview (user counts, recent activity), create users, change roles, activate/deactivate users, reset passwords (temporary password or one-time link), delete users, read and filter the audit log, manage departments, and open the HR dashboard.
 - **HR:** dashboard (headcount, headcount by department, average salary, recent activity), search/filter by department, add, edit and delete employees (department chosen from a list), link employee records to user accounts, and manage their own profile.
 - **Departments** (`/hr/departments`, `/admin/departments`): list with heads and employee counts, create/edit, activate/deactivate, delete (only when empty), view members, add or remove employees, and set the head of department.
-- **Employee:** view and update their own profile, see the employment record HR linked to them, change their password.
+- **Payroll** (`/hr/payroll`, `/admin/payroll`): set each employee's pay details (basic salary, named allowances, other deductions, bank and SSNIT number) with a live net-pay calculation, run payroll for a month (all or selected employees) as drafts, review the month with totals (gross, PAYE, SSNIT, net), publish, and view or download any payslip. The *Tax rates* tab shows the Ghana PAYE bands and SSNIT rates the server uses.
+- **Employee:** view and update their own profile, see the employment record HR linked to them, **My payslips** (`/employee/payslips`: every published month with View, Download PDF and Print; a print stylesheet prints just the payslip on A4), change their password.
 - Public pages: landing page (text hero, features, roles, why EmploCore, getting started, demo logins in demo mode, "For organisations" with a request-a-demo call to action), privacy policy, terms, contact / request a demo, forgot password (handled by an administrator) and a 404 page. The landing page holds no sample names, figures, product mockups or technical details.
 - Responsive from 360px phones up: menus collapse, tables turn into cards on small screens.
 
@@ -116,9 +117,9 @@ CRA reads these at **build time**, so you must rebuild or redeploy after changin
 | Path | Access |
 |---|---|
 | `/`, `/login`, `/register`, `/forgot-password`, `/privacy`, `/terms`, `/contact` | Public |
-| `/employee` | Any signed-in user |
-| `/hr`, `/hr/employees`, `/hr/create-employee`, `/hr/departments`, `/hr/profile` | HR and admin |
-| `/admin`, `/admin/users`, `/admin/user-management`, `/admin/audit-log`, `/admin/departments`, `/admin/hr` | Admin |
+| `/employee`, `/employee/payslips`, `/employee/payslips/:id` | Any signed-in user |
+| `/hr`, `/hr/employees`, `/hr/create-employee`, `/hr/departments`, `/hr/payroll`, `/hr/payroll/:period`, `/hr/payslips/:id`, `/hr/profile` | HR and admin |
+| `/admin`, `/admin/users`, `/admin/user-management`, `/admin/audit-log`, `/admin/departments`, `/admin/payroll`, `/admin/payroll/:period`, `/admin/payslips/:id`, `/admin/hr` | Admin |
 
 The old URLs `/AdminDashboard`, `/HRDashboard`, `/EmployeeDashboard`, `/admin/usermanagement` and `/admin/auditlog` redirect to their new paths.
 

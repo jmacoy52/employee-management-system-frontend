@@ -13,12 +13,17 @@ export const PATHS = {
   changePassword: "/account/password",
 
   employee: "/employee",
+  employeePayslips: "/employee/payslips",
+  employeePayslip: "/employee/payslips/:id",
 
   hr: "/hr",
   hrEmployees: "/hr/employees",
   hrCreateEmployee: "/hr/create-employee",
   hrProfile: "/hr/profile",
   hrDepartments: "/hr/departments",
+  hrPayroll: "/hr/payroll",
+  hrPayrollRun: "/hr/payroll/:period",
+  hrPayslip: "/hr/payslips/:id",
 
   owner: "/owner",
   ownerOrganisations: "/owner/organisations",
@@ -34,6 +39,9 @@ export const PATHS = {
   adminAuditLog: "/admin/audit-log",
   adminHr: "/admin/hr",
   adminDepartments: "/admin/departments",
+  adminPayroll: "/admin/payroll",
+  adminPayrollRun: "/admin/payroll/:period",
+  adminPayslip: "/admin/payslips/:id",
 };
 
 // Old URLs that may be bookmarked or linked elsewhere -> new URLs.

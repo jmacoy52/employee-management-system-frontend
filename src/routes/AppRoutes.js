@@ -31,6 +31,10 @@ import OwnerUsers from "../pages/owner/OwnerUsers";
 import OwnerAuditLog from "../pages/owner/OwnerAuditLog";
 import OwnerEnquiries from "../pages/owner/OwnerEnquiries";
 import OwnerAccount from "../pages/owner/OwnerAccount";
+import MyPayslips from "../pages/payroll/MyPayslips";
+import PayslipPage from "../pages/payroll/PayslipPage";
+import PayrollPage from "../pages/payroll/PayrollPage";
+import PayrollRunPage from "../pages/payroll/PayrollRunPage";
 
 const AppRoutes = () => (
   <Routes>
@@ -48,6 +52,8 @@ const AppRoutes = () => (
     {/* Employee (any signed-in role) */}
     <Route element={<PrivateRoute allowedRoles={["employee", "hr", "admin"]} />}>
       <Route path={PATHS.employee} element={<EmployeeDashboard />} />
+      <Route path={PATHS.employeePayslips} element={<MyPayslips />} />
+      <Route path={PATHS.employeePayslip} element={<PayslipPage mode="employee" />} />
     </Route>
 
     {/* Any signed-in account, including the platform owner */}
@@ -73,6 +79,9 @@ const AppRoutes = () => (
       <Route path={PATHS.hrCreateEmployee} element={<AddEmployeePage />} />
       <Route path={PATHS.hrProfile} element={<MyProfilePage />} />
       <Route path={PATHS.hrDepartments} element={<DepartmentsPage />} />
+      <Route path={PATHS.hrPayroll} element={<PayrollPage />} />
+      <Route path={PATHS.hrPayrollRun} element={<PayrollRunPage />} />
+      <Route path={PATHS.hrPayslip} element={<PayslipPage mode="hr" />} />
     </Route>
 
     {/* Admin */}
@@ -83,6 +92,9 @@ const AppRoutes = () => (
       <Route path={PATHS.adminAuditLog} element={<AuditLog />} />
       <Route path={PATHS.adminHr} element={<HRDashboard />} />
       <Route path={PATHS.adminDepartments} element={<DepartmentsPage />} />
+      <Route path={PATHS.adminPayroll} element={<PayrollPage />} />
+      <Route path={PATHS.adminPayrollRun} element={<PayrollRunPage />} />
+      <Route path={PATHS.adminPayslip} element={<PayslipPage mode="hr" />} />
     </Route>
 
     {/* Old URLs keep working */}
