@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, Navigate, useLocation, useSearchParams } from "react-router-dom";
 import { CheckCircle2, Clock, XCircle } from "lucide-react";
 import api, { getErrorMessage } from "../../api/client";
 import AppLayout from "../../components/layout/AppLayout";
@@ -53,6 +53,12 @@ const BillingCallback = () => {
       </section>
     </AppLayout>
   );
+};
+
+// /billing/callback (the address in the Paystack dashboard) -> /admin/billing/callback, keeping ?reference=
+export const BillingCallbackRedirect = () => {
+  const { search } = useLocation();
+  return <Navigate to={`/admin/billing/callback${search}`} replace />;
 };
 
 export default BillingCallback;

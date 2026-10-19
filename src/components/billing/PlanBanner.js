@@ -12,6 +12,9 @@ export function planBannerFor(status, { isAdmin = false, feature = null } = {}) 
   if (feature === "payroll" && status.features && !status.features.payroll) {
     return { tone: "warning", text: `Payroll is not included in the ${status.planName} plan. Existing payroll records stay available to view; new runs and changes need Starter or above.${who}` };
   }
+  if (status.status === "paused") {
+    return { tone: "warning", text: `The subscription is paused by EmploCore. Paid features are switched off for now and all data is kept.${isAdmin ? " Contact EmploCore to resume." : " Ask your organisation admin."}` };
+  }
   if (status.status === "grace") {
     return { tone: "danger", text: `Payment needed: your plan stays active until ${formatDay(status.graceEndsAt)}, then the organisation moves to Free. No data is deleted.${who}` };
   }

@@ -24,8 +24,8 @@ export const OWNER_COUNTS_EVENT = "emplocore:owner-counts";
 export const notifyOwnerCountsChanged = () => window.dispatchEvent(new Event(OWNER_COUNTS_EVENT));
 
 // Plan / subscription cell for the organisation list
-const SUB_LABELS = { trialing: "trial", active: "active", grace: "grace", free: "free" };
-const SUB_TONES = { trialing: "badge-info", active: "badge-success", grace: "badge-warning", free: "" };
+const SUB_LABELS = { trialing: "trial", active: "active", grace: "grace", free: "free", paused: "paused" };
+const SUB_TONES = { trialing: "badge-info", active: "badge-success", grace: "badge-warning", free: "", paused: "badge-warning" };
 export const SubscriptionCell = ({ sub, fallback }) => {
   if (!sub) return <span>{fallback || "–"}</span>;
   const name = sub.plan_code.charAt(0).toUpperCase() + sub.plan_code.slice(1);

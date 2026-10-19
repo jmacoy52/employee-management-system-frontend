@@ -3,7 +3,8 @@ import { MemoryRouter, Routes, Route } from "react-router-dom";
 import api from "../api/client";
 import PricingSection from "../components/billing/PricingSection";
 import Billing from "../pages/billing/Billing";
-import BillingCallback from "../pages/billing/BillingCallback";
+import BillingCallback, { BillingCallbackRedirect } from "../pages/billing/BillingCallback";
+import PaymentsSettingsCard from "../pages/owner/PaymentsSettingsCard";
 import { formatGhs, quote } from "../api/billing";
 import { planBannerFor } from "../components/billing/PlanBanner";
 
@@ -131,4 +132,32 @@ test("plan banner: grace, payroll lock and admin-only wording", () => {
   expect(locked.text).toMatch(/Payroll is not included in the Free plan/);
   expect(locked.text).toMatch(/Ask your organisation admin/);
   expect(planBannerFor({ status: "active", billingMode: "exempt" })).toBeNull();
+});
+
+test("/billing/callback (Paystack dashboard address) redirects to the admin callback with the reference", async () => {
+  api.post.mockResolvedValue({ data: { status: "activated" } });
+  render(
+    <MemoryRouter initialEntries={["/billing/callback?trxref=EC-9&reference=EC-9"]}>
+      <Routes>
+        <Route path="/billing/callback" element={<BillingCallbackRedirect />} />
+        <Route path="/admin/billing/callback" element={<BillingCallback />} />
+      </Routes>
+    </MemoryRouter>
+  );
+  expect(await screen.findByText("Payment received")).toBeInTheDocument();
+  expect(api.post).toHaveBeenCalledWith("/api/billing/verify", { reference: "EC-9" });
+});
+
+test("payments settings card: test mode, keys set, webhook address and last webhook", async () => {
+  api.get.mockResolvedValue({ data: {
+    connected: true, mode: "test", secretKeySet: true, publicKeySet: true, publicKeyMode: "test", modeMismatch: false,
+    webhookUrl: "https://api.example/api/billing/paystack/webhook", callbackUrl: "https://app.example/admin/billing/callback",
+    lastWebhookAt: "2026-10-19T18:05:00Z", lastWebhook: { type: "charge.success", status: "processed" },
+    dailyJob: { inApp: true, lastRun: null },
+  } });
+  render(<MemoryRouter><PaymentsSettingsCard /></MemoryRouter>);
+  expect(await screen.findByText("Paystack TEST mode")).toBeInTheDocument();
+  expect(screen.getByText("https://api.example/api/billing/paystack/webhook")).toBeInTheDocument();
+  expect(screen.getByText(/19 October 2026, 18:05 \(Accra\) \(charge.success, processed\)/)).toBeInTheDocument();
+  expect(screen.getByText(/no real money is taken/)).toBeInTheDocument();
 });

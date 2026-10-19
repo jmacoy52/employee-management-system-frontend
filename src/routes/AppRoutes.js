@@ -9,7 +9,7 @@ import Terms from "../pages/public/Terms";
 import Contact from "../pages/public/Contact";
 import Pricing from "../pages/public/Pricing";
 import Billing from "../pages/billing/Billing";
-import BillingCallback from "../pages/billing/BillingCallback";
+import BillingCallback, { BillingCallbackRedirect } from "../pages/billing/BillingCallback";
 import OwnerPlans from "../pages/owner/OwnerPlans";
 import OwnerBilling from "../pages/owner/OwnerBilling";
 import NotFound from "../pages/public/NotFound";
@@ -54,6 +54,7 @@ const AppRoutes = () => (
     <Route path={PATHS.terms} element={<Terms />} />
     <Route path={PATHS.contact} element={<Contact />} />
     <Route path={PATHS.pricing} element={<Pricing />} />
+    <Route path={PATHS.billingCallback} element={<BillingCallbackRedirect />} />
 
     {/* Employee (any signed-in role) */}
     <Route element={<PrivateRoute allowedRoles={["employee", "hr", "admin"]} />}>

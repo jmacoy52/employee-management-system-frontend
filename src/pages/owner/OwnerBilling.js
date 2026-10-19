@@ -5,6 +5,7 @@ import api, { getErrorMessage } from "../../api/client";
 import OwnerNav from "../../components/layout/OwnerNav";
 import AppLayout from "../../components/layout/AppLayout";
 import { formatGhs, formatDay } from "../../api/billing";
+import PaymentsSettingsCard from "./PaymentsSettingsCard";
 import "./Owner.css";
 
 const PAY_LABELS = { success: "Paid", failed: "Failed", pending: "Pending", abandoned: "Not completed" };
@@ -32,7 +33,7 @@ const OwnerBilling = () => {
         <>
           {!data.paymentsEnabled && (
             <div className="alert alert-info owner-payments-off" role="status">
-              Online payments are switched off: no Paystack keys are set on the server. Organisation admins see &ldquo;Payments coming soon, contact us&rdquo;. See docs/PAYSTACK_SETUP.md to switch them on.
+              Online payments are switched off: no Paystack keys are set on the server. Organisation admins see &ldquo;Payments coming soon, contact us&rdquo;. You can still record cash, mobile money and bank payments on each organisation&apos;s page.
             </div>
           )}
           <div className="stat-grid owner-stats">
@@ -50,7 +51,7 @@ const OwnerBilling = () => {
               <div className="table-wrap">
                 <table className="data-table status-count-table">
                   <tbody>
-                    {[["Paying (Paystack)", "paying"], ["Arranged by owner", "manual"], ["On trial", "trialing"], ["In grace period", "grace"], ["On Free", "free"], ["Exempt (demo)", "exempt"]].map(([label, key]) => (
+                    {[["Paying (Paystack)", "paying"], ["Paid manually / arranged", "manual"], ["Paused", "paused"], ["On trial", "trialing"], ["In grace period", "grace"], ["On Free", "free"], ["Exempt (demo)", "exempt"]].map(([label, key]) => (
                       <tr key={key}><td>{label}</td><td className="num">{data.counts[key]}</td></tr>
                     ))}
                   </tbody>
@@ -94,6 +95,7 @@ const OwnerBilling = () => {
               </div>
             )}
           </section>
+          <PaymentsSettingsCard />
           <p className="owner-section-note">Change prices and the founding offer on <Link to="/owner/plans">Plans and prices</Link>. Manage one organisation&apos;s subscription from its page under Organisations.</p>
         </>
       )}

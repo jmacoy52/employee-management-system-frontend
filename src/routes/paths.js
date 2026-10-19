@@ -43,6 +43,7 @@ export const PATHS = {
   adminAuditLog: "/admin/audit-log",
   adminBilling: "/admin/billing",
   adminBillingCallback: "/admin/billing/callback",
+  billingCallback: "/billing/callback", // the Callback URL saved in the Paystack dashboard
   adminHr: "/admin/hr",
   adminDepartments: "/admin/departments",
   adminPayroll: "/admin/payroll",

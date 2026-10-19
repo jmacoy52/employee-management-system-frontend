@@ -34,9 +34,18 @@ export const STATUS_LABELS = {
   active: "Active",
   grace: "Grace period",
   free: "Free plan",
+  paused: "Paused",
 };
 
-export const STATUS_TONES = { trialing: "info", active: "success", grace: "warning", free: "neutral" };
+export const STATUS_TONES = { trialing: "info", active: "success", grace: "warning", free: "neutral", paused: "warning" };
+
+// "19 October 2026, 18:05 (Accra)"
+export function formatDateTime(value) {
+  if (!value) return "–";
+  const d = new Date(value);
+  const time = d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Africa/Accra" });
+  return `${formatDay(d)}, ${time} (Accra)`;
+}
 
 // "19 October 2026" (Accra is UTC+0, so UTC dates are the local dates)
 export function formatDay(value) {

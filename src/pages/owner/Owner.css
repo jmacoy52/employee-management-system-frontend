@@ -424,3 +424,43 @@
 .revenue-value {
   white-space: nowrap;
 }
+
+.payments-settings-card .owner-card-alert {
+  margin: var(--space-4) var(--space-5) 0;
+}
+
+.webhook-url-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.webhook-url,
+.payments-settings-card code {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  word-break: break-all;
+}
+
+.yesno {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+}
+
+.yesno.yes { color: var(--color-success); }
+.yesno.no { color: var(--color-danger); }
+
+.switch-live-help {
+  padding: 0 var(--space-5) var(--space-5);
+  font-size: var(--text-sm);
+}
+
+.switch-live-help ol {
+  margin: var(--space-2, 8px) 0;
+  padding-left: 1.2rem;
+  display: grid;
+  gap: 4px;
+}
