@@ -1,14 +1,15 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { UserCircle, LogOut } from "lucide-react";
+import { logout as signOut, getStoredUser } from "../../auth/session";
+import { UserCircle, LogOut, KeyRound } from "lucide-react";
 import "./HRNav.css";
 
 const EmployeeNav = () => {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user") || "null");
+  const user = getStoredUser();
 
-  const logout = () => {
-    localStorage.clear();
+  const logout = async () => {
+    await signOut();
     navigate("/");
   };
 
@@ -17,6 +18,7 @@ const EmployeeNav = () => {
       <div className="nav-center">
         <ul className="nav-menu">
           <li onClick={() => navigate("/employee")}><UserCircle size={18} /> My Dashboard</li>
+          <li onClick={() => navigate("/account/password")}><KeyRound size={18} /> Change Password</li>
         </ul>
       </div>
       <div className="nav-right">

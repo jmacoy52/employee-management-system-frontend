@@ -69,8 +69,8 @@ const Login = () => {
           />
           {loading && (
             <p className="auth-hint">
-              Contacting the server… this can take up to 20 seconds if it is
-              waking up.
+              Contacting the server… if it has been asleep this can take up to
+              a minute.
             </p>
           )}
           {error && (

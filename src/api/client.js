@@ -29,12 +29,22 @@ api.interceptors.response.use(
       localStorage.removeItem("user");
       if (window.location.pathname !== "/login") window.location.assign("/login");
     }
+    // An admin issued a temporary password: the user must set their own first.
+    if (status === 403 && error.response?.data?.code === "PASSWORD_CHANGE_REQUIRED") {
+      try {
+        const user = JSON.parse(localStorage.getItem("user") || "null");
+        if (user) localStorage.setItem("user", JSON.stringify({ ...user, mustChangePassword: true }));
+      } catch {
+        /* ignore unreadable stored user */
+      }
+      if (window.location.pathname !== "/account/password") window.location.assign("/account/password");
+    }
     return Promise.reject(error);
   }
 );
 
 export const SERVER_UNAVAILABLE_MESSAGE =
-  "Server is waking up or unavailable, try again.";
+  "The server is waking up (free hosting sleeps when idle). This can take up to a minute. Please try again.";
 
 // Turn an axios error into a message that is safe to show to users.
 export function getErrorMessage(err, fallback = "Something went wrong. Please try again.") {
