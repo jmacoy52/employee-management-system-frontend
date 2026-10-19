@@ -1,21 +1,35 @@
 import React, { useState } from "react";
 import api, { getErrorMessage } from "../../api/client";
-import { useNavigate, Link } from "react-router-dom";
-import PageLayout from "../../components/layout/PageLayout";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
+import { Loader2 } from "lucide-react";
+import AuthLayout from "../../components/auth/AuthLayout";
+import PasswordInput from "../../components/auth/PasswordInput";
+import SubmitButton from "../../components/auth/SubmitButton";
 import { ROLE_HOME, PATHS } from "../../routes/paths";
+import { DEMO_ACCOUNTS, findDemoAccount } from "../../config/demo";
 import { toast } from "react-hot-toast"; // toast for notifications
 import { saveSession } from "../../auth/session";
-import "./Login.css";
 
 const Login = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [params] = useSearchParams();
+  // /login?demo=admin|hr|employee pre-fills a public demo account (from the landing page)
+  const preset = findDemoAccount(params.get("demo"));
+  const [formData, setFormData] = useState({
+    email: preset?.email || "",
+    password: preset?.password || "",
+  });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   // handle field change
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
+
+  const fillDemo = (account) => {
+    setFormData({ email: account.email, password: account.password });
+    setError("");
+  };
 
   // handle form submit
   const handleSubmit = async (e) => {
@@ -49,48 +63,82 @@ const Login = () => {
 
   //  UI
   return (
-    <PageLayout>
-      <div className="auth-container">
-        <h2>Login</h2>
-        <form onSubmit={handleSubmit}>
+    <AuthLayout
+      title="Sign in"
+      subtitle="Welcome back. Sign in to open your dashboard."
+      footer={
+        <>
+          <span>
+            Don't have an account? <Link to="/register">Register</Link>
+          </span>
+        </>
+      }
+    >
+      <form onSubmit={handleSubmit}>
+        <div className="field">
+          <label htmlFor="login-email">Email</label>
           <input
+            id="login-email"
             type="email"
             name="email"
-            placeholder="Email"
+            placeholder="you@company.com"
+            autoComplete="email"
             value={formData.email}
             onChange={handleChange}
+            aria-invalid={Boolean(error)}
             required
           />
-          <input
-            type="password"
+        </div>
+        <div className="field">
+          <div className="field-row">
+            <label htmlFor="login-password">Password</label>
+            <Link to="/forgot-password">Forgot password?</Link>
+          </div>
+          <PasswordInput
+            id="login-password"
             name="password"
-            placeholder="Password"
+            placeholder="Your password"
+            autoComplete="current-password"
             value={formData.password}
             onChange={handleChange}
+            aria-invalid={Boolean(error)}
             required
           />
-          {loading && (
-            <p className="auth-hint">
-              Contacting the server… if it has been asleep this can take up to
-              a minute.
-            </p>
-          )}
-          {error && (
-            <p className="error" role="alert">
-              {error}
-            </p>
-          )}
-          <button type="submit" className="btn-login" disabled={loading}>
-            {loading ? "Signing in…" : "Login"}
-          </button>
-        </form>
-        <div className="auth-links">
-          <Link to="/forgot-password">Forgot password?</Link>
-          <Link to="/register">Don't have an account? Register</Link>
-          <Link to="/">Back to Home</Link>
+        </div>
+        {loading && (
+          <p className="auth-hint waking" role="status">
+            <Loader2 size={16} className="spin-icon" aria-hidden="true" />
+            Contacting the server… if it has been asleep this can take up to
+            a minute.
+          </p>
+        )}
+        {error && (
+          <p className="error" role="alert">
+            {error}
+          </p>
+        )}
+        <SubmitButton loading={loading} loadingText="Signing in…">
+          Login
+        </SubmitButton>
+      </form>
+
+      <div className="demo-picker">
+        <p>Trying EmploCore? Fill in a demo account:</p>
+        <div className="demo-picker-buttons">
+          {DEMO_ACCOUNTS.map((a) => (
+            <button
+              key={a.key}
+              type="button"
+              className="btn btn-secondary btn-sm"
+              aria-pressed={formData.email === a.email}
+              onClick={() => fillDemo(a)}
+            >
+              {a.role}
+            </button>
+          ))}
         </div>
       </div>
-    </PageLayout>
+    </AuthLayout>
   );
 };
 

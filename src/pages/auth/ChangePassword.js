@@ -2,12 +2,19 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import api, { getErrorMessage } from "../../api/client";
-import PageLayout from "../../components/layout/PageLayout";
+import AuthLayout from "../../components/auth/AuthLayout";
+import AppLayout from "../../components/layout/AppLayout";
+import AdminNav from "../../components/layout/AdminNav";
+import HRNav from "../../components/layout/HRNav";
+import EmployeeNav from "../../components/layout/EmployeeNav";
+import PasswordInput from "../../components/auth/PasswordInput";
+import SubmitButton from "../../components/auth/SubmitButton";
 import { ROLE_HOME, PATHS } from "../../routes/paths";
 import { getStoredUser, saveSession } from "../../auth/session";
-import "./Login.css";
 
 const MIN_PASSWORD_LENGTH = 8;
+
+const NAV_FOR_ROLE = { admin: AdminNav, hr: HRNav, employee: EmployeeNav };
 
 // Change own password. Also used to replace an admin-issued temporary password.
 const ChangePassword = () => {
@@ -47,35 +54,57 @@ const ChangePassword = () => {
     }
   };
 
-  return (
-    <PageLayout>
-      <div className="auth-container">
-        <h2>{forced ? "Set a new password" : "Change password"}</h2>
-        {forced && (
-          <p className="auth-text">
-            Your administrator gave you a temporary password. Choose your own
-            password to continue.
-          </p>
-        )}
-        <form onSubmit={handleSubmit}>
-          <input type="password" name="currentPassword" placeholder={forced ? "Temporary password" : "Current password"}
-            value={form.currentPassword} onChange={handleChange} required autoComplete="current-password" />
-          <input type="password" name="newPassword" placeholder={`New password (min. ${MIN_PASSWORD_LENGTH}, letters and numbers)`}
-            value={form.newPassword} onChange={handleChange} minLength={MIN_PASSWORD_LENGTH} required autoComplete="new-password" />
-          <input type="password" name="confirmPassword" placeholder="Confirm new password"
-            value={form.confirmPassword} onChange={handleChange} required autoComplete="new-password" />
-          {error && <p className="error" role="alert">{error}</p>}
-          <button type="submit" className="btn-login" disabled={loading}>
-            {loading ? "Saving…" : "Change password"}
-          </button>
-        </form>
-        {!forced && user && (
-          <div className="auth-links">
-            <Link to={ROLE_HOME[user.role] || PATHS.employee}>Back to dashboard</Link>
-          </div>
-        )}
+  const formEl = (
+    <form onSubmit={handleSubmit}>
+      <div className="field">
+        <label htmlFor="cp-current">{forced ? "Temporary password" : "Current password"}</label>
+        <PasswordInput id="cp-current" name="currentPassword" placeholder={forced ? "The password your administrator gave you" : "Your current password"}
+          value={form.currentPassword} onChange={handleChange} required autoComplete="current-password" />
       </div>
-    </PageLayout>
+      <div className="field">
+        <label htmlFor="cp-new">New password</label>
+        <PasswordInput id="cp-new" name="newPassword" placeholder={`Min. ${MIN_PASSWORD_LENGTH} characters, letters and numbers`}
+          value={form.newPassword} onChange={handleChange} minLength={MIN_PASSWORD_LENGTH} required autoComplete="new-password" />
+      </div>
+      <div className="field">
+        <label htmlFor="cp-confirm">Confirm new password</label>
+        <PasswordInput id="cp-confirm" name="confirmPassword" placeholder="Type it again"
+          value={form.confirmPassword} onChange={handleChange} required autoComplete="new-password" />
+      </div>
+      {error && <p className="error" role="alert">{error}</p>}
+      <SubmitButton loading={loading} loadingText="Saving…">
+        Change password
+      </SubmitButton>
+    </form>
+  );
+
+  // Forced change (temporary password): the full-screen sign-in layout, no navigation.
+  if (forced || !user) {
+    return (
+      <AuthLayout
+        title="Set a new password"
+        subtitle="Your administrator gave you a temporary password. Choose your own password to continue."
+      >
+        {formEl}
+      </AuthLayout>
+    );
+  }
+
+  const Nav = NAV_FOR_ROLE[user.role] || EmployeeNav;
+  return (
+    <AppLayout
+      nav={<Nav />}
+      title="Change password"
+      subtitle="Other devices signed in to your account will be signed out."
+      width="narrow"
+    >
+      <div className="card change-password-card">
+        {formEl}
+        <div className="auth-links">
+          <Link to={ROLE_HOME[user.role] || PATHS.employee}>Back to dashboard</Link>
+        </div>
+      </div>
+    </AppLayout>
   );
 };
 
