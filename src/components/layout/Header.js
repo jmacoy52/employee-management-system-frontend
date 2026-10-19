@@ -10,6 +10,7 @@ import "./Header.css";
 const SECTION_LINKS = [
   { href: "/#features", label: "Features" },
   { href: "/#why", label: "Why EmploCore" },
+  { href: "/#pricing", label: "Pricing" },
   { href: "/#organisations", label: "For organisations" },
   { href: "/#demo", label: "Demo", demoOnly: true },
 ];

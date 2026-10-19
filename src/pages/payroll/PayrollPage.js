@@ -7,6 +7,8 @@ import HRNav from "../../components/layout/HRNav";
 import AdminNav from "../../components/layout/AdminNav";
 import AppLayout from "../../components/layout/AppLayout";
 import Modal from "../../components/common/Modal";
+import PlanBanner from "../../components/billing/PlanBanner";
+import { getStoredUser } from "../../auth/session";
 import { formatMoney, formatAmount, periodLabel, dateLabel, rateLabel, toInputAmount, currentPeriod, lastWorkingDay } from "./payrollShared";
 import "../hr/HRDashboard.css";
 import "./Payroll.css";
@@ -334,6 +336,7 @@ const PayrollPage = () => {
         </button>
       }
     >
+      <PlanBanner role={(getStoredUser() || {}).role} feature="payroll" />
       {error && <div className="alert alert-danger" role="alert">{error}</div>}
 
       <div className="stat-grid payroll-stats">

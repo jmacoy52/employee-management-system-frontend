@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { LayoutDashboard, Building2, Users, ScrollText, Inbox, UserCog } from "lucide-react";
+import { LayoutDashboard, Building2, Users, ScrollText, Inbox, UserCog, TrendingUp, Tags } from "lucide-react";
 import AppNav from "./AppNav";
 import api from "../../api/client";
 import { OWNER_COUNTS_EVENT } from "../../pages/owner/ownerShared";
@@ -30,6 +30,8 @@ const OwnerNav = () => {
     { to: "/owner", label: "Overview", icon: LayoutDashboard },
     { to: "/owner/organisations", label: "Organisations", icon: Building2, end: false, badge: counts.pending, badgeLabel: "waiting for approval" },
     { to: "/owner/enquiries", label: "Enquiries", icon: Inbox, badge: counts.enquiries_new, badgeLabel: "new" },
+    { to: "/owner/billing", label: "Revenue", icon: TrendingUp },
+    { to: "/owner/plans", label: "Plans and prices", icon: Tags },
     { to: "/owner/admins", label: "Organisation admins", icon: Users },
     { to: "/owner/audit-log", label: "Audit log", icon: ScrollText },
     { to: "/owner/account", label: "My account", icon: UserCog },

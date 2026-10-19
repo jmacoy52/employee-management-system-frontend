@@ -8,6 +8,7 @@ export const PATHS = {
   privacy: "/privacy",
   terms: "/terms",
   contact: "/contact",
+  pricing: "/pricing",
   resetPassword: "/reset-password",
 
   changePassword: "/account/password",
@@ -33,11 +34,15 @@ export const PATHS = {
   ownerAuditLog: "/owner/audit-log",
   ownerEnquiries: "/owner/enquiries",
   ownerAccount: "/owner/account",
+  ownerBilling: "/owner/billing",
+  ownerPlans: "/owner/plans",
 
   admin: "/admin",
   adminUsers: "/admin/users",
   adminUserManagement: "/admin/user-management",
   adminAuditLog: "/admin/audit-log",
+  adminBilling: "/admin/billing",
+  adminBillingCallback: "/admin/billing/callback",
   adminHr: "/admin/hr",
   adminDepartments: "/admin/departments",
   adminPayroll: "/admin/payroll",

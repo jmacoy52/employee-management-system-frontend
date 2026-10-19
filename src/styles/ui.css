@@ -432,6 +432,14 @@ input[type="radio"] {
   background: var(--color-surface-2);
   color: var(--color-text-2);
 }
+.badge-info {
+  background: var(--color-primary-soft-2);
+  color: var(--color-primary-hover);
+}
+.badge-warning {
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
+}
 .badge-mono {
   font-family: var(--font-mono);
   font-weight: 500;

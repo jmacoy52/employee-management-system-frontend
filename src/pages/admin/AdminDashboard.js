@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import PlanBanner from "../../components/billing/PlanBanner";
 import "./AdminDashboard.css";
 import { Users, Settings, ScrollText, UserCheck, Plus, UserX, ShieldCheck, ArrowRight, Building2 } from "lucide-react";
 import api, { getErrorMessage } from "../../api/client";
@@ -45,8 +46,10 @@ const AdminDashboard = () => {
     try {
       const res = await api.get("/api/audit-logs", { params: { limit: 6 } });
       setRecentLogs(res.data);
-    } catch {
-      setRecentLogs([]);
+    } catch (err) {
+      // The organisation audit log is a Growth+ feature; on lower plans the panel explains that
+      const locked = err && err.response && err.response.data && err.response.data.code === "PLAN_FEATURE_UNAVAILABLE";
+      setRecentLogs(locked ? "locked" : []);
     }
   }, []);
 
@@ -97,6 +100,7 @@ const AdminDashboard = () => {
         </button>
       }
     >
+      <PlanBanner role="admin" />
       <div className="stat-grid">
         {stats.map(({ label, value, icon: Icon, tone }) => (
           <div className="stat-tile" key={label}>
@@ -135,6 +139,8 @@ const AdminDashboard = () => {
           </div>
           {recentLogs === null ? (
             <p className="recent-empty">Loading…</p>
+          ) : recentLogs === "locked" ? (
+            <p className="recent-empty audit-locked">The organisation audit log is included in Growth and Business. <Link to="/admin/billing">See plans</Link></p>
           ) : recentLogs.length === 0 ? (
             <p className="recent-empty">No activity yet.</p>
           ) : (

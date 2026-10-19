@@ -7,6 +7,11 @@ import Home from "../pages/public/Home";
 import Privacy from "../pages/public/Privacy";
 import Terms from "../pages/public/Terms";
 import Contact from "../pages/public/Contact";
+import Pricing from "../pages/public/Pricing";
+import Billing from "../pages/billing/Billing";
+import BillingCallback from "../pages/billing/BillingCallback";
+import OwnerPlans from "../pages/owner/OwnerPlans";
+import OwnerBilling from "../pages/owner/OwnerBilling";
 import NotFound from "../pages/public/NotFound";
 import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
@@ -48,6 +53,7 @@ const AppRoutes = () => (
     <Route path={PATHS.privacy} element={<Privacy />} />
     <Route path={PATHS.terms} element={<Terms />} />
     <Route path={PATHS.contact} element={<Contact />} />
+    <Route path={PATHS.pricing} element={<Pricing />} />
 
     {/* Employee (any signed-in role) */}
     <Route element={<PrivateRoute allowedRoles={["employee", "hr", "admin"]} />}>
@@ -71,6 +77,8 @@ const AppRoutes = () => (
       <Route path={PATHS.ownerAuditLog} element={<OwnerAuditLog />} />
       <Route path={PATHS.ownerEnquiries} element={<OwnerEnquiries />} />
       <Route path={PATHS.ownerAccount} element={<OwnerAccount />} />
+      <Route path={PATHS.ownerBilling} element={<OwnerBilling />} />
+      <Route path={PATHS.ownerPlans} element={<OwnerPlans />} />
     </Route>
 
     {/* HR (admins are allowed too) */}
@@ -91,6 +99,8 @@ const AppRoutes = () => (
       <Route path={PATHS.adminUsers} element={<UserList />} />
       <Route path={PATHS.adminUserManagement} element={<UserManagement />} />
       <Route path={PATHS.adminAuditLog} element={<AuditLog />} />
+      <Route path={PATHS.adminBilling} element={<Billing />} />
+      <Route path={PATHS.adminBillingCallback} element={<BillingCallback />} />
       <Route path={PATHS.adminHr} element={<HRDashboard />} />
       <Route path={PATHS.adminDepartments} element={<DepartmentsPage />} />
       <Route path={PATHS.adminPayroll} element={<PayrollPage />} />

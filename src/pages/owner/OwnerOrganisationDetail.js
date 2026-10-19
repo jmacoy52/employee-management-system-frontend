@@ -7,6 +7,7 @@ import OwnerNav from "../../components/layout/OwnerNav";
 import AppLayout from "../../components/layout/AppLayout";
 import OwnerAdminTable from "./OwnerAdminTable";
 import RejectModal from "./RejectModal";
+import OrgSubscriptionPanel from "./OrgSubscriptionPanel";
 import { OrgStatusBadge, formatDate, seatsLabel, placeLabel, notifyOwnerCountsChanged } from "./ownerShared";
 import { ORG_TYPES, SIZE_RANGES, sizeLabel } from "../../config/signupOptions";
 import "./Owner.css";
@@ -28,7 +29,7 @@ const OwnerOrganisationDetail = () => {
       setOrg(res.data);
       const o = res.data;
       setForm({
-        name: o.name, plan: o.plan, seat_limit: o.seat_limit ?? "", contact_email: o.contact_email || "",
+        name: o.name, seat_limit: o.seat_limit ?? "", contact_email: o.contact_email || "",
         contact_name: o.contact_name || "", phone: o.phone || "", org_type: o.org_type || "", size_range: o.size_range || "",
         country: o.country || "", city: o.city || "",
       });
@@ -60,7 +61,6 @@ const OwnerOrganisationDetail = () => {
     try {
       await api.put(`/api/platform/organizations/${id}`, {
         name: form.name,
-        plan: form.plan,
         seat_limit: form.seat_limit === "" ? null : Number(form.seat_limit),
         contact_email: form.contact_email || null,
         contact_name: form.contact_name || null,
@@ -167,15 +167,9 @@ const OwnerOrganisationDetail = () => {
                   <label htmlFor="edit-org-name">Name</label>
                   <input id="edit-org-name" name="name" value={form.name} onChange={change} minLength={2} maxLength={150} required />
                 </div>
-                <div className="form-grid">
-                  <div className="field">
-                    <label htmlFor="edit-org-plan">Plan</label>
-                    <input id="edit-org-plan" name="plan" value={form.plan} onChange={change} maxLength={40} required />
-                  </div>
-                  <div className="field">
-                    <label htmlFor="edit-org-seats">Seat limit</label>
-                    <input id="edit-org-seats" name="seat_limit" type="number" min="1" placeholder="No limit" value={form.seat_limit} onChange={change} />
-                  </div>
+                <div className="field">
+                  <label htmlFor="edit-org-seats">Seat limit (user accounts)</label>
+                  <input id="edit-org-seats" name="seat_limit" type="number" min="1" placeholder="No limit" value={form.seat_limit} onChange={change} />
                 </div>
                 <div className="form-grid">
                   <div className="field">
@@ -221,6 +215,8 @@ const OwnerOrganisationDetail = () => {
               </form>
             </section>
           </div>
+
+          <OrgSubscriptionPanel org={org} onChanged={load} />
 
           {/* Tenant boundary: the owner sees the account holder(s) and head counts, never the
               organisation's HR and employee accounts (the API does not return them either) */}

@@ -21,6 +21,7 @@ import Header from "../../components/layout/Header";
 import Footer from "../../components/layout/Footer";
 import api from "../../api/client";
 import { DEMO_ACCOUNTS, isDemoMode } from "../../config/demo";
+import PricingSection from "../../components/billing/PricingSection";
 import "./Home.css";
 
 // Only capabilities that exist in the app and API. No invented figures, customers or prices.
@@ -298,6 +299,13 @@ const Home = () => {
               </article>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* PRICING (tiers and prices come from the API) */}
+      <section className="section-block" id="pricing">
+        <div className="section-inner">
+          <PricingSection />
         </div>
       </section>
 

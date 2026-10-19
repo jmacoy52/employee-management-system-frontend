@@ -21,6 +21,8 @@ The complete documentation for both repositories (architecture, data model, desi
 - Public pages: landing page (text hero, features, roles, why EmploCore, getting started, demo logins in demo mode, "For organisations" with a request-a-demo call to action), privacy policy, terms, contact / request a demo, forgot password (handled by an administrator) and a 404 page. The landing page holds no sample names, figures, product mockups or technical details.
 - Responsive from 360px phones up: menus collapse, tables turn into cards on small screens.
 
+- **Subscriptions**: a public pricing section (`/#pricing` and `/pricing`) with a monthly/yearly toggle, read from the API; an admin **Billing** page (plan, usage against limits, trial and renewal dates, change plan through Paystack, cancel renewal, payment history with PDF invoices, trial and grace banners); owner **Revenue** and **Plans and prices** pages and a subscription panel on each organisation. Without Paystack keys on the server the Billing page shows "Payments coming soon, contact us".
+
 ## Demo logins
 
 Shown on the landing and sign-in pages only when `REACT_APP_DEMO_MODE=true` (the public deployment).
@@ -120,10 +122,11 @@ CRA reads these at **build time**, so you must rebuild or redeploy after changin
 
 | Path | Access |
 |---|---|
-| `/`, `/login`, `/register`, `/forgot-password`, `/privacy`, `/terms`, `/contact` | Public |
+| `/`, `/pricing`, `/login`, `/register`, `/forgot-password`, `/privacy`, `/terms`, `/contact` | Public |
 | `/employee`, `/employee/payslips`, `/employee/payslips/:id` | Any signed-in user |
 | `/hr`, `/hr/employees`, `/hr/create-employee`, `/hr/departments`, `/hr/payroll`, `/hr/payroll/:period`, `/hr/payslips/:id`, `/hr/profile` | HR and admin |
-| `/admin`, `/admin/users`, `/admin/user-management`, `/admin/audit-log`, `/admin/departments`, `/admin/payroll`, `/admin/payroll/:period`, `/admin/payslips/:id`, `/admin/hr` | Admin |
+| `/admin`, `/admin/users`, `/admin/user-management`, `/admin/audit-log`, `/admin/departments`, `/admin/payroll`, `/admin/payroll/:period`, `/admin/payslips/:id`, `/admin/billing`, `/admin/billing/callback`, `/admin/hr` | Admin |
+| `/owner`, `/owner/organisations`, `/owner/organisations/:id`, `/owner/billing`, `/owner/plans`, `/owner/admins`, `/owner/enquiries`, `/owner/audit-log`, `/owner/account` | Platform owner |
 
 The old URLs `/AdminDashboard`, `/HRDashboard`, `/EmployeeDashboard`, `/admin/usermanagement` and `/admin/auditlog` redirect to their new paths.
 

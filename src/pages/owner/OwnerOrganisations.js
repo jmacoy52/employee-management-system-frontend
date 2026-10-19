@@ -7,11 +7,11 @@ import OwnerNav from "../../components/layout/OwnerNav";
 import AppLayout from "../../components/layout/AppLayout";
 import Modal from "../../components/common/Modal";
 import PasswordInput from "../../components/auth/PasswordInput";
-import { OrgStatusBadge, formatDate, seatsLabel, placeLabel } from "./ownerShared";
+import { OrgStatusBadge, formatDate, seatsLabel, placeLabel, SubscriptionCell } from "./ownerShared";
 import PendingApprovals from "./PendingApprovals";
 import "./Owner.css";
 
-const EMPTY_FORM = { name: "", contact_email: "", plan: "standard", seat_limit: "", adminName: "", adminEmail: "", adminPassword: "" };
+const EMPTY_FORM = { name: "", contact_email: "", seat_limit: "", adminName: "", adminEmail: "", adminPassword: "" };
 
 const OwnerOrganisations = () => {
   const navigate = useNavigate();
@@ -51,7 +51,6 @@ const OwnerOrganisations = () => {
       const res = await api.post("/api/platform/organizations", {
         name: form.name,
         contact_email: form.contact_email || null,
-        plan: form.plan,
         seat_limit: form.seat_limit === "" ? null : Number(form.seat_limit),
         admin: { name: form.adminName, email: form.adminEmail, password: form.adminPassword || undefined },
       });
@@ -71,7 +70,7 @@ const OwnerOrganisations = () => {
     <AppLayout
       nav={<OwnerNav />}
       title="Organisations"
-      subtitle="Every client organisation on the platform. Approve or reject new registrations, change plans and seat limits, or suspend access."
+      subtitle="Every client organisation on the platform. Approve or reject new registrations, see each subscription, or suspend access."
       className="owner-organisations"
       actions={
         <button type="button" className="btn btn-primary new-org-btn" onClick={() => setShowCreate(true)}>
@@ -129,7 +128,7 @@ const OwnerOrganisations = () => {
                     <td data-label="Status"><OrgStatusBadge status={org.status} /></td>
                     <td data-label="Type / staff" className="cell-muted">{org.org_type || "–"}{org.size_range ? ` · ${org.size_range}` : ""}</td>
                     <td data-label="Location" className="cell-muted">{placeLabel(org)}</td>
-                    <td data-label="Plan">{org.plan}</td>
+                    <td data-label="Plan"><SubscriptionCell sub={org.subscription} fallback={org.plan} /></td>
                     <td data-label="Active users / seats">{seatsLabel(org)}</td>
                     <td data-label="Employees">{org.employee_count}</td>
                     <td data-label="Contact" className="cell-muted">{org.contact_email || "–"}</td>
@@ -152,16 +151,11 @@ const OwnerOrganisations = () => {
             <label htmlFor="new-org-name">Organisation name</label>
             <input id="new-org-name" name="name" value={form.name} onChange={change} minLength={2} maxLength={150} required />
           </div>
-          <div className="form-grid">
-            <div className="field">
-              <label htmlFor="new-org-plan">Plan</label>
-              <input id="new-org-plan" name="plan" value={form.plan} onChange={change} maxLength={40} required />
-            </div>
-            <div className="field">
-              <label htmlFor="new-org-seats">Seat limit</label>
-              <input id="new-org-seats" name="seat_limit" type="number" min="1" placeholder="No limit" value={form.seat_limit} onChange={change} />
-            </div>
+          <div className="field">
+            <label htmlFor="new-org-seats">Seat limit (user accounts)</label>
+            <input id="new-org-seats" name="seat_limit" type="number" min="1" placeholder="No limit" value={form.seat_limit} onChange={change} />
           </div>
+          <p className="owner-temp-note">New organisations start with a 30-day Growth trial. Change the plan afterwards from the organisation&apos;s page.</p>
           <div className="field">
             <label htmlFor="new-org-contact">Contact e-mail (optional)</label>
             <input id="new-org-contact" name="contact_email" type="email" placeholder="Defaults to the admin's e-mail" value={form.contact_email} onChange={change} />
