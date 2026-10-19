@@ -161,3 +161,20 @@ test("payments settings card: test mode, keys set, webhook address and last webh
   expect(screen.getByText(/19 October 2026, 18:05 \(Accra\) \(charge.success, processed\)/)).toBeInTheDocument();
   expect(screen.getByText(/no real money is taken/)).toBeInTheDocument();
 });
+
+test("signed-out payer: public status check, no organisation data, sign-in link returns to billing", async () => {
+  localStorage.clear();
+  api.post.mockResolvedValue({ data: { status: "activated" } });
+  at("/admin/billing/callback?reference=EC-77", <BillingCallback />, "/admin/billing/callback");
+  expect(await screen.findByText("Payment received, sign in to view your billing.")).toBeInTheDocument();
+  expect(api.post).toHaveBeenCalledWith("/api/billing/callback-status", { reference: "EC-77" });
+  expect(api.post).not.toHaveBeenCalledWith("/api/billing/verify", expect.anything());
+  expect(screen.getByRole("link", { name: "Sign in to view billing" })).toHaveAttribute("href", "/login?next=%2Fadmin%2Fbilling");
+});
+
+test("signed-out payer with an unknown reference sees a generic message", async () => {
+  localStorage.clear();
+  api.post.mockResolvedValue({ data: { status: "unknown" } });
+  at("/admin/billing/callback?reference=EC-nope", <BillingCallback />, "/admin/billing/callback");
+  expect(await screen.findByText("Payment not found")).toBeInTheDocument();
+});

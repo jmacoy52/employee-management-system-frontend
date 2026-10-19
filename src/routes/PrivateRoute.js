@@ -26,13 +26,15 @@ const PrivateRoute = ({ allowedRoles }) => {
     user = null;
   }
 
-  if (!token || !user) return <Navigate to={PATHS.login} replace />;
+  // Return to this page after signing in.
+  const loginWithNext = `${PATHS.login}?next=${encodeURIComponent(location.pathname + location.search)}`;
+  if (!token || !user) return <Navigate to={loginWithNext} replace />;
 
   // Expired or unreadable token: clear the session and sign in again.
   if (isExpired(token)) {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    return <Navigate to={PATHS.login} replace />;
+    return <Navigate to={loginWithNext} replace />;
   }
 
   // Temporary password from an admin: only the change-password page is allowed.

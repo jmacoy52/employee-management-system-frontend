@@ -10,6 +10,10 @@ import { DEMO_ACCOUNTS, findDemoAccount, isDemoMode } from "../../config/demo";
 import { toast } from "react-hot-toast"; // toast for notifications
 import { saveSession } from "../../auth/session";
 
+// Only same-site paths ("/admin/billing"), never "//evil.com" or full URLs.
+export const safeNext = (value) =>
+  typeof value === "string" && /^\/(?![/\\])/.test(value) && !value.startsWith("/login") ? value : null;
+
 const LOGIN_NOTICES = {
   suspended: "Your organisation's EmploCore account is suspended, so you have been signed out. Please contact EmploCore.",
   pending: "Your organisation is waiting for approval. You can sign in once EmploCore has approved it.",
@@ -60,7 +64,7 @@ const Login = () => {
       }
 
       // redirect based on role (unknown roles fall back to the employee page)
-      navigate(ROLE_HOME[user.role] || PATHS.employee);
+      navigate(safeNext(params.get("next")) || ROLE_HOME[user.role] || PATHS.employee);
       toast.success("Login successful!");
     } catch (err) {
       // A rejected registration can carry the reviewer's reason

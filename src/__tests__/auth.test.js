@@ -108,3 +108,16 @@ test("network errors give the friendly waking-up message; API errors pass throug
 test("API timeout defaults to 60 seconds", () => {
   expect(API_TIMEOUT_MS).toBe(60000);
 });
+
+describe("return after sign-in", () => {
+  const { safeNext } = require("../pages/auth/Login");
+  test("only same-site paths are honoured", () => {
+    expect(safeNext("/admin/billing")).toBe("/admin/billing");
+    expect(safeNext("/admin/billing/callback?reference=EC-1")).toBe("/admin/billing/callback?reference=EC-1");
+    expect(safeNext("//evil.example")).toBeNull();
+    expect(safeNext("/\\evil.example")).toBeNull();
+    expect(safeNext("https://evil.example")).toBeNull();
+    expect(safeNext("/login")).toBeNull();
+    expect(safeNext(null)).toBeNull();
+  });
+});

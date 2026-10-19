@@ -55,6 +55,8 @@ const AppRoutes = () => (
     <Route path={PATHS.contact} element={<Contact />} />
     <Route path={PATHS.pricing} element={<Pricing />} />
     <Route path={PATHS.billingCallback} element={<BillingCallbackRedirect />} />
+    {/* Public: the payer may be signed out (another device or an expired session) */}
+    <Route path={PATHS.adminBillingCallback} element={<BillingCallback />} />
 
     {/* Employee (any signed-in role) */}
     <Route element={<PrivateRoute allowedRoles={["employee", "hr", "admin"]} />}>
@@ -101,7 +103,6 @@ const AppRoutes = () => (
       <Route path={PATHS.adminUserManagement} element={<UserManagement />} />
       <Route path={PATHS.adminAuditLog} element={<AuditLog />} />
       <Route path={PATHS.adminBilling} element={<Billing />} />
-      <Route path={PATHS.adminBillingCallback} element={<BillingCallback />} />
       <Route path={PATHS.adminHr} element={<HRDashboard />} />
       <Route path={PATHS.adminDepartments} element={<DepartmentsPage />} />
       <Route path={PATHS.adminPayroll} element={<PayrollPage />} />
