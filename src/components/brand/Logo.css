@@ -1,0 +1,37 @@
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  flex: none;
+}
+
+.logo-mark {
+  display: block;
+  flex: none;
+}
+
+.logo-word {
+  font-size: 1.2rem;
+  font-weight: 750;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.logo-dark .logo-word {
+  color: var(--color-ink);
+}
+.logo-dark .logo-word-core {
+  color: var(--color-primary);
+}
+
+.logo-light .logo-word {
+  color: var(--color-white);
+}
+.logo-light .logo-word-core {
+  color: var(--color-core);
+}
+
+a.logo:hover .logo-word {
+  opacity: 0.9;
+}
