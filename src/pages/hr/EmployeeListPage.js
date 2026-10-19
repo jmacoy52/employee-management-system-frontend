@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 
 const EmployeeListPage = () => {
   const [employees, setEmployees] = useState([]);
+  const [linkableUsers, setLinkableUsers] = useState([]);
   const [error, setError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState(null);
@@ -28,9 +29,31 @@ const EmployeeListPage = () => {
     }
   };
 
+  const fetchLinkableUsers = async () => {
+    try {
+      const res = await api.get("/api/users/linkable");
+      setLinkableUsers(res.data);
+    } catch (err) {
+      console.error("Error fetching user accounts:", err);
+    }
+  };
+
   useEffect(() => {
     fetchEmployees();
+    fetchLinkableUsers();
   }, []);
+
+  // Link (or unlink with null) the user account that belongs to this employee record
+  const handleLink = async (employeeId, userId) => {
+    try {
+      await api.put(`/api/employees/${employeeId}/link`, { user_id: userId });
+      toast.success(userId ? "Account linked." : "Account unlinked.");
+      fetchEmployees();
+      fetchLinkableUsers();
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Failed to link account."));
+    }
+  };
 
   const handleEdit = (employee) => {
     setEditingEmployee(employee);
@@ -52,7 +75,7 @@ const EmployeeListPage = () => {
       fetchEmployees();
     } catch (err) {
       console.error("Failed to update employee:", err);
-      toast.error("Update failed.");
+      toast.error(getErrorMessage(err, "Update failed."));
     }
   };
 
@@ -77,6 +100,8 @@ const EmployeeListPage = () => {
         employees={employees}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        linkableUsers={linkableUsers}
+        onLink={handleLink}
       />
 
       <Modal

@@ -3,7 +3,8 @@ import { useState } from 'react';
 import { Pencil, Trash2 } from "lucide-react";
 import "./EmployeeForm.css";
 
-const EmployeeList = ({ employees, onEdit, onDelete }) => {
+// linkableUsers/onLink are optional: when given, an Account column lets HR link a user account.
+const EmployeeList = ({ employees, onEdit, onDelete, linkableUsers, onLink }) => {
     const [selectedDept, setSelectedDept] = useState("All");
 
   const departments = [
@@ -43,6 +44,7 @@ const EmployeeList = ({ employees, onEdit, onDelete }) => {
             <th>Salary</th>
             <th>Email</th>
             <th>Joined</th>
+            {onLink && <th>Account</th>}
             <th>Actions</th>
           </tr>
         </thead>
@@ -56,6 +58,25 @@ const EmployeeList = ({ employees, onEdit, onDelete }) => {
               <td>₵{emp.salary}</td>
               <td>{emp.email}</td>
                <td>{new Date(emp.created_at).toLocaleDateString()}</td>
+              {onLink && (
+                <td>
+                  <select
+                    className="link-select"
+                    aria-label={`Account for ${emp.FullName}`}
+                    value={emp.user_id || ""}
+                    onChange={(e) => onLink(emp.id, e.target.value ? Number(e.target.value) : null)}
+                  >
+                    <option value="">Not linked</option>
+                    {(linkableUsers || [])
+                      .filter((u) => !u.employee_id || u.employee_id === emp.id)
+                      .map((u) => (
+                        <option key={u.id} value={u.id}>
+                          {u.email}
+                        </option>
+                      ))}
+                  </select>
+                </td>
+              )}
               <td className="actions">
                 <Pencil
                   className="icon edit"

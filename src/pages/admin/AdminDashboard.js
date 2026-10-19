@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./AdminDashboard.css";
 import { Users, Settings, ScrollText, UserCheck, Plus, LogOut } from "lucide-react";
 import api, { getErrorMessage } from "../../api/client";
+import { logout as signOut } from "../../auth/session";
 import { toast } from "react-hot-toast";
 
 const AdminDashboard = () => {
@@ -47,7 +48,7 @@ const AdminDashboard = () => {
           <li onClick={() => navigate("/admin/audit-log")}> <ScrollText size={20} /> Audit Log </li>
           <li onClick={() => navigate("/admin/hr")}> <UserCheck size={20} /> HR Dashboard </li>
         </ul>
-        <button className="logout-btn" onClick={() => { localStorage.clear(); navigate("/"); }}>
+        <button className="logout-btn" onClick={async () => { await signOut(); navigate("/"); }}>
           <LogOut size={18} /> Logout
         </button>
       </aside>

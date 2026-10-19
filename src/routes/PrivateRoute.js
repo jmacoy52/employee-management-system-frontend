@@ -1,5 +1,5 @@
 import React from "react";
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { PATHS, ROLE_HOME } from "./paths";
 
@@ -15,6 +15,7 @@ function isExpired(token) {
 // Guards a group of routes. Not signed in -> /login. Signed in but wrong role ->
 // that role's own home page. Admins can open every protected route.
 const PrivateRoute = ({ allowedRoles }) => {
+  const location = useLocation();
   const token = localStorage.getItem("token");
   let user = null;
   try {
@@ -30,6 +31,11 @@ const PrivateRoute = ({ allowedRoles }) => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     return <Navigate to={PATHS.login} replace />;
+  }
+
+  // Temporary password from an admin: only the change-password page is allowed.
+  if (user.mustChangePassword && location.pathname !== PATHS.changePassword) {
+    return <Navigate to={PATHS.changePassword} replace />;
   }
 
   if (user.role === "admin") return <Outlet />;

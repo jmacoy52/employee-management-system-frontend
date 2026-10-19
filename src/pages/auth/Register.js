@@ -6,12 +6,9 @@ import { toast } from "react-hot-toast"; //toast for notifications
 import "./Login.css";
 import "./Register.css";
 
-// Public sign-up may only request these roles. Admin accounts are created by
-// existing admins; the backend must enforce the same rule.
-const PUBLIC_ROLES = [
-  { value: "employee", label: "Employee" },
-  { value: "hr", label: "HR" },
-];
+// Public sign-up creates employee accounts only. HR and admin accounts are
+// created by existing admins; the backend enforces the same rule.
+const PUBLIC_ROLE = "employee";
 const MIN_PASSWORD_LENGTH = 8;
 
 const Register = () => {
@@ -20,7 +17,7 @@ const Register = () => {
     username: "",
     email: "",
     password: "",
-    role: "employee",
+    role: PUBLIC_ROLE,
   });
 
   const [error, setError] = useState("");
@@ -41,8 +38,8 @@ const Register = () => {
       setError(`Password must be at least ${MIN_PASSWORD_LENGTH} characters.`);
       return;
     }
-    if (!PUBLIC_ROLES.some((r) => r.value === formData.role)) {
-      setError("Please choose a valid role.");
+    if (!/[A-Za-z]/.test(formData.password) || !/[0-9]/.test(formData.password)) {
+      setError("Password must contain at least one letter and one number.");
       return;
     }
 
@@ -92,26 +89,14 @@ const Register = () => {
             minLength={MIN_PASSWORD_LENGTH}
             required
           />
-          <label className="auth-label" htmlFor="register-role">
-            I am registering as
-          </label>
-          <select
-            id="register-role"
-            name="role"
-            value={formData.role}
-            onChange={handleChange}
-            required
-          >
-            {PUBLIC_ROLES.map((r) => (
-              <option key={r.value} value={r.value}>
-                {r.label}
-              </option>
-            ))}
-          </select>
+          <p className="auth-hint">
+            You will get an employee account. HR and admin accounts are created
+            by your administrator.
+          </p>
           {loading && (
             <p className="auth-hint">
-              Contacting the server… this can take up to 20 seconds if it is
-              waking up.
+              Contacting the server… if it has been asleep this can take up to
+              a minute.
             </p>
           )}
           {error && (

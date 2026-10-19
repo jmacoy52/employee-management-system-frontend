@@ -11,6 +11,8 @@ import NotFound from "../pages/public/NotFound";
 import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
 import ForgotPassword from "../pages/auth/ForgotPassword";
+import ResetPassword from "../pages/auth/ResetPassword";
+import ChangePassword from "../pages/auth/ChangePassword";
 import EmployeeDashboard from "../pages/employee/EmployeeDashboard";
 import HRDashboard from "../pages/hr/HRDashboard";
 import EmployeeListPage from "../pages/hr/EmployeeListPage";
@@ -28,6 +30,7 @@ const AppRoutes = () => (
     <Route path={PATHS.login} element={<Login />} />
     <Route path={PATHS.register} element={<Register />} />
     <Route path={PATHS.forgotPassword} element={<ForgotPassword />} />
+    <Route path={PATHS.resetPassword} element={<ResetPassword />} />
     <Route path={PATHS.privacy} element={<Privacy />} />
     <Route path={PATHS.terms} element={<Terms />} />
     <Route path={PATHS.contact} element={<Contact />} />
@@ -35,6 +38,7 @@ const AppRoutes = () => (
     {/* Employee (any signed-in role) */}
     <Route element={<PrivateRoute allowedRoles={["employee", "hr", "admin"]} />}>
       <Route path={PATHS.employee} element={<EmployeeDashboard />} />
+      <Route path={PATHS.changePassword} element={<ChangePassword />} />
     </Route>
 
     {/* HR (admins are allowed too) */}

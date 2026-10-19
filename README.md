@@ -96,3 +96,11 @@ The old URLs `/AdminDashboard`, `/HRDashboard`, `/EmployeeDashboard`, `/admin/us
 
 - Public registration offers only the **employee** and **hr** roles, with a minimum password length of 8 characters. The **backend must enforce the same rules**, because a client-side check can be bypassed.
 - Tokens are kept in `localStorage` and removed on logout.
+
+## Tests
+
+- Unit/component tests: `npm test` (Jest + Testing Library).
+- End-to-end: `e2e/e2e.py` (Playwright for Python). Start the backend locally with demo data
+  (`SEED_DEMO=true npm run db:init`, then `PORT=5055 ALLOWED_ORIGINS=http://127.0.0.1:5056 npm start`),
+  build and serve this app (`REACT_APP_API_URL=http://127.0.0.1:5055 npm run build && npx serve -s build -l 5056`),
+  then run `python3 e2e/e2e.py`. It creates and changes users, so only point it at a local database.

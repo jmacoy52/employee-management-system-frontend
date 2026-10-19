@@ -33,6 +33,8 @@ const UserList = () => {
             <th>Username</th>
             <th>Email</th>
             <th>Role</th>
+            <th>Status</th>
+            <th>Employee Record</th>
             <th>Created At</th>
           </tr>
         </thead>
@@ -44,12 +46,14 @@ const UserList = () => {
                 <td>{user.username}</td>
                 <td>{user.email}</td>
                 <td>{user.role}</td>
+                <td>{user.is_active ? "Active" : "Deactivated"}</td>
+                <td>{user.employee_name || "Not linked"}</td>
                 <td>{new Date(user.created_at).toLocaleDateString()}</td>
               </tr>
             ))
           ) : (
             <tr>
-              <td colSpan="4">No users found.</td>
+              <td colSpan="7">No users found.</td>
             </tr>
           )}
         </tbody>
