@@ -7,6 +7,9 @@ export const PATHS = {
   privacy: "/privacy",
   terms: "/terms",
   contact: "/contact",
+  resetPassword: "/reset-password",
+
+  changePassword: "/account/password",
 
   employee: "/employee",
 

@@ -11,8 +11,9 @@ const ForgotPassword = () => (
       <h2>Forgot your password?</h2>
       <p className="auth-text">
         Password resets are handled by your organisation's EmploCore
-        administrator. Please contact your administrator or HR team and ask them
-        to reset your password.
+        administrator. Please contact your administrator and ask them to reset
+        your password. They can either give you a temporary password (you will
+        choose a new one when you sign in) or send you a one-time reset link.
       </p>
       <p className="auth-text">
         Once your password has been reset, you can sign in again.

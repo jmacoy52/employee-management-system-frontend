@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import api, { getErrorMessage } from "../../api/client";
-import { jwtDecode } from "jwt-decode";
 import { useNavigate, Link } from "react-router-dom";
 import PageLayout from "../../components/layout/PageLayout";
 import { ROLE_HOME, PATHS } from "../../routes/paths";
 import { toast } from "react-hot-toast"; // toast for notifications
+import { saveSession } from "../../auth/session";
 import "./Login.css";
 
 const Login = () => {
@@ -26,14 +26,16 @@ const Login = () => {
     try {
       const res = await api.post("/api/users/login", formData);
 
-      // save JWT
-      const token = res.data.token;
-      localStorage.setItem("token", token);
+      // save JWT and the user returned by the server
+      const { token, user } = res.data;
+      saveSession(token, user);
 
-      // decode token to get user info
-      const decoded = jwtDecode(token);
-      const user = { id: decoded.id, email: decoded.email, role: decoded.role };
-      localStorage.setItem("user", JSON.stringify(user));
+      // an admin-issued temporary password must be replaced first
+      if (user.mustChangePassword) {
+        navigate(PATHS.changePassword);
+        toast("Please set a new password to continue.");
+        return;
+      }
 
       // redirect based on role (unknown roles fall back to the employee page)
       navigate(ROLE_HOME[user.role] || PATHS.employee);
