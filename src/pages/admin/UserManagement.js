@@ -8,6 +8,7 @@ import Modal from "../../components/common/Modal";
 import { RoleBadge, StatusBadge } from "../../components/common/RoleBadge";
 import { getStoredUser } from "../../auth/session";
 import { PATHS } from "../../routes/paths";
+import { isDemoEmail } from "../../config/demo";
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
@@ -131,7 +132,7 @@ const UserManagement = () => {
                   <tr key={user.id}>
                     <td data-label="ID" className="cell-muted">{user.id}</td>
                     <td data-label="Name" className="cell-strong"><span>{user.username}{me?.id === user.id && <span className="you-tag"> (you)</span>}</span></td>
-                    <td data-label="Email">{user.email}</td>
+                    <td data-label="Email"><span>{user.email}{isDemoEmail(user.email) && <span className="badge demo-badge" title="Demo accounts are protected and can't be changed.">Demo account</span>}</span></td>
                     <td data-label="Current Role"><RoleBadge role={user.role} /></td>
                     <td data-label="Change Role">
                       <select

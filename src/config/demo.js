@@ -29,5 +29,9 @@ export const DEMO_ACCOUNTS = [
 
 export const findDemoAccount = (key) => DEMO_ACCOUNTS.find((a) => a.key === key) || null;
 
+// The backend refuses destructive changes to these logins (403), so the UI labels them.
+export const isDemoEmail = (email) =>
+  DEMO_ACCOUNTS.some((a) => a.email === String(email || "").trim().toLowerCase());
+
 export const PORTFOLIO_URL = "https://mjay-portfolio.vercel.app";
 export const GITHUB_URL = "https://github.com/jmacoy52";
