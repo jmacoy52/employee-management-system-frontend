@@ -1,40 +1,40 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { logout as signOut, getStoredUser } from "../../auth/session";
-import { Users, Plus, UserCircle, LogOut, Home, ArrowLeft, KeyRound } from "lucide-react";
-import "./HRNav.css";
+import { getStoredUser } from "../../auth/session";
+import { Users, Plus, UserCircle, Home, ArrowLeft, KeyRound } from "lucide-react";
+import AppNav from "./AppNav";
+
+const HR_ITEMS = [
+  { to: "/hr", label: "Dashboard", icon: Home },
+  { to: "/hr/employees", label: "Employee List", icon: Users },
+  { to: "/hr/create-employee", label: "Add Employee", icon: Plus },
+  { to: "/hr/profile", label: "My Profile", icon: UserCircle },
+  { to: "/account/password", label: "Change Password", icon: KeyRound },
+];
 
 const HRNav = () => {
   const navigate = useNavigate();
   const user = getStoredUser();
-
-  const logout = async () => {
-    await signOut();
-    navigate("/");
-  };
+  const isAdmin = user?.role === "admin";
 
   const switchToAdmin = () => {
     navigate("/admin");
   };
 
   return (
-    <nav className="hr-nav">
-      <div className="nav-center">
-        <ul className="nav-menu">
-          <li onClick={() => navigate("/hr")}><Home size={18}/> Dashboard</li>
-          <li onClick={() => navigate("/hr/employees")}><Users size={18}/> Employee List</li>
-          <li onClick={() => navigate("/hr/create-employee")}><Plus size={18}/> Add Employee</li>
-          <li onClick={() => navigate("/hr/profile")}><UserCircle size={18}/> My Profile</li>
-          <li onClick={() => navigate("/account/password")}><KeyRound size={18}/> Change Password</li>
-        </ul>
-      </div>
-      <div className="nav-right">
-        {user?.role === "admin" && (
-          <button className="switch-btn" onClick={switchToAdmin}><ArrowLeft size={18}/> Back to Admin</button>
-        )}
-        <button className="logout-btn" onClick={logout}><LogOut size={18}/> Logout</button>
-      </div>
-    </nav>
+    <AppNav
+      items={HR_ITEMS}
+      home={isAdmin ? "/admin" : "/hr"}
+      label="HR"
+      className={`hr-nav ${isAdmin ? "wide" : ""}`}
+      actions={
+        isAdmin && (
+          <button type="button" className="btn btn-secondary btn-sm switch-btn" onClick={switchToAdmin}>
+            <ArrowLeft size={16} /> Back to Admin
+          </button>
+        )
+      }
+    />
   );
 };
 

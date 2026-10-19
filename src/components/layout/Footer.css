@@ -1,34 +1,114 @@
 .footer {
-  background-color: rgb(49, 49, 49);
-  color: #fff;
-  text-align: center;
-  padding: 20px 10px;
   margin-top: auto;
-  width:100%;
-  box-sizing: border-box;
-  padding-bottom: 5px;
+  width: 100%;
+  background: var(--color-ink);
+  color: var(--color-on-dark-muted);
+  font-size: var(--text-sm);
 }
 
-.footer p {
+.footer a {
+  color: var(--color-on-dark);
+  text-decoration: none;
+}
+
+.footer a:hover {
+  color: var(--color-white);
+  text-decoration: underline;
+}
+
+.footer-inner {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: var(--space-8);
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: var(--space-12) var(--space-6) var(--space-8);
+}
+
+.footer-brand p {
+  max-width: 340px;
+  margin: var(--space-4) 0 0;
+  line-height: 1.6;
+}
+
+.footer-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.footer-col h4 {
+  margin: 0 0 var(--space-1);
+  color: var(--color-white);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.footer-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-2);
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-6);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-bottom p {
   margin: 0;
-  font-size: 0.9rem;
+}
+
+/* Compact footer inside the signed-in app */
+.footer-compact {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-6);
+  background: transparent;
+  border-top: 1px solid var(--color-border);
+  color: var(--color-muted);
+}
+
+.footer-compact p {
+  margin: 0;
 }
 
 .footer-links {
-  margin-top: 10px;
   display: flex;
-  gap: 15px;
-  justify-content: center;
   flex-wrap: wrap;
+  gap: var(--space-4);
 }
 
-.footer-links a {
-  color: #ccc;
-  text-decoration: none;
-  font-size: 0.85rem;
-  transition: color 0.3s ease-in-out;
+.footer-compact a {
+  color: var(--color-muted);
 }
 
-.footer-links a:hover {
-  color: #fff;
+.footer-compact a:hover {
+  color: var(--color-primary);
+}
+
+@media (max-width: 860px) {
+  .footer-inner {
+    grid-template-columns: 1fr 1fr;
+  }
+  .footer-brand {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-inner {
+    padding: var(--space-10) var(--space-4) var(--space-6);
+    gap: var(--space-6);
+  }
+  .footer-bottom,
+  .footer-compact {
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }

@@ -1,0 +1,194 @@
+.app-nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  width: 100%;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.app-nav-inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  max-width: 1360px;
+  height: var(--nav-height);
+  margin: 0 auto;
+  padding: 0 var(--space-6);
+}
+
+.app-nav-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex: 1;
+  min-width: 0;
+}
+
+.nav-menu {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nav-menu a {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-2);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.nav-menu a:hover {
+  background: var(--color-surface-2);
+  color: var(--color-text);
+}
+
+.nav-menu a.active {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding-right: var(--space-2);
+  min-width: 0;
+}
+
+.nav-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-ink);
+  color: var(--color-white);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.nav-user-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.2;
+}
+
+.nav-user-name {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.nav-user-role {
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
+.logout-btn {
+  color: var(--color-danger-hover);
+}
+
+.logout-btn:hover:not(:disabled) {
+  background: var(--color-danger-soft);
+  color: var(--color-danger-hover);
+}
+
+.app-nav-toggle {
+  display: none;
+  margin-left: auto;
+}
+
+/* Wide admin menu: hide the name next to the avatar before collapsing */
+@media (max-width: 1360px) {
+  .app-nav.wide .nav-user-text {
+    display: none;
+  }
+}
+
+@media (max-width: 1100px) {
+  .app-nav-inner {
+    padding: 0 var(--space-4);
+  }
+
+  .app-nav-toggle {
+    display: inline-flex;
+  }
+
+  .app-nav-panel {
+    display: none;
+    position: absolute;
+    top: var(--nav-height);
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4) var(--space-4);
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: var(--shadow-lg);
+    max-height: calc(100vh - var(--nav-height));
+    overflow-y: auto;
+  }
+
+  .app-nav-panel.open {
+    display: flex;
+  }
+
+  .nav-menu {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .nav-menu a {
+    padding: var(--space-3);
+    font-size: var(--text-base);
+  }
+
+  .nav-right {
+    flex-direction: column;
+    align-items: stretch;
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .app-nav.wide .nav-user-text {
+    display: flex;
+  }
+
+  .nav-user {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .nav-right .btn {
+    justify-content: flex-start;
+  }
+}

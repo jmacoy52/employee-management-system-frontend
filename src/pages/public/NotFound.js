@@ -9,8 +9,8 @@ const NotFound = () => (
       <h1>Page not found</h1>
       <p>The page you are looking for doesn't exist or has moved.</p>
       <div className="actions">
-        <Link to="/" className="btn-link">Go to Home</Link>
-        <Link to="/login" className="btn-link outline">Sign In</Link>
+        <Link to="/" className="btn btn-primary">Go to Home</Link>
+        <Link to="/login" className="btn btn-secondary">Sign In</Link>
       </div>
     </div>
   </PageLayout>
