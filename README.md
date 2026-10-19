@@ -7,10 +7,28 @@ Built and maintained by [Joseph Migbodzi](https://mjay-portfolio.vercel.app) ([G
 ## Features
 
 - Sign in with JWT authentication. Each role lands on its own dashboard (`/admin`, `/hr`, `/employee`).
-- **Admin:** view users, change roles, delete users, read the audit log, and open the HR dashboard.
-- **HR:** list, add, edit and delete employees, and manage their own profile.
-- **Employee:** view and update their own profile.
-- Public pages: home, privacy policy, terms, contact, forgot password (handled by an administrator) and a 404 page.
+- **Admin:** overview (user counts, recent activity), create users, change roles, activate/deactivate users, reset passwords (temporary password or one-time link), delete users, read and filter the audit log, and open the HR dashboard.
+- **HR:** dashboard (headcount, departments, average salary, recent activity), search/filter, add, edit and delete employees, link employee records to user accounts, and manage their own profile.
+- **Employee:** view and update their own profile, see the employment record HR linked to them, change their password.
+- Public pages: landing page (features, getting started, public demo logins, tech stack), privacy policy, terms, contact, forgot password (handled by an administrator) and a 404 page.
+- Responsive from 360px phones up: menus collapse, tables turn into cards on small screens.
+
+## Demo logins
+
+| Role | Email | Password |
+|---|---|---|
+| Admin | `admin@emplocore.demo` | `Admin@EmploCore2026` |
+| HR | `hr@emplocore.demo` | `Hr@EmploCore2026` |
+| Employee | `kwame.mensah@emplocore.demo` | `Staff@EmploCore2026` |
+
+`/login?demo=admin` (or `hr`, `employee`) opens the sign-in page with that account filled in.
+
+## Design system
+
+All colours, type, spacing, radius and shadows are CSS custom properties in `src/styles/tokens.css`;
+shared buttons, cards, form fields, tables, badges and alerts are in `src/styles/ui.css`. Page and
+component stylesheets only use these variables. Main colours: primary `#2453d6`, accent `#14b8a6`,
+ink `#0f1e3d`. The logo is an SVG (`src/components/brand/Logo.js`, `public/favicon.svg`).
 
 ## Tech stack
 
@@ -24,7 +42,7 @@ Built and maintained by [Joseph Migbodzi](https://mjay-portfolio.vercel.app) ([G
 
 ```
 src/
-├── api/client.js        # axios instance: base URL, 20s timeout, auth header, error messages
+├── api/client.js        # axios instance: base URL, 60s timeout, auth header, error messages
 ├── config/env.js        # reads REACT_APP_* environment variables
 ├── routes/
 │   ├── AppRoutes.js     # route table, legacy redirects, 404
@@ -37,9 +55,15 @@ src/
 │   ├── hr/              # HRDashboard, EmployeeListPage, AddEmployeePage, MyProfilePage
 │   └── admin/           # AdminDashboard, UserList, UserManagement, AuditLog
 ├── components/
-│   ├── layout/          # Header, Footer, PageLayout, AdminNav, HRNav, EmployeeNav
-│   └── common/          # Modal, ProfilePanel, EmployeeForm, EmployeeList, EmployeeStats
-├── styles/pages.css     # shared page/layout styles
+│   ├── brand/           # Logo (SVG mark + wordmark)
+│   ├── auth/            # AuthLayout, PasswordInput (show/hide), SubmitButton
+│   ├── layout/          # Header, Footer, PageLayout, AppLayout, AppNav (+ AdminNav, HRNav, EmployeeNav)
+│   └── common/          # Modal, ProfilePanel, EmployeeForm, EmployeeList, EmployeeStats, badges
+├── config/demo.js       # public demo accounts and author links
+├── styles/
+│   ├── tokens.css       # design tokens (colours, type, spacing, radius, shadows)
+│   ├── ui.css           # shared buttons, cards, fields, tables, badges, alerts
+│   └── pages.css        # public page and signed-in page frames
 ├── App.js               # router + toaster
 └── index.js
 ```
@@ -61,7 +85,7 @@ npm start                 # http://localhost:3000
 | Variable | Default | Purpose |
 |---|---|---|
 | `REACT_APP_API_URL` | `https://employee-management-system-backend-vxar.onrender.com` | Backend base URL. No trailing slash and no `/api` |
-| `REACT_APP_API_TIMEOUT_MS` | `20000` | Request timeout, in milliseconds |
+| `REACT_APP_API_TIMEOUT_MS` | `60000` | Request timeout, in milliseconds |
 
 CRA reads these at **build time**, so you must rebuild or redeploy after changing them.
 
@@ -70,7 +94,7 @@ CRA reads these at **build time**, so you must rebuild or redeploy after changin
 | Command | What it does |
 |---|---|
 | `npm start` | Runs the dev server on port 3000 |
-| `npm test` | Runs the Jest tests (smoke test in `src/App.test.js`) |
+| `npm test` | Runs the Jest tests (`src/App.test.js`, `src/__tests__/`) |
 | `npm run build` | Builds for production into `build/` |
 
 ## Deployment (Vercel)
@@ -94,7 +118,7 @@ The old URLs `/AdminDashboard`, `/HRDashboard`, `/EmployeeDashboard`, `/admin/us
 
 ## Security notes
 
-- Public registration offers only the **employee** and **hr** roles, with a minimum password length of 8 characters. The **backend must enforce the same rules**, because a client-side check can be bypassed.
+- Public registration creates **employee** accounts only, with a minimum password length of 8 characters (letters and numbers). The **backend must enforce the same rules**, because a client-side check can be bypassed.
 - Tokens are kept in `localStorage` and removed on logout.
 
 ## Tests
